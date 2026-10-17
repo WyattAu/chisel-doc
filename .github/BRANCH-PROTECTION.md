@@ -19,15 +19,18 @@ and its `TODO(ratchet)` comment in the workflow is deleted at the same time.
 
 ## Required now (blocking)
 
-| Check | Workflow | Job |
-| --- | --- | --- |
-| CI | `ci.yml` | `test` (ubuntu, windows), `wasm` |
-| Rebrand gate | `estate-gate.yml` | `rebrand-gate` |
-| Asset policy | `ci.yml` | `test` → `cargo xtask assets` |
+Applied 2026-10-17 via `gh api -X PUT .../branches/main/protection`.
 
-The rebrand gate is blocking from day one: it is cheap, deterministic, and it
-is a **legal** requirement (upstream's terms demand removal of their marks), so
-there is no burn-down argument for it.
+| Check | Workflow | Job | Why required |
+| --- | --- | --- | --- |
+| `rebrand-gate` | `estate-gate.yml` | rebrand-gate | **Legal**: upstream's terms require removal of their marks. Cheap and deterministic — no burn-down argument. |
+| `test (ubuntu-latest)` | `ci.yml` | test | The real test suite, with the asset policy (`cargo xtask assets`) and layering checks inside it. |
+| `test (windows-latest)` | `ci.yml` | test | Second platform; the Windows-only paths. |
+| `wasm32 check` | `ci.yml` | wasm | The web build is a shipped target. |
+| `dependency licences and advisories` | `ci.yml` | deny | `cargo deny advisories licenses bans` against upstream's own (reasoned) `deny.toml`. |
+
+Also enforced: force-pushes **off**, deletion **off**, conversation resolution
+**on**, linear history **off** (the fork carries upstream's merge history).
 
 ## Advisory (not required)
 
@@ -58,10 +61,11 @@ check here, not in the workflow file.
 ```sh
 gh api -X PUT repos/WyattAu/chisel-doc/branches/main/protection \
   -F required_status_checks[strict]=false \
-  -f 'required_status_checks[contexts][]=CI / test (ubuntu-latest)' \
-  -f 'required_status_checks[contexts][]=CI / test (windows-latest)' \
-  -f 'required_status_checks[contexts][]=CI / wasm32 check' \
-  -f 'required_status_checks[contexts][]=estate-gate / rebrand-gate' \
+  -f 'required_status_checks[contexts][]=rebrand-gate' \
+  -f 'required_status_checks[contexts][]=test (ubuntu-latest)' \
+  -f 'required_status_checks[contexts][]=test (windows-latest)' \
+  -f 'required_status_checks[contexts][]=wasm32 check' \
+  -f 'required_status_checks[contexts][]=dependency licences and advisories' \
   -F enforce_admins=false \
   -F required_pull_request_reviews[required]=false \
   -F restrictions=null \

@@ -1,7 +1,7 @@
 # Burin estate gate — the WyattAu engineering-standards matrix, wired onto the
 # forked pdfcraft workspace.
 #
-# Doctrine (artcraft-fork-plan/04-first-90-days.md): inherited code runs
+# Doctrine (burin-fork-plan/04-first-90-days.md): inherited code runs
 # ADVISORY first (continue-on-error) and graduates to blocking at the week-6
 # ratchet review; new platform code is born blocking. Upstream's own CI
 # (ci.yml, release.yml, ...) is untouched and keeps covering the default

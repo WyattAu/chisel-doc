@@ -220,3 +220,34 @@ fn annots(doc: &Document, page: &Dict) -> Result<Vec<[f64; 4]>, AuditError> {
     }
     Ok(out)
 }
+
+/// Tamper-evident trail hooks for the redaction workflow.
+///
+/// Applying a redaction is the mutation a reviewer asks about first, so it
+/// gets a chain entry, not just a history-panel row. This module is the seam:
+/// `pdfcraft-audit` owns *what a proper redaction is* (see
+/// [`audit_redactions`]); [`chisel_audit`] owns the chain. The editor's
+/// command layer records [`RedactionTrail::applied`] every time redactions
+/// are actually applied to content.
+///
+/// ```no_run
+/// # async fn demo() -> Result<(), Box<dyn std::error::Error>> {
+/// use pdfcraft_audit::trail::{applied, DocumentTrail};
+///
+/// let trail = DocumentTrail::in_memory();
+/// let entry = applied("alice", "lease.pdf", "page 3: 2 covers");
+/// trail.record(entry).await?;
+/// assert!(trail.verify().await?.is_valid());
+/// # Ok(())
+/// # }
+/// ```
+pub mod trail {
+    pub use chisel_audit::{AuditEvent, DocumentRef, DocumentTrail, Result, VerificationResult};
+
+    /// Trail entries for the redaction workflow, in the closed action
+    /// vocabulary reviewers query.
+    #[must_use]
+    pub fn applied(actor: &str, document: &str, scope: &str) -> chisel_audit::AuditEvent {
+        chisel_audit::AuditEvent::redacted(actor, &DocumentRef::new(document), scope)
+    }
+}

@@ -928,6 +928,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "chisel-audit"
+version = "0.1.0"
+source = "git+https://github.com/WyattAu/chisel-platform?rev=72b5e13#72b5e13e82fa0aa082828e071c8b492dfecc0adf"
+dependencies = [
+ "serde",
+ "serde_json",
+ "tamper-audit",
+ "thiserror 2.0.21",
+ "tokio",
+]
+
+[[package]]
 name = "chrono"
 version = "0.4.45"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3983,6 +3995,7 @@ dependencies = [
 name = "pdfcraft-audit"
 version = "0.8.0"
 dependencies = [
+ "chisel-audit",
  "pdfcraft-content",
  "pdfcraft-cos",
  "pdfcraft-edit",
@@ -6395,6 +6408,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c0e973b34477b7823833469eb0f5a3a60370fef7a453e02d751b59180d0a5a05"
 
 [[package]]
+name = "tamper-audit"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f87deba1485ac03e713e5e9b37e808260e0959c60c19a178139ae1ada3a0320c"
+dependencies = [
+ "async-trait",
+ "chrono",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "thiserror 2.0.21",
+ "uuid",
+]
+
+[[package]]
 name = "tap"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6600,7 +6628,19 @@ dependencies = [
  "mio",
  "pin-project-lite",
  "socket2",
+ "tokio-macros",
  "windows-sys 0.61.2",
+]
+
+[[package]]
+name = "tokio-macros"
+version = "2.7.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "78773a2a397f451582ce068015985c33193cf6dea8b74d2a639fe457b2f07b0e"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 3.0.6",
 ]
 
 [[package]]
@@ -6941,6 +6981,7 @@ version = "1.26.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2ef6dac1e96601b4fb3acccccff2139741fcb757cb9a36089bf5be91cfb285ce"
 dependencies = [
+ "getrandom 0.4.3",
  "js-sys",
  "serde_core",
  "wasm-bindgen",

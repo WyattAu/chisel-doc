@@ -17,4 +17,5 @@ pdfcraft-edit = { workspace = true }
 pdfcraft-model = { workspace = true }
 thiserror = { workspace = true }
 
-[dev-dependencies]
+# platform dogfood pin (exact rev): the tamper-evident trail for applied redactions
+chisel-audit = { workspace = true }

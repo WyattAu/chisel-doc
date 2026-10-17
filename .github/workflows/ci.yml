@@ -33,9 +33,15 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # The optional craft-fonts build input (Japanese fonts), so the Japanese font tests run on
-      # Linux; Windows tests the build without it. See craftrules standards/fonts.md.
+      # Linux; Windows tests the build without it.
+      #
+      # CHISEL FORK: craft-fonts is upstream-PRIVATE (404 to GitHub). The checkout is
+      # therefore gated on the HAVE_CRAFT_FONTS repository variable; unset means the suite
+      # runs without the optional fonts, which the code supports (pdfcraft_fonts::CRAFT_FONTS
+      # is empty and the Japanese tests skip). Set HAVE_CRAFT_FONTS=true once a font mirror
+      # exists under this org (W3–6 ticket).
       - name: Check out craft-fonts (Linux)
-        if: runner.os == 'Linux'
+        if: runner.os == 'Linux' && vars.HAVE_CRAFT_FONTS == 'true'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: wyattau/craft-fonts
@@ -43,7 +49,7 @@ jobs:
           path: craft-fonts
 
       - name: Configure craft-fonts (Linux)
-        if: runner.os == 'Linux'
+        if: runner.os == 'Linux' && vars.HAVE_CRAFT_FONTS == 'true'
         run: |
           echo "CRAFT_FONTS_DIR=$GITHUB_WORKSPACE/craft-fonts" >> "$GITHUB_ENV"
           echo "CRAFT_FONTS_REQUIRED=1" >> "$GITHUB_ENV"
@@ -87,7 +93,7 @@ jobs:
         if: runner.os != 'Linux'
         run: cargo test --workspace
 
-      - name: Test (with craft-fonts)
+      - name: Test (with craft-fonts when available)
         if: runner.os == 'Linux'
         run: cargo test --workspace
 

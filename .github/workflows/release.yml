@@ -1,8 +1,14 @@
+# CHISEL FORK: release pipeline is DISABLED until rebuilt.
+#
+# The job delegates to `craft-common-actions` (upstream-PRIVATE, 404 to GitHub) and
+# expects signing secrets (Apple certificate, notarization) that this fork does not
+# hold. Until the W3–6 "first provenance-attested release" ticket lands — which
+# REPLACES this pipeline with a local build + SHA256SUMS + provenance JSON + signature —
+# the workflow stays manual-only so nothing silently publishes unsigned artifacts.
+# Triggers on `release` branch pushes are removed; the branch may still exist.
 name: Release
 
 on:
-  push:
-    branches: [release]
   workflow_dispatch:
     inputs:
       version:

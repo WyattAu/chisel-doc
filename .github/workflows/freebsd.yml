@@ -1,17 +1,14 @@
 # Builds and tests the workspace on FreeBSD, inside a FreeBSD VM on a Linux runner
 # (GitHub has no FreeBSD runners). GPU tests skip themselves when the VM has no adapter.
+#
+# CHISEL FORK: manual-only. The job delegates to `craft-common-actions`, which is
+# upstream-PRIVATE (404 to GitHub) and therefore unreachable from the fork — running
+# it on every push would be a guaranteed red. Vendoring the shared workflows
+# (freebsd / packaging-lint / release) into this repo is the W3–6 ticket; until then
+# the definition stays here, reviewable, but only dispatchable by hand.
 name: FreeBSD
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    paths:
-      - Cargo.toml
-      - Cargo.lock
-      - "**/Cargo.toml"
-      - .github/workflows/freebsd.yml
-      - packaging/freebsd/**
   workflow_dispatch:
 
 concurrency:

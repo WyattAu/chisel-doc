@@ -1,13 +1,12 @@
 # Quick static checks for the release pipeline (seconds, no Rust build): workflow syntax,
 # packaging shell/PowerShell scripts, and the Linux desktop/AppStream/Flatpak metadata.
+#
+# CHISEL FORK: manual-only. The job delegates to `craft-common-actions`, which is
+# upstream-PRIVATE (404 to GitHub) and unreachable from the fork. Vendoring it is the
+# W3–6 ticket; see freebsd.yml.
 name: Packaging lint
 
 on:
-  push:
-    branches: [main, release]
-    paths: [".github/workflows/**", "packaging/**", "assets/app-icon/**"]
-  pull_request:
-    paths: [".github/workflows/**", "packaging/**", "assets/app-icon/**"]
   workflow_dispatch:
 
 permissions:

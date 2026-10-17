@@ -1,21 +1,13 @@
 # Windows on ARM (#61): package the ARM64 release the way release.yml does (cross-compiled on an
 # x64 runner, unsigned here), then install that MSI on a Windows 11 ARM64 runner and run it, and
 # run the test suite natively on ARM64.
+#
+# CHISEL FORK: manual-only. The job delegates to `craft-common-actions`, which is
+# upstream-PRIVATE (404 to GitHub) and unreachable from the fork. Vendoring it is the
+# W3–6 ticket; see freebsd.yml.
 name: Windows ARM64
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    paths:
-      - Cargo.toml
-      - Cargo.lock
-      - "**/Cargo.toml"
-      - "**/build.rs"
-      - .github/workflows/windows-arm64.yml
-      - packaging/windows/**
-  schedule:
-    - cron: "41 4 * * 1" # weekly, so drift in the runner images shows up
   workflow_dispatch:
 
 concurrency:

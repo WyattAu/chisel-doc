@@ -1150,6 +1150,7 @@ mod chisel_coverage {
         signature.readonly = true;
         let list = FieldState::new("list", FieldType::ListBox, vec!["a".into(), "b".into()]);
         let button = FieldState::new("go", FieldType::Button, vec![]);
+        let radio = FieldState::new("radio", FieldType::RadioButton, vec!["on".into()]);
         vec![
             FieldState::new("price", FieldType::Text, vec!["12.5".into()]),
             FieldState::new("qty", FieldType::Text, vec!["4".into()]),
@@ -1159,6 +1160,7 @@ mod chisel_coverage {
             signature,
             list,
             button,
+            radio,
         ]
     }
 
@@ -1184,14 +1186,14 @@ mod chisel_coverage {
             event.value = names + '|pages:' + this.pageNum + '|file:' + this.documentFileName
                 + '|title:' + this.info.title + '|kinds:' + this.getField('agree').type
                 + ',' + this.getField('size').type + ',' + this.getField('sig').type
-                + ',' + this.getField('list').type + ',' + this.getField('go').type;",
+                + ',' + this.getField('list').type + ',' + this.getField('go').type + ',' + this.getField('radio').type;",
             &field_event(),
         );
         assert_eq!(o.error, None, "{o:?}");
         assert_eq!(
             o.value,
-            "price,qty,total,agree,size,sig,list,go,|pages:0|file:order.pdf|title:Order\
-             |kinds:checkbox,combobox,signature,listbox,button"
+            "price,qty,total,agree,size,sig,list,go,radio,|pages:0|file:order.pdf|title:Order\
+             |kinds:checkbox,combobox,signature,listbox,button,radiobutton"
         );
     }
 
@@ -1275,5 +1277,46 @@ mod chisel_coverage {
         let o2 = s.run(ok);
         assert_eq!(o2.error, None, "{o2:?}");
         assert_eq!(o2.result.as_deref(), Some("1"));
+    }
+
+    fn fc(script: &str) -> crate::xfa::XfaOutcome {
+        let ev = crate::xfa::XfaEvent { activity: "calculate".into(), target: "form1[0].page1[0].total[0]".into(), ..Default::default() };
+        let doc = crate::xfa::XfaDoc { file_name: "f.pdf".into(), page: 1, page_count: 3 };
+        crate::formcalc::run_formcalc(script, &ev, &doc, &super::xfa_model::form(), Limits::default())
+    }
+
+    #[test]
+    fn radiobutton_kind_and_app_dialog_and_console() {
+        // radiobutton arm of the kind table
+        let o = go("event.value = this.getField('radio').type;", &Event::field("Calculate", "total", ""));
+        assert_eq!(o.error, None, "{o:?}");
+        assert_eq!(o.value, "radiobutton");
+
+        // beep records a request; response with no one to answer is null;
+        // console.clear empties; setTimeOut hands back an inert object.
+        let o = go(
+            "app.beep(0);
+            var r = app.response('question');
+            console.println('x');
+            console.clear();
+            var t = app.setTimeOut('script', 1000);
+            event.value = (r === null) + ':' + (typeof t);",
+            &Event::field("Calculate", "total", ""),
+        );
+        assert_eq!(o.error, None, "{o:?}");
+        assert_eq!(o.value, "true:object");
+        let beeps = o.requests.iter().any(|r| matches!(r, Request::Beep));
+        assert!(beeps, "requests: {:?}", o.requests);
+        assert!(o.console.is_empty(), "console was cleared after printing");
+    }
+
+    #[test]
+    fn formcalc_for_loop_and_argument_parse_errors() {
+        // a for loop missing its upto/downto names what it wanted
+        assert!(fc("for i = 1 do 1 endfor").error.is_some_and(|e| e.contains("upto or downto")));
+        // an unclosed argument list names the missing delimiter
+        assert!(fc("Sum(1 2").error.is_some_and(|e| e.contains(")") || e.contains("unexpected")));
+        // a malformed argument separator is reported
+        assert!(fc("Sum(1; 2)").error.is_some_and(|e| !e.is_empty()));
     }
 }

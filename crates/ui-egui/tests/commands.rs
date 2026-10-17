@@ -8,7 +8,7 @@ use egui::{Key, Modifiers};
 use egui_kittest::Harness;
 use egui_kittest::kittest::Queryable;
 use pdfcraft_engine::commands::COMMANDS;
-use pdfcraft_ui_egui::{Dialog, ChiselDocsApp};
+use pdfcraft_ui_egui::{ChiselDocsApp, Dialog};
 
 fn fixture(n: usize) -> Vec<u8> {
     let mut objs: Vec<String> = vec!["<< /Type /Catalog /Pages 2 0 R >>".into()];

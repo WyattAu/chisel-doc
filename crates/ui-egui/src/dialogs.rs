@@ -5,7 +5,7 @@ use egui::{Align, Layout};
 use crate::theme::{self, Tokens};
 use pdfcraft_engine::Edit;
 
-use crate::{CloseRequest, Dialog, ChiselDocsApp, PropsTab, panels::human_size, widgets};
+use crate::{ChiselDocsApp, CloseRequest, Dialog, PropsTab, panels::human_size, widgets};
 
 const INFO_KEYS: [&str; 4] = ["Title", "Author", "Subject", "Keywords"];
 

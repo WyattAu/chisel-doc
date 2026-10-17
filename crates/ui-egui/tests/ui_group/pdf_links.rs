@@ -4,7 +4,7 @@ use egui::Pos2;
 use egui_kittest::Harness;
 use egui_kittest::kittest::Queryable;
 use pdfcraft_engine::LinkAction;
-use pdfcraft_ui_egui::{Dialog, ChiselDocsApp};
+use pdfcraft_ui_egui::{ChiselDocsApp, Dialog};
 
 fn harness() -> Harness<'static, ChiselDocsApp> {
     // 60 fps steps, so two clicks fall inside egui's double-click window.

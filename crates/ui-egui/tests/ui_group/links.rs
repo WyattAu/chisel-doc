@@ -4,7 +4,7 @@
 use egui_kittest::Harness;
 use egui_kittest::kittest::Queryable;
 use pdfcraft_engine::links;
-use pdfcraft_ui_egui::{Dialog, ChiselDocsApp};
+use pdfcraft_ui_egui::{ChiselDocsApp, Dialog};
 
 fn harness(setup: impl FnOnce(&mut ChiselDocsApp) + 'static) -> Harness<'static, ChiselDocsApp> {
     let mut h = Harness::builder().with_size(egui::vec2(1400.0, 900.0)).build_eframe(move |_cc| {

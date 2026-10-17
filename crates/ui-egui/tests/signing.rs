@@ -4,7 +4,7 @@ use egui::{Pos2, pos2};
 use egui_kittest::Harness;
 use egui_kittest::kittest::{NodeT, Queryable};
 use pdfcraft_engine::SignatureStatus;
-use pdfcraft_ui_egui::{Dialog, ChiselDocsApp, QuickTool, RightPanel, SignStep};
+use pdfcraft_ui_egui::{ChiselDocsApp, Dialog, QuickTool, RightPanel, SignStep};
 
 const FIXTURE: &[u8] = b"%PDF-1.7
 1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj

@@ -13,7 +13,7 @@ use pdfcraft_engine::Edit;
 
 use crate::canvas::ViewAction;
 use crate::theme::{self, Tokens};
-use crate::{LeftPanel, ChiselDocsApp, icons, widgets};
+use crate::{ChiselDocsApp, LeftPanel, icons, widgets};
 
 /// Whether the left panel is Organize pages: the tool is chosen, or the active view shows the grid.
 pub(crate) fn showing(app: &ChiselDocsApp) -> bool {

@@ -552,11 +552,9 @@ mod tests {
     #[test]
     fn brand_licence_only_for_brand_logos() {
         let root = super::root();
-        for (path, kind, pass) in [
-            ("assets/brand/mark.svg", "logo", true),
-            ("assets/brand/mark.svg", "icon", false),
-            ("assets/icons/mark.svg", "logo", false),
-        ] {
+        for (path, kind, pass) in
+            [("assets/brand/mark.svg", "logo", true), ("assets/brand/mark.svg", "icon", false), ("assets/icons/mark.svg", "logo", false)]
+        {
             let mut a = asset(path, "Chisel", kind, BRAND_LICENCE);
             a.licence_file = "assets/brand/LICENSE-brand.txt".into();
             let m = Manifest { asset: vec![a], ..Default::default() };

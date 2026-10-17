@@ -5,7 +5,7 @@ mod support;
 
 use egui_kittest::Harness;
 use egui_kittest::kittest::Queryable;
-use pdfcraft_ui_egui::{LinkOrigin, ChiselDocsApp, PendingLink};
+use pdfcraft_ui_egui::{ChiselDocsApp, LinkOrigin, PendingLink};
 
 /// See `tests/view.rs`: WARP's shader JIT crashes when two devices compile at once on ARM64.
 static GPU: std::sync::Mutex<()> = std::sync::Mutex::new(());

@@ -7,7 +7,7 @@ use egui::{Align, Layout};
 use serde::{Deserialize, Serialize};
 
 use crate::theme::{self, Tokens};
-use crate::{Dialog, ChiselDocsApp, QuickTool, widgets};
+use crate::{ChiselDocsApp, Dialog, QuickTool, widgets};
 
 /// Stamp files larger than this aren't kept in the library (it lives in the app's settings).
 pub const MAX_STAMP_BYTES: usize = 4 << 20;

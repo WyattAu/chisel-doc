@@ -6,7 +6,7 @@ use pdfcraft_engine::catalog::{self, Availability, TOOL_GROUPS, ToolGroup};
 use pdfcraft_render::{DocInfo, FieldKind, OutlineItem};
 
 use crate::theme::{self, Tokens};
-use crate::{LeftPanel, ChiselDocsApp, RightPanel, icons, widgets};
+use crate::{ChiselDocsApp, LeftPanel, RightPanel, icons, widgets};
 
 const COLLAPSED_TOOLS: usize = 14;
 

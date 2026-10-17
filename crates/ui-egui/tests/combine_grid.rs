@@ -7,7 +7,7 @@ use egui::{Key, Modifiers, Pos2, vec2};
 use egui_kittest::Harness;
 use egui_kittest::kittest::{NodeT, Queryable};
 use pdfcraft_render::{PageRenderer, RenderRequest, RequestKind};
-use pdfcraft_ui_egui::{CombineThumb, CombineView, FilePurpose, ChiselDocsApp};
+use pdfcraft_ui_egui::{ChiselDocsApp, CombineThumb, CombineView, FilePurpose};
 
 /// An `n`-page document with a proper xref table; page `i` shows "Page i+1".
 fn fixture(n: usize) -> Vec<u8> {

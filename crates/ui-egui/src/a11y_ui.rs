@@ -10,7 +10,7 @@ use pdfcraft_engine::DocId;
 use pdfcraft_engine::a11y::{Category, Options, Report, Rule, Status};
 
 use crate::theme::{self, Tokens};
-use crate::{Dialog, ChiselDocsApp, PropsTab, RightPanel, icons, widgets};
+use crate::{ChiselDocsApp, Dialog, PropsTab, RightPanel, icons, widgets};
 
 /// The options dialog's settings (kept for the session, like Acrobat's).
 #[derive(Clone, Debug, PartialEq)]

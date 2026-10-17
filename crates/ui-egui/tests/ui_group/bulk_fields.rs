@@ -2,7 +2,7 @@
 
 use egui_kittest::{Harness, kittest::Queryable};
 use pdfcraft_engine::{Edit, FieldFont, FieldProps, FieldValue, NewField, Session, field_flags};
-use pdfcraft_ui_egui::{Dialog, ChiselDocsApp, bulk_fields::Tab};
+use pdfcraft_ui_egui::{ChiselDocsApp, Dialog, bulk_fields::Tab};
 
 fn fixture() -> Vec<u8> {
     let mut s = Session::new();

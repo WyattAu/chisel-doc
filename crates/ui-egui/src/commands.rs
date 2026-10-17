@@ -8,7 +8,7 @@ use pdfcraft_engine::Edit;
 use pdfcraft_engine::commands::{self, COMMANDS, CommandSpec, Shortcut};
 
 use crate::{
-    Dialog, Mode, ChiselDocsApp, PropsTab, RightPanel, SaveTarget,
+    ChiselDocsApp, Dialog, Mode, PropsTab, RightPanel, SaveTarget,
     theme::{ThemeKind, ThemePreference},
     widgets,
 };

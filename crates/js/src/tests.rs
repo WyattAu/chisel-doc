@@ -635,6 +635,33 @@ mod formcalc {
         // Comments and newlines inside brackets.
         assert_eq!(calc("; a comment\n// another\nSum(1,\n 2,\n 3)"), "6");
     }
+    #[test]
+    fn formcalc_language_edges() {
+        // do…end is a block statement; its value is the last expression.
+        assert_eq!(calc("do 5 end"), "5");
+        assert_eq!(calc("do var t = 2 t = t * 3 t end"), "6");
+
+        // Scientific-notation literals parse (sign after the exponent too).
+        assert_eq!(calc("1e3 + 1"), "1001");
+        assert_eq!(calc("2.5e-2"), "0.025");
+        assert_eq!(calc("1E2"), "100");
+
+        // Non-finite results format per Acrobat: NaN, Infinity, -Infinity.
+        assert_eq!(calc("1e400 - 1e400"), "NaN");
+        assert_eq!(calc("1e400 - 1"), "Infinity");
+        assert_eq!(calc("-1e400 + 1"), "-Infinity");
+
+        // Parse errors name the offending token and its kind.
+        assert!(go("1 + ]", "form1[0].page1[0].total[0]", "calculate").error.is_some_and(|e| e.contains("unexpected")));
+        // An unterminated do-block names what it wanted.
+        assert!(go("do 1", "form1[0].page1[0].total[0]", "calculate").error.is_some_and(|e| e.contains("expected end")));
+
+        // The root references stringify to their kind.
+        assert_eq!(calc("$host"), "host");
+        assert_eq!(calc("$layout"), "layout");
+        assert_eq!(calc("$event"), "event");
+        assert_eq!(calc("$xfa"), "xfa");
+    }
 
     #[test]
     fn built_in_functions_cover_the_common_set() {
@@ -1102,5 +1129,151 @@ mod session {
         slow.timeout = std::time::Duration::from_millis(200);
         let o = s.run(slow);
         assert!(o.abandoned || o.error.as_deref().is_some_and(|e| e.contains("too long")), "{o:?}");
+    }
+}
+
+/// The Chisel coverage module: one place for the tests that close the gate
+/// gaps (see .github/RATCHET-BASELINE.md in chisel-doc). Self-contained —
+/// it re-derives its own fixtures instead of reaching into sibling modules.
+mod chisel_coverage {
+    use super::xfa_model::form;
+    use crate::xfa::{XfaDoc, XfaEvent};
+    use crate::xfa_session::{Script, XfaSession};
+    use crate::{Event, FieldState, FieldType, Limits, Request};
+
+    fn fields() -> Vec<FieldState> {
+        let mut agree = FieldState::new("agree", FieldType::CheckBox, vec![]);
+        agree.options = vec![("Yes".into(), "Yes".into())];
+        let mut size = FieldState::new("size", FieldType::ComboBox, vec!["m".into()]);
+        size.options = vec![("s".into(), "Small".into()), ("m".into(), "Medium".into()), ("l".into(), "Large".into())];
+        let mut signature = FieldState::new("sig", FieldType::Signature, vec![]);
+        signature.readonly = true;
+        let list = FieldState::new("list", FieldType::ListBox, vec!["a".into(), "b".into()]);
+        let button = FieldState::new("go", FieldType::Button, vec![]);
+        vec![
+            FieldState::new("price", FieldType::Text, vec!["12.5".into()]),
+            FieldState::new("qty", FieldType::Text, vec!["4".into()]),
+            FieldState::new("total", FieldType::Text, vec![]),
+            agree,
+            size,
+            signature,
+            list,
+            button,
+        ]
+    }
+
+    fn doc() -> crate::DocInfo {
+        crate::DocInfo { file_name: "order.pdf".into(), num_pages: 3, page: 0, info: vec![("title".into(), "Order".into())] }
+    }
+
+    fn go(script: &str, event: &Event) -> crate::Outcome {
+        crate::run(script, event, &doc(), &fields(), &[], Limits::default())
+    }
+
+    fn field_event() -> Event {
+        Event::field("Calculate", "total", "")
+    }
+
+    #[test]
+    fn document_object_model_tour() {
+        // document-level getters: numFields, getNthFieldName, pageNum,
+        // documentFileName, info — and field kinds report Acrobat names.
+        let o = go(
+            "var names = '';
+            for (var i = 0; i < this.numFields; i++) { names += this.getNthFieldName(i) + ','; }
+            event.value = names + '|pages:' + this.pageNum + '|file:' + this.documentFileName
+                + '|title:' + this.info.title + '|kinds:' + this.getField('agree').type
+                + ',' + this.getField('size').type + ',' + this.getField('sig').type
+                + ',' + this.getField('list').type + ',' + this.getField('go').type;",
+            &field_event(),
+        );
+        assert_eq!(o.error, None, "{o:?}");
+        assert_eq!(
+            o.value,
+            "price,qty,total,agree,size,sig,list,go,|pages:0|file:order.pdf|title:Order\
+             |kinds:checkbox,combobox,signature,listbox,button"
+        );
+    }
+
+    #[test]
+    fn field_property_setters_and_reads() {
+        let o = go(
+            "var f = this.getField('agree');
+            f.required = true;
+            f.hidden = true;
+            f.readonly = true;
+            event.value = f.required + ':' + f.hidden + ':' + f.readonly + ':' + typeof f.textColor;",
+            &field_event(),
+        );
+        assert_eq!(o.error, None, "{o:?}");
+        assert_eq!(o.value, "true:true:true:object");
+    }
+
+    #[test]
+    fn field_colours_round_trip_and_default_transparent() {
+        // unset colour reads as the transparent Acrobat array ["T"]
+        let o = go(
+            "var f = this.getField('total');
+            f.textColor = ['RGB', 1, 0, 0];
+            event.value = f.textColor[0] + ':' + f.textColor.length + '|' + f.fillColor[0];",
+            &field_event(),
+        );
+        assert_eq!(o.error, None, "{o:?}");
+        assert_eq!(o.value, "RGB:4|T");
+    }
+
+    #[test]
+    fn field_set_focus_records_a_viewer_request() {
+        let o = go("this.getField('qty').setFocus();", &field_event());
+        assert_eq!(o.error, None, "{o:?}");
+        let focused = o.requests.iter().any(|r| matches!(r, Request::Focus(n) if n == "qty"));
+        assert!(focused, "requests: {:?}", o.requests);
+    }
+
+    #[test]
+    fn field_option_and_check_surfaces() {
+        // numItems, getItemAt (export-value flag), currentValueIndices on a
+        // combo box; isBoxChecked/checkThisBox on the check box; charLimit
+        // and exportValues reads.
+        let o = go(
+            "var size = this.getField('size');
+            var agree = this.getField('agree');
+            var price = this.getField('price');
+            price.charLimit = 8;
+            event.value = size.numItems + ':' + size.getItemAt(1, true) + ':' + size.currentValueIndices
+                + ':' + agree.isBoxChecked(0) + ':' + agree.checkThisBox(0, true)
+                + ':' + agree.isBoxChecked(0) + ':' + price.charLimit + ':' + (price.exportValues === undefined);",
+            &field_event(),
+        );
+        assert_eq!(o.error, None, "{o:?}");
+        assert_eq!(o.value, "3:m:1:false:undefined:true:0:false");
+    }
+
+    #[test]
+    fn oversized_scripts_are_refused_without_starting_an_engine() {
+        let big = "1 ".repeat((crate::MAX_SCRIPT_BYTES / 2) + 8);
+        let mut s = XfaSession::new(XfaDoc::default());
+        let refused = Script {
+            source: big,
+            formcalc: false,
+            event: XfaEvent { activity: "click".into(), target: "form1[0].page1[0].go[0]".into(), ..Default::default() },
+            root: form(),
+            limits: Limits::default(),
+            timeout: std::time::Duration::from_secs(3),
+        };
+        let o = s.run(refused);
+        assert!(o.error.as_deref().is_some_and(|e| e.contains("too long")), "{o:?}");
+        // the session is still usable afterwards: nothing was started
+        let ok = Script {
+            source: "$ = 1".into(),
+            formcalc: true,
+            event: XfaEvent { activity: "click".into(), target: "form1[0].page1[0].go[0]".into(), ..Default::default() },
+            root: form(),
+            limits: Limits::default(),
+            timeout: std::time::Duration::from_secs(3),
+        };
+        let o2 = s.run(ok);
+        assert_eq!(o2.error, None, "{o2:?}");
+        assert_eq!(o2.result.as_deref(), Some("1"));
     }
 }

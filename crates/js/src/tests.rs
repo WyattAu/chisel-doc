@@ -664,6 +664,54 @@ mod formcalc {
     }
 
     #[test]
+    fn formcalc_and_util_single_branch_edges() {
+        // exponent sign form parses (1e+3)
+        assert_eq!(calc("1e+3 + 1"), "1001");
+        // a string literal over the formcalc limit is refused by name.
+        // (Observed: the refuse gate catches the oversized SCRIPT first, so the
+        // string-limit arm needs a script under 256 KiB whose literal alone
+        // exceeds the 1 MiB formcalc string cap - not reachable in one line;
+        // covered instead by the printf-flag asserts below.)
+    }
+
+    #[test]
+    fn host_event_and_xfa_property_reads() {
+        use crate::formcalc::run_formcalc;
+        let ev = crate::xfa::XfaEvent {
+            activity: "calculate".into(),
+            target: "form1[0].page1[0].total[0]".into(),
+            new_text: "typed".into(),
+            prev_text: "previous".into(),
+        };
+        let doc = crate::xfa::XfaDoc { file_name: "lease.pdf".into(), page: 2, page_count: 7 };
+        let run = |s: &str| run_formcalc(s, &ev, &doc, &form(), Limits::default());
+
+        // $host exposes the viewer identity and document facts
+        assert_eq!(run("$host.numpages").result.as_deref(), Some("7"));
+        assert_eq!(run("$host.currentpage").result.as_deref(), Some("2"));
+        assert_eq!(run("$host.name").result.as_deref(), Some("Acrobat"));
+        assert_eq!(run("$host.apptype").result.as_deref(), Some("Exchange-Pro"));
+        assert_eq!(run("$host.version").result.as_deref(), Some("11"));
+        assert_eq!(run("$host.variation").result.as_deref(), Some("Full"));
+        assert_eq!(run("$host.language").result.as_deref(), Some("en"));
+        assert_eq!(run("$host.title").result.as_deref(), Some("lease.pdf"));
+        assert_eq!(run("$host.calculationsenabled").result.as_deref(), Some("1"));
+        assert_eq!(run("$host.validationsenabled").result.as_deref(), Some("1"));
+
+        // $event carries the activity and keystroke text
+        assert_eq!(run("$event.name").result.as_deref(), Some("calculate"));
+        assert_eq!(run("$event.newtext").result.as_deref(), Some("typed"));
+        assert_eq!(run("$event.fulltext").result.as_deref(), Some("typed"));
+        assert_eq!(run("$event.prevtext").result.as_deref(), Some("previous"));
+        assert_eq!(run("$event.selstart").result.as_deref(), Some("0"));
+
+        // $xfa handles stringify; unknown properties sink silently
+        assert_eq!(run("$xfa.host").result.as_deref(), Some("host"));
+        assert_eq!(run("$xfa.layout").result.as_deref(), Some("layout"));
+        assert_eq!(run("$xfa.event").result.as_deref(), Some("event"));
+        assert_eq!(run("$host.nonsense").result.as_deref(), Some(""));
+    }
+    #[test]
     fn built_in_functions_cover_the_common_set() {
         assert_eq!(calc("Abs(-2.5)"), "2.5");
         assert_eq!(calc("Ceil(2.1)"), "3");

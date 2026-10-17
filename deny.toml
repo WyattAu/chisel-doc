@@ -45,6 +45,14 @@ ignore = [
     # `rsa` only for public-key signature verification, which the advisory does not affect; RSA
     # private-key operations use aws-lc-rs on native targets and are refused in the browser
     # (ADR-0009). Revisit when a fixed `rsa` ships.
+    # The Linux accessibility (AT-SPI) stack is unmaintained upstream (no known
+    # vulnerability in the pinned line). It arrives only through accesskit_unix ->
+    # accesskit_winit -> egui-winit for screen readers, and crates/platform pins
+    # zbus =5.19.0 exactly (deliberate; see the comment there). Revisit when
+    # accesskit_unix moves to a maintained zbus release.
+    { id = "RUSTSEC-2026-0370", reason = "zvariant unmaintained (a11y path; zbus pinned =5.19.0)" },
+    { id = "RUSTSEC-2026-0372", reason = "zvariant_derive unmaintained (a11y path; zbus pinned =5.19.0)" },
+    { id = "RUSTSEC-2026-0371", reason = "zbus_names unmaintained (a11y path; zbus pinned =5.19.0)" },
     { id = "RUSTSEC-2023-0071", reason = "rsa is used for verification only (ADR-0009)" },
     # proc-macro-error is unmaintained (no vulnerability). It reaches the tree as a proc macro of
     # winprint's fmt-derive (craft-print's Windows spooler), so it runs at compile time on Windows

@@ -2247,6 +2247,10 @@ criteria = "safe-to-deploy"
 version = "0.1.0"
 criteria = "safe-to-deploy"
 
+[[exemptions.tamper-audit]]
+version = "0.2.0"
+criteria = "safe-to-deploy"
+
 [[exemptions.tap]]
 version = "1.0.1"
 criteria = "safe-to-deploy"
@@ -2325,6 +2329,10 @@ criteria = "safe-to-deploy"
 
 [[exemptions.tokio]]
 version = "1.53.1"
+criteria = "safe-to-deploy"
+
+[[exemptions.tokio-macros]]
+version = "2.7.2"
 criteria = "safe-to-deploy"
 
 [[exemptions.tokio-rustls]]

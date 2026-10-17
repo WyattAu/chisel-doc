@@ -14,4 +14,4 @@ plan/
 # cargo-fuzz build output and libFuzzer-mined corpus entries (hex-named);
 # curated named seeds under crates/*/fuzz/corpus/ stay tracked.
 crates/*/fuzz/target/
-crates/*/fuzz/corpus/*/[0-9a-f][0-9a-fa-f]*
+crates/*/fuzz/corpus/*/[0-9a-f][0-9a-f][0-9a-f][0-9a-f]*

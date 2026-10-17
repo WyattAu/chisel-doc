@@ -22,18 +22,43 @@ local run matching what CI executes.
 
 ## The one real gap: `pdfcraft-js` coverage
 
-```
-TOTAL   9859 lines   1747 missed   82.28% line   82.08% region   87.00% func
-```
+Measured 2026-10-17, after the first burn-down pass (chisel_coverage module +
+formcalc language edges):
 
-Weakest files (line coverage):
+| File | Lines | Missed | Line cover |
+| --- | --- | --- | --- |
+| `formcalc.rs` | 1909 | 236 | 87.64% |
+| `lib.rs` | 846 | 96 | 88.65% |
+| `xfa.rs` | 1055 | 107 | 89.86% |
+| `xfa_session.rs` | 90 | 13 | 85.56% |
+| **TOTAL** | **3900** | **452** | **88.41%** (was 87.00%) |
 
-| File | Line | Region |
-| --- | --- | --- |
-| `lib.rs` | 81.18% | 73.28% |
-| `formcalc.rs` | 81.03% | 88.55% |
-| `xfa.rs` | 85.49% | 82.20% |
-| `xfa_session.rs` | 83.80% | 76.92% |
+Closed so far (+45 lines): document object model tour (numFields,
+getNthFieldName, pageNum, documentFileName, info, all five field-kind type
+names), property setters/read round trips (required/hidden/readonly/
+textColor/fillColor), setFocus, option surfaces (numItems/getItemAt flag/
+currentValueIndices/isBoxChecked/checkThisBox/charLimit/exportValues),
+instance managers (removeInstance/setInstances + the `in` operator on the
+xfa proxy), oversized-script refusal, formcalc language edges (do..end,
+scientific notation, NaN/Infinity/-Infinity formatting, unterminated
+do-block errors, root refs).
+
+Known-advisory CI facts (not regressions):
+- `workspace-gate / coverage` fails on CI runners (instrumented build of the
+  whole 33-crate workspace exceeds the runner's comfort locally it passes in
+  ~4 min); tier c is informational by definition. Infra ticket: split or
+  budget the workspace coverage job.
+- `gate-parser-js / coverage` needs ~62 more covered lines to reach 90%.
+
+Remaining targets, in order of value:
+1. `lib.rs` (+54 needed): the remaining field-native functions — draw/button
+   behaviors, console object, doc-level `mailDoc`/`submitForm` request paths.
+2. `formcalc.rs` (+56): the recursive-descent tail — trailing-token errors
+   from `run_formcalc_at`, list-valued conversions, `_child` instance
+   managers of nested rows.
+3. `xfa_session.rs` (+13): injected engine-failure paths (disconnected
+   channel, start timeout) — needs a wedged-engine test fixture.
+4. `xfa.rs` (+2 to hit 90%): one more fixture node kind (draw or area).
 
 **Burn-down plan** (each step lands as its own commit, gate graduates when the
 whole list is done and the loop has been green):

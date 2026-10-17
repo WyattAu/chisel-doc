@@ -41,33 +41,33 @@ estate-gate job now also blocks them permanently).
 
 | Token | Value |
 | --- | --- |
-| Product/app id | `com.wyattau.burin.doc` (placeholder until screening passes) |
-| Display name | `Burin Docs` |
-| Binary names | `burin-doc`, `burin-doc-cli` |
+| Product/app id | `com.wyattau.chisel.doc` (placeholder until screening passes) |
+| Display name | `Chisel Docs` |
+| Binary names | `chisel-doc`, `chisel-doc-cli` |
 
 ## The sweep (scripted, in order)
 
 1. **Delete** `docs/brand/` entirely (incl. `LICENSE-brand.txt`).
 2. **Icons:** regenerate/rename `assets/app-icon/hicolor/**/apps/` entries to
-   `com.wyattau.burin.doc.png|svg`; update any icon-path constants in
+   `com.wyattau.chisel.doc.png|svg`; update any icon-path constants in
    `crates/ui-egui` / `apps/pdfcraft`.
 3. **Packaging:** rename the five `packaging/linux/ai.storyteller.pdfcraft.*`
-   files to `com.wyattau.burin.doc.*`; rewrite ids, Names, Icons, MimeType
+   files to `com.wyattau.chisel.doc.*`; rewrite ids, Names, Icons, MimeType
    references, flatpak `app-id`/`command`; check `packaging/` for
    macOS/Windows bundle ids too (`grep -rn "ai.storyteller" packaging/`).
 4. **Config/cache paths:** upstream stores profiles under
    `~/.config/ai.storyteller.*`-style dirs — switch to
-   `~/.config/com.wyattau.burin.doc/`. Deliberately **no** migration from old
+   `~/.config/com.wyattau.chisel.doc/`. Deliberately **no** migration from old
    paths: different product, fresh profile. Note in release notes.
-5. **User-facing strings:** "PdfCraft" → "Burin Docs" in About, window titles,
+5. **User-facing strings:** "PdfCraft" → "Chisel Docs" in About, window titles,
    CLI `--help`, crash messages, `packaging/` summaries, metainfo
-   name/description, website/URLs (remove getartcraft/Discord links — Burin
+   name/description, website/URLs (remove getartcraft/Discord links — Chisel
    has its own).
 6. **Workflow files:** `.github/release.yml` and friends push to upstream
    repos/app-ids — neutralise or retarget; `freebsd.yml`, `nix.yml`,
    `windows-arm64.yml` keep but verify no upstream upload targets.
 7. **Docs rewrite:** README.md, ROADMAP.md, AGENTS.md, CLAUDE.md, `book/`,
-   `docs/` — rewrite for Burin; keep upstream attribution alive via NOTICE
+   `docs/` — rewrite for Chisel; keep upstream attribution alive via NOTICE
    only.
 8. **Run the gate locally:**
    ```sh
@@ -80,7 +80,7 @@ estate-gate job now also blocks them permanently).
 
 ## Deferred (tracked, not blocking)
 
-- **Internal crate renames** `pdfcraft-*` → `burin-*`: deferred. They are
+- **Internal crate renames** `pdfcraft-*` → `chisel-*`: deferred. They are
   unpublished workspace identifiers, not marks; renaming all 33 crates now
   maximizes merge friction against upstream for zero legal gain. Revisit at
   first public release. (The gate greps org marks, not `pdfcraft`.)

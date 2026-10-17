@@ -1,4 +1,4 @@
-# CLAUDE.md — Burin Docs (fork)
+# CLAUDE.md — Chisel Docs (fork)
 
 Read `AGENTS.md` first; it binds this repository. The short form for agents:
 
@@ -7,7 +7,7 @@ Read `AGENTS.md` first; it binds this repository. The short form for agents:
   is generated (`cargo xtask assets --write`), never hand-edited.
 - Never read or copy `storytold/artcraft-services` (clean-room boundary,
   AGENTS.md).
-- User-facing name is **Burin Docs**; internal crates remain `pdfcraft-*` by
+- User-facing name is **Chisel Docs**; internal crates remain `pdfcraft-*` by
   decision — do not rename opportunistically.
 - The rebrand gate (`.github/workflows/estate-gate.yml`) is blocking: no
   upstream marks outside `.rebrand-allowlist.txt`.

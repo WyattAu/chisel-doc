@@ -5,17 +5,17 @@ use egui::{Align, Layout};
 use crate::theme::{self, Tokens};
 use pdfcraft_engine::Edit;
 
-use crate::{CloseRequest, Dialog, BurinDocsApp, PropsTab, panels::human_size, widgets};
+use crate::{CloseRequest, Dialog, ChiselDocsApp, PropsTab, panels::human_size, widgets};
 
 const INFO_KEYS: [&str; 4] = ["Title", "Author", "Subject", "Keywords"];
 
-pub fn show(app: &mut BurinDocsApp, ctx: &egui::Context) {
+pub fn show(app: &mut ChiselDocsApp, ctx: &egui::Context) {
     dialogs(app, ctx);
     // Last, so it sits above Document Properties when Security's Unlock… asked for it.
     unlock(app, ctx);
 }
 
-fn dialogs(app: &mut BurinDocsApp, ctx: &egui::Context) {
+fn dialogs(app: &mut ChiselDocsApp, ctx: &egui::Context) {
     password(app, ctx);
     save_prompt(app, ctx);
     link_prompt(app, ctx);
@@ -1064,7 +1064,7 @@ fn dialogs(app: &mut BurinDocsApp, ctx: &egui::Context) {
                     ui.label(egui::RichText::new(tl!("Recover unsaved documents?")).font(theme::semibold(18.0)));
                 });
                 ui.add_space(6.0);
-                ui.label(tl!("Burin Docs didn't shut down normally. These documents had changes that were autosaved:"));
+                ui.label(tl!("Chisel Docs didn't shut down normally. These documents had changes that were autosaved:"));
                 ui.add_space(8.0);
                 let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_secs()).unwrap_or(0);
                 egui::Grid::new("recoverable").num_columns(2).spacing([18.0, 6.0]).show(ui, |ui| {
@@ -1155,7 +1155,7 @@ fn dialogs(app: &mut BurinDocsApp, ctx: &egui::Context) {
                         ui.horizontal(|ui| {
                             widgets::app_mark(ui, 40.0);
                             ui.vertical(|ui| {
-                                ui.label(egui::RichText::new("Burin Docs").font(theme::semibold(20.0)));
+                                ui.label(egui::RichText::new("Chisel Docs").font(theme::semibold(20.0)));
                                 ui.label(crate::i18n::fmt(tl!("Version {v}"), &[("v", &pdfcraft_engine::build_info::version())]));
                             });
                         });
@@ -1420,7 +1420,7 @@ fn dialogs(app: &mut BurinDocsApp, ctx: &egui::Context) {
 }
 
 /// Info edits needed to make the document match the Description draft.
-fn draft_changes(app: &BurinDocsApp) -> Option<Vec<Edit>> {
+fn draft_changes(app: &ChiselDocsApp) -> Option<Vec<Edit>> {
     let (id, draft) = app.props_draft.as_ref()?;
     let doc = app.session.get(*id)?;
     let mut edits: Vec<Edit> = INFO_KEYS
@@ -1457,7 +1457,7 @@ pub(crate) fn save_prompt_key(ctx: &egui::Context) -> Option<Option<bool>> {
 }
 
 /// "Save changes?" when closing a tab or quitting with unsaved edits.
-fn save_prompt(app: &mut BurinDocsApp, ctx: &egui::Context) {
+fn save_prompt(app: &mut ChiselDocsApp, ctx: &egui::Context) {
     let Some(req) = app.close_request else { return };
     let index = match req {
         CloseRequest::Tab(id) => app.views.iter().position(|v| v.id == id),
@@ -1528,7 +1528,7 @@ fn shorten_middle(name: &str, max: usize) -> String {
 /// "Open this web page?" when a document's link, button or script asks to open an address
 /// (#90, #91). Shows where the address really goes and the whole address; Cancel is the default,
 /// and Escape or clicking outside cancels.
-fn link_prompt(app: &mut BurinDocsApp, ctx: &egui::Context) {
+fn link_prompt(app: &mut ChiselDocsApp, ctx: &egui::Context) {
     let Some(pending) = app.pending_link.clone() else { return };
     let t = Tokens::get(ctx);
     let email = pending.url.get(..7).is_some_and(|s| s.eq_ignore_ascii_case("mailto:"));
@@ -1592,7 +1592,7 @@ fn link_prompt(app: &mut BurinDocsApp, ctx: &egui::Context) {
 
 /// A document that asks to open in Full Screen mode (`/PageMode /FullScreen`) is asked about
 /// first, as Acrobat does: full screen hides every control, so it is the person's choice.
-fn full_screen_prompt(app: &mut BurinDocsApp, ctx: &egui::Context) {
+fn full_screen_prompt(app: &mut ChiselDocsApp, ctx: &egui::Context) {
     let Some(id) = app.pending_full_screen else { return };
     // The document was closed before an answer: nothing to ask any more.
     if app.session.get(id).is_none() {
@@ -1633,7 +1633,7 @@ fn full_screen_prompt(app: &mut BurinDocsApp, ctx: &egui::Context) {
 }
 
 /// Absolute document-controlled local paths require consent before any filesystem access.
-fn remote_link_prompt(app: &mut BurinDocsApp, ctx: &egui::Context) {
+fn remote_link_prompt(app: &mut ChiselDocsApp, ctx: &egui::Context) {
     let Some(pending) = app.pending_remote_link.clone() else { return };
     let mut choice = None;
     let modal = widgets::show_modal(ctx, "remote_link_prompt", |ui| {
@@ -1721,7 +1721,7 @@ fn password_modal(
 }
 
 /// Password prompt for encrypted documents (Acrobat: "Password" dialog on open).
-fn password(app: &mut BurinDocsApp, ctx: &egui::Context) {
+fn password(app: &mut ChiselDocsApp, ctx: &egui::Context) {
     let Some(prompt) = app.password_prompt.as_mut() else { return };
     let message = crate::i18n::fmt(tl!("“{name}” is protected. Enter a password to open it."), &[("name", &prompt.name)]);
     match password_modal(ctx, "password", tl!("Password required"), message, &mut prompt.input, prompt.error.as_deref(), tl!("Open")) {
@@ -1735,7 +1735,7 @@ fn password(app: &mut BurinDocsApp, ctx: &egui::Context) {
 }
 
 /// Permissions password prompt: lifts the restrictions of an open document (#995).
-fn unlock(app: &mut BurinDocsApp, ctx: &egui::Context) {
+fn unlock(app: &mut ChiselDocsApp, ctx: &egui::Context) {
     let Some(prompt) = app.unlock_prompt.as_mut() else { return };
     let message =
         crate::i18n::fmt(tl!("“{name}” has security restrictions. Enter its permissions password to lift them."), &[("name", &prompt.name)]);

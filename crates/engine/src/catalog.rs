@@ -14,7 +14,7 @@ pub enum Availability {
     Ready,
     /// Planned; ships in the named milestone.
     Planned(&'static str),
-    /// Cloud-only in Acrobat; Burin Docs offers an optional pluggable provider instead.
+    /// Cloud-only in Acrobat; Chisel Docs offers an optional pluggable provider instead.
     Provider,
 }
 

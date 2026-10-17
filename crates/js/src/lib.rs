@@ -152,7 +152,7 @@ pub enum Request {
     /// `this.pageNum = n` (0-based).
     GoToPage(usize),
     LaunchUrl(String),
-    /// `this.submitForm(url)`: never sent on Burin Docs's own.
+    /// `this.submitForm(url)`: never sent on Chisel Docs's own.
     Submit(String),
     /// `field.setFocus()`.
     Focus(String),

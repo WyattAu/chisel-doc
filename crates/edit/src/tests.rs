@@ -77,7 +77,7 @@ fn header_and_footer_are_drawn_in_display_space_and_wrap_the_original_content() 
     let s0 = streams(&doc, 0);
     // q-wrapper, original, Q-wrapper, header/footer.
     assert_eq!(s0.len(), 4, "{s0:?}");
-    assert_eq!((s0[0].as_str(), s0[2].as_str()), ("q %Burin Docs\n", "Q %Burin Docs\n"));
+    assert_eq!((s0[0].as_str(), s0[2].as_str()), ("q %Chisel Docs\n", "Q %Chisel Docs\n"));
     let mark = &s0[3];
     assert!(mark.contains("/PCMark /HeaderFooter") && mark.contains("(Page 1 of 3) Tj") && mark.contains("(Confidential \\(draft\\)) Tj"), "{mark}");
     assert!(mark.contains("1 0 0 1 0 0 cm"), "upright page: identity");
@@ -365,7 +365,7 @@ fn flattening_keeps_an_undrawn_reply_to_a_flattened_comment() {
 
 /// Flattening never makes a `?` permanent: it refuses, changing nothing, a text box without an
 /// appearance whose text Helvetica can't draw (another program's), and a comment or form field
-/// whose appearance Burin Docs drew with `?` (marked `PCUndrawn`). A comment another program drew
+/// whose appearance Chisel Docs drew with `?` (marked `PCUndrawn`). A comment another program drew
 /// with a font that has those characters (an appearance, no mark) flattens as before.
 #[test]
 fn flattening_refuses_what_would_bake_in_question_marks() {
@@ -1747,7 +1747,7 @@ fn paragraphs_are_found_and_rewrapped() {
     assert_eq!(blocks[0].lines, [0, 1, 2]);
     let width = blocks[0].rect[2] - blocks[0].rect[0];
     let next = blocks[1].rect;
-    let long = "Burin Docs rewraps a paragraph to its own width when its text changes, keeping the font, size, colour and line spacing.";
+    let long = "Chisel Docs rewraps a paragraph to its own width when its text changes, keeping the font, size, colour and line spacing.";
     assert_eq!(text::replace_block(&mut doc, 0, 0, long).unwrap().substituted, None);
     let doc = reopen(&doc);
     let lines = text::text_lines(&doc, 0).unwrap();

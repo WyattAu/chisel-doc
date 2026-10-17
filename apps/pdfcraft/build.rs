@@ -22,9 +22,9 @@ fn main() {
     res.set_icon("../../assets/app-icon/pdfcraft.ico")
         .set_icon_with_id("../../assets/app-icon/pdfcraft-document.ico", "2")
         .set_manifest(windows_manifest::WINDOWS_MANIFEST)
-        .set("ProductName", "Burin Docs")
-        .set("FileDescription", "Burin Docs PDF workbench")
-        .set("LegalCopyright", "Copyright (c) the Burin Docs contributors. MIT OR Apache-2.0.")
+        .set("ProductName", "Chisel Docs")
+        .set("FileDescription", "Chisel Docs PDF workbench")
+        .set("LegalCopyright", "Copyright (c) the Chisel Docs contributors. MIT OR Apache-2.0.")
         .set("OriginalFilename", "pdfcraft.exe")
         .set("InternalName", "pdfcraft");
     if let Err(e) = res.compile() {

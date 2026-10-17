@@ -1,4 +1,4 @@
-//! Project automation for Burin Docs, run via `cargo xtask <command>`.
+//! Project automation for Chisel Docs, run via `cargo xtask <command>`.
 
 use std::process::ExitCode;
 

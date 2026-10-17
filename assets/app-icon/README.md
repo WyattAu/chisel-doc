@@ -1,6 +1,6 @@
-# Burin Docs app icon
+# Chisel Docs app icon
 
-<img src="pdfcraft-small.svg" alt="Burin Docs app icon: an engraved lion's head on green" width="128">
+<img src="pdfcraft-small.svg" alt="Chisel Docs app icon: an engraved lion's head on green" width="128">
 
 **Creature:** a lion, in a frontal head-and-shoulders portrait, mane running off the bottom of the tile.
 
@@ -13,13 +13,13 @@ a full-bleed colour field, no frame or roundel, the animal looking at the viewer
 |---|---|---|
 | Ink | `#0b0b0c` | line work and the figure's contour |
 | Paper | `#efe9dc` | the figure (the lion's silhouette) |
-| Burin Docs green (app colour) | `#12a58a` | the full-bleed field |
+| Chisel Docs green (app colour) | `#12a58a` | the full-bleed field |
 
 **Tile:** `viewBox="0 0 512 512"`, a rounded square with `rx=112` that clips everything. Windows and Linux
 icons use the full-bleed tile. macOS icons put it on Apple's grid (an 824 px body centred on a transparent
 1024 px canvas).
 
-**Provenance:** the project owner's original drawing, made in Burin (2880 px, keyed to the palette), then
+**Provenance:** the project owner's original drawing, made in Chisel (2880 px, keyed to the palette), then
 vectorised with craftrules `assets/logo-options/_tools/vectorize_tile.py` (potrace; no filtering or
 warping). The source drawing is kept in craftrules at `assets/app-icons/pdfcraft/source.png`, not here.
 Licence: [LICENSE.txt](LICENSE.txt) (`MIT OR Apache-2.0`, like the repo).
@@ -35,14 +35,14 @@ Licence: [LICENSE.txt](LICENSE.txt) (`MIT OR Apache-2.0`, like the repo).
 | `pdfcraft.ico` | Windows icon (16–256 px), embedded in `pdfcraft.exe` by `apps/pdfcraft/build.rs` |
 | `pdfcraft-document.svg` | Windows PDF file icon master: a Lucide document outline, green badge and outlined PDF lettering; no font dependency |
 | `pdfcraft-document.ico` | Windows PDF file icon (16–256 px), embedded as resource 2 in `pdfcraft.exe` |
-| `hicolor/<n>x<n>/apps/com.wyattau.burin.doc.png` | Linux hicolor theme, 16–512 px; the 256 px one is the runtime icon on Windows and Linux |
-| `hicolor/scalable/apps/com.wyattau.burin.doc.svg` | Linux scalable icon (copy of the master) |
+| `hicolor/<n>x<n>/apps/com.wyattau.chisel.doc.png` | Linux hicolor theme, 16–512 px; the 256 px one is the runtime icon on Windows and Linux |
+| `hicolor/scalable/apps/com.wyattau.chisel.doc.svg` | Linux scalable icon (copy of the master) |
 
 Where it shows: `apps/pdfcraft/src/main.rs` sets the window icon (Dock, taskbar, Alt-Tab, launcher) and the
-Wayland app id `com.wyattau.burin.doc`; `packaging/linux/com.wyattau.burin.doc.desktop` names the
+Wayland app id `com.wyattau.chisel.doc`; `packaging/linux/com.wyattau.chisel.doc.desktop` names the
 hicolor icon.
 
-Windows PDF files use resource 2 (`"pdfcraft.exe",-2`) when Burin Docs is chosen as the default
+Windows PDF files use resource 2 (`"pdfcraft.exe",-2`) when Chisel Docs is chosen as the default
 reader; the app keeps resource 1. The document outline is adapted from Lucide `file-text`
 1.49.0 (ISC); its badge and outlined lettering are original (`MIT OR Apache-2.0`), covered by
 [LICENSE-document.txt](LICENSE-document.txt). Both icons are embedded, requiring no runtime

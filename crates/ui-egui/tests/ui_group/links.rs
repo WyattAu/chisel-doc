@@ -1,14 +1,14 @@
 //! Community links: the Discord button is one click away everywhere; Help menu, About dialog and
-//! home screen open the Burin and Burin Docs pages.
+//! home screen open the Chisel and Chisel Docs pages.
 
 use egui_kittest::Harness;
 use egui_kittest::kittest::Queryable;
 use pdfcraft_engine::links;
-use pdfcraft_ui_egui::{Dialog, BurinDocsApp};
+use pdfcraft_ui_egui::{Dialog, ChiselDocsApp};
 
-fn harness(setup: impl FnOnce(&mut BurinDocsApp) + 'static) -> Harness<'static, BurinDocsApp> {
+fn harness(setup: impl FnOnce(&mut ChiselDocsApp) + 'static) -> Harness<'static, ChiselDocsApp> {
     let mut h = Harness::builder().with_size(egui::vec2(1400.0, 900.0)).build_eframe(move |_cc| {
-        let mut app = BurinDocsApp::new();
+        let mut app = ChiselDocsApp::new();
         app.set_option("language", "en").unwrap();
         setup(&mut app);
         app
@@ -30,12 +30,12 @@ fn discord_button_in_the_top_bar_opens_discord() {
 fn home_screen_links() {
     for (label, url) in [
         ("Join our Discord", links::DISCORD),
-        ("Burin Docs web page", "https://wyattau.com/apps/pdfcraft"),
-        ("Burin Docs on GitHub", "https://github.com/wyattau/pdfcraft"),
-        ("Burin website", "https://wyattau.com"),
+        ("Chisel Docs web page", "https://wyattau.com/apps/pdfcraft"),
+        ("Chisel Docs on GitHub", "https://github.com/wyattau/pdfcraft"),
+        ("Chisel website", "https://wyattau.com"),
     ] {
         let mut h = harness(|_| {});
-        h.get_by_label("Join the Burin community");
+        h.get_by_label("Join the Chisel community");
         h.get_by_label(label).click();
         h.run_steps(2);
         assert_eq!(h.state().last_opened_url.as_deref(), Some(url), "{label}");
@@ -50,7 +50,7 @@ fn about_dialog_shows_the_brand_and_links() {
         app.open_bytes("one.pdf", None, pdf.to_vec()).unwrap();
         app.dialog = Some(Dialog::About);
     });
-    assert!(h.query_all_by_label("Burin").count() >= 2, "the mark and the wordmark (alt text)");
+    assert!(h.query_all_by_label("Chisel").count() >= 2, "the mark and the wordmark (alt text)");
     h.get_by_label("Join our Discord").click();
     h.run_steps(2);
     assert_eq!(h.state().last_opened_url.as_deref(), Some(links::DISCORD));
@@ -73,7 +73,7 @@ fn help_commands_open_each_link() {
 /// fixed number of frames is a guess at how long that takes: it was too few after the 0.5.0
 /// contributors refresh (78 names instead of 5) on some machines, the click on Table landed where
 /// the button had been, and the table never opened (#671).
-fn settled<'a>(h: &'a mut Harness<'static, BurinDocsApp>, label: &'a str) -> egui_kittest::Node<'a> {
+fn settled<'a>(h: &'a mut Harness<'static, ChiselDocsApp>, label: &'a str) -> egui_kittest::Node<'a> {
     let mut last = None;
     for _ in 0..60 {
         h.run_steps(1);

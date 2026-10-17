@@ -3,7 +3,7 @@ use egui::{Key, Modifiers, Pos2};
 use egui_kittest::Harness;
 use egui_kittest::kittest::Queryable;
 use pdfcraft_engine::{AddedText, Edit, EditableObject};
-use pdfcraft_ui_egui::BurinDocsApp;
+use pdfcraft_ui_egui::ChiselDocsApp;
 
 fn fixture(clipping: bool) -> Vec<u8> {
     fixture_with_background(clipping, false)
@@ -46,17 +46,17 @@ fn fixture_with_background(clipping: bool, background: bool) -> Vec<u8> {
     out
 }
 
-fn harness() -> Harness<'static, BurinDocsApp> {
+fn harness() -> Harness<'static, ChiselDocsApp> {
     harness_with(false)
 }
 
-fn harness_with(clipping: bool) -> Harness<'static, BurinDocsApp> {
+fn harness_with(clipping: bool) -> Harness<'static, ChiselDocsApp> {
     harness_document(clipping, false)
 }
 
-fn harness_document(clipping: bool, background: bool) -> Harness<'static, BurinDocsApp> {
+fn harness_document(clipping: bool, background: bool) -> Harness<'static, ChiselDocsApp> {
     let mut h = Harness::builder().with_size(egui::vec2(1400.0, 900.0)).build_eframe(move |_cc| {
-        let mut app = BurinDocsApp::new();
+        let mut app = ChiselDocsApp::new();
         app.session = pdfcraft_engine::Session::new().with_clock(|| 1_700_000_000);
         app.set_option("language", "en").unwrap();
         app.open_bytes("group.pdf", None, fixture_with_background(clipping, background)).unwrap();
@@ -83,15 +83,15 @@ fn harness_document(clipping: bool, background: bool) -> Harness<'static, BurinD
     h
 }
 
-fn at(h: &Harness<'static, BurinDocsApp>, x: f32, y: f32) -> Pos2 {
+fn at(h: &Harness<'static, ChiselDocsApp>, x: f32, y: f32) -> Pos2 {
     let r = h.state().views[0].page_screen_rect(0).unwrap();
     r.min + egui::vec2(x, y) * (r.width() / 400.0)
 }
-fn objects(h: &Harness<'static, BurinDocsApp>) -> Vec<EditableObject> {
+fn objects(h: &Harness<'static, ChiselDocsApp>) -> Vec<EditableObject> {
     let app = h.state();
     app.session.get(app.views[0].id).unwrap().editable_objects(0).unwrap()
 }
-fn click(h: &mut Harness<'static, BurinDocsApp>, p: Pos2, mods: Modifiers) {
+fn click(h: &mut Harness<'static, ChiselDocsApp>, p: Pos2, mods: Modifiers) {
     h.hover_at(p);
     h.run_steps(2);
     for pressed in [true, false] {
@@ -99,7 +99,7 @@ fn click(h: &mut Harness<'static, BurinDocsApp>, p: Pos2, mods: Modifiers) {
     }
     h.run_steps(4);
 }
-fn marquee(h: &mut Harness<'static, BurinDocsApp>) {
+fn marquee(h: &mut Harness<'static, ChiselDocsApp>) {
     let (a, b) = (at(h, 25.0, 45.0), at(h, 235.0, 175.0));
     h.hover_at(a);
     h.run_steps(2);
@@ -111,7 +111,7 @@ fn marquee(h: &mut Harness<'static, BurinDocsApp>) {
     h.run_steps(4);
     h.get_by_label("3 objects selected");
 }
-fn drag(h: &mut Harness<'static, BurinDocsApp>, a: Pos2, b: Pos2) {
+fn drag(h: &mut Harness<'static, ChiselDocsApp>, a: Pos2, b: Pos2) {
     h.hover_at(a);
     h.run_steps(2);
     h.drag_at(a);

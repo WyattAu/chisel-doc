@@ -1,12 +1,12 @@
-# Releasing Burin Docs
+# Releasing Chisel Docs
 
 Every push to the `release` branch runs `.github/workflows/release.yml`. It builds installers for
 macOS, Windows, Linux, FreeBSD and the web, signs the ones it has certificates for, and creates or
-updates a **draft** GitHub Release named `Burin Docs v<version>`. Nobody sees a draft until a
+updates a **draft** GitHub Release named `Chisel Docs v<version>`. Nobody sees a draft until a
 maintainer publishes it.
 
-The pipeline was ported from PhotoCraft's. User-facing names say **Burin Docs**; files, binaries and
-ids stay lowercase (`pdfcraft-<version>-<platform>-<arch>.<ext>`, `com.wyattau.burin.doc`).
+The pipeline was ported from PhotoCraft's. User-facing names say **Chisel Docs**; files, binaries and
+ids stay lowercase (`pdfcraft-<version>-<platform>-<arch>.<ext>`, `com.wyattau.chisel.doc`).
 
 ## Cutting a release
 
@@ -18,10 +18,10 @@ ids stay lowercase (`pdfcraft-<version>-<platform>-<arch>.<ext>`, `com.wyattau.b
    cargo xtask version set 0.3.0       # or 0.3.0-rc.1; updates Cargo.toml and Cargo.lock
    ```
 
-   Commit the change through the normal review flow (see the `Release: Burin Docs v0.2.1` PR).
+   Commit the change through the normal review flow (see the `Release: Chisel Docs v0.2.1` PR).
 2. **Merge `main` into `release`** (or fast-forward it) and push. The workflow starts by itself.
 3. **Wait for the draft.** When every job has finished (notarization is the slow part), the
-   Releases page has a draft `Burin Docs v0.3.0` targeting the pushed commit, with every artifact
+   Releases page has a draft `Chisel Docs v0.3.0` targeting the pushed commit, with every artifact
    and `SHA256SUMS.txt`. The notes are generated from the merged PRs.
 4. **Check it.** Download an installer or two and read the job summaries. A `::warning::` there
    means a signing secret was missing and that artifact is unsigned.
@@ -61,7 +61,7 @@ other Windows builds; `.github/workflows/windows-arm64.yml` installs and runs it
 
 Every binary reports its version (`pdfcraft --version`, `pdfcraft-cli --version`, *Help ▸ About*).
 The workflow sets `PDFCRAFT_BUILD_SHA` and `PDFCRAFT_BUILD_DATE` (`packaging/env.sh` fills them in
-for local builds): the commit is recorded in the macOS `Info.plist` (`Burin DocsBuildCommit`) and the
+for local builds): the commit is recorded in the macOS `Info.plist` (`Chisel DocsBuildCommit`) and the
 date in the AppStream metadata. The binaries don't embed the commit yet.
 
 **Fonts:** every job checks out [craft-fonts](https://github.com/wyattau/craft-fonts) at the commit
@@ -74,14 +74,14 @@ deliberately.
 fetch every `kind = "model"` file in `ATTRIBUTION.toml` (verified by SHA-256) with its licence text
 and an `ATTRIBUTION.txt`, straight into the package, so packaging needs the network. They go where
 `pdfcraft_ocr::Models::dirs_beside_exe` looks: `models\` beside `pdfcraft.exe` (MSI, portable zip),
-`Burin Docs.app/Contents/Resources/models` (macOS), and `share/pdfcraft/models` beside `bin/`
+`Chisel Docs.app/Contents/Resources/models` (macOS), and `share/pdfcraft/models` beside `bin/`
 (deb, rpm, tar.gz, AppImage, Flatpak, FreeBSD). The web build doesn't include them yet.
 
 ### macOS
 
 `packaging/macos/package.sh` builds both architectures, joins them with `lipo`, and assembles
-`Burin Docs.app` from `Info.plist.in` (bundle id `com.wyattau.burin.doc`, macOS 11+, PDF declared
-as a document type with rank Alternate, so Burin Docs is offered under Open With without taking over
+`Chisel Docs.app` from `Info.plist.in` (bundle id `com.wyattau.chisel.doc`, macOS 11+, PDF declared
+as a document type with rank Alternate, so Chisel Docs is offered under Open With without taking over
 from Preview). Files opened from Finder arrive as Apple events, which
 `apps/pdfcraft/src/apple_events.rs` receives.
 
@@ -92,7 +92,7 @@ from Preview). Files opened from Finder arrive as Apple events, which
   stapled, and the result is checked with `codesign --verify`, `stapler validate` and `spctl`. The
   app ships on a drag-to-Applications DMG, which is signed and notarized too.
   Its Finder window (background, icon size and positions) comes from
-  [`packaging/macos/dmg/`](../packaging/macos/dmg/README.md), and its volume is named `Burin Docs`
+  [`packaging/macos/dmg/`](../packaging/macos/dmg/README.md), and its volume is named `Chisel Docs`
   without the version, which the window's background needs; the DMG file name keeps the version.
 - **CLI:** `pdfcraft-cli` is signed and notarized as a zip. A bare executable can't hold a stapled
   ticket, so Gatekeeper looks it up online the first time a downloaded copy runs.
@@ -119,24 +119,24 @@ neither the MSI nor the portable zip needs the Visual C++ redistributable.
   this.
 - `installer-ui.wxs` supplies native welcome, maintenance, progress, files-in-use and outcome
   dialogs. Full UI confirms success with Finish; failures and cancellations have distinct messages.
-  The welcome dialog has a "Create a desktop shortcut" checkbox and an "Edit with Burin Docs"
+  The welcome dialog has a "Create a desktop shortcut" checkbox and an "Edit with Chisel Docs"
   right-click menu checkbox, both ticked by default. `/qn` and `/qb` stay unattended and create
   both unless `INSTALLDESKTOPSHORTCUT=0` or `INSTALLPDFCONTEXTMENU=0` is passed;
   `INSTALLIMAGECONTEXTMENU=0` (no checkbox) leaves out the image menu. An update (the launcher runs
-  `msiexec /passive` with no properties) keeps the desktop shortcut only if `Burin Docs.lnk` is still
+  `msiexec /passive` with no properties) keeps the desktop shortcut only if `Chisel Docs.lnk` is still
   on the all-users desktop, so deleting it once keeps it away (#1058), and keeps each menu only if
   its key path is still in HKLM (#305). Both are AppSearch results read before the old version is
   removed. An update from a release that didn't have a menu yet (before 0.7.1 for the PDF menu,
   before 0.4.0 for the image menu, found by `OnlyDetect` Upgrade rows) adds it like a first install.
   A value given on the command line wins.
 - The PDF right-click entry (#682) is a classic verb under
-  `HKLM\Software\Classes\SystemFileAssociations\.pdf\shell\Burin Docs.Edit`, so it shows whichever app
+  `HKLM\Software\Classes\SystemFileAssociations\.pdf\shell\Chisel Docs.Edit`, so it shows whichever app
   is the default for `.pdf` and never changes that default. Several selected PDFs (up to 15, the
   limit for a `Document` verb) start one `pdfcraft.exe "<file>"` each, and the single-instance
   hand-off opens them as tabs. On Windows 11 it is under "Show more options"; a first-level entry
   needs an `IExplorerCommand` handler and package identity (a sparse MSIX package), which the MSI
   doesn't have.
-- The image right-click entry (#190) is the same kind of verb, `Burin Docs.CreatePdf`, for ten image
+- The image right-click entry (#190) is the same kind of verb, `Chisel Docs.CreatePdf`, for ten image
   types, in its own component (`PdfcraftImageContextMenu`) since it became optional. Its rows moved
   out of `PdfcraftApp`; that's safe because `MajorUpgrade` removes the old version before installing
   the new one (`afterInstallValidate`), which `test-msi.ps1` checks.
@@ -147,7 +147,7 @@ neither the MSI nor the portable zip needs the Visual C++ redistributable.
   removed on uninstall, and that `INSTALLDESKTOPSHORTCUT=0` skips the desktop one.
 - The portable zip holds both executables, the README, the licences, the OFL licence of each
   embedded craft-fonts family, and `portable.txt`. That marker beside `pdfcraft.exe` keeps the
-  settings, logs, crash recovery and new digital IDs in `Burin DocsData\` next to the exe instead of
+  settings, logs, crash recovery and new digital IDs in `Chisel DocsData\` next to the exe instead of
   `%APPDATA%` and `%LOCALAPPDATA%` (`crates/ui-egui/src/portable.rs`).
 - **Signing:** `packaging/windows/sign.ps1` signs both executables and the MSI with `signtool`
   (SHA-256, RFC 3161 timestamp), from a `.pfx` (`WINDOWS_CERTIFICATE`) or Azure Trusted Signing
@@ -177,9 +177,9 @@ downloading only the changed blocks. `latest` is the newest published, non-pre-r
 otherwise; the release job checks both.
 
 **Flatpak:** the `flatpak` job turns each arch's tarball into a single-file bundle with
-`packaging/linux/flatpak-bundle.sh` and `flatpak/com.wyattau.burin.doc.bundle.yml` (no Rust build;
+`packaging/linux/flatpak-bundle.sh` and `flatpak/com.wyattau.chisel.doc.bundle.yml` (no Rust build;
 the same binaries), then installs it and runs `pdfcraft-cli --version` in the sandbox.
-`flatpak/com.wyattau.burin.doc.yml` is the from-source manifest for a later Flathub submission;
+`flatpak/com.wyattau.chisel.doc.yml` is the from-source manifest for a later Flathub submission;
 packaging-lint keeps the runtime and sandbox permissions (`finish-args`) of the two identical.
 Printing is not available in the Flatpak yet: it runs `lp`, which the freedesktop runtime lacks
 (the job logs a note); it needs the print portal. Users install the bundle with `flatpak install --user pdfcraft-<v>-linux-<arch>.flatpak`; the
@@ -244,7 +244,7 @@ a match of the `CobaltStrikeBeacon` family rule.
    portable zip, not only the outer installer. `7z x -oDIR pdfcraft-<version>-windows-x64.msi`
    extracts them. The payload names are WiX-internal, so tell the executables apart by their file
    type. Don't install or run the MSI or the extracted files.
-4. **Scan with YARA and keep every match.** Use your own copies of YARA and the rule. Burin Docs
+4. **Scan with YARA and keep every match.** Use your own copies of YARA and the rule. Chisel Docs
    bundles neither, and the helper never runs in the app, the installer or CI:
 
    ```powershell
@@ -261,8 +261,8 @@ a match of the `CobaltStrikeBeacon` family rule.
    distinctive code or strings, and it does not show that the software belongs to the family. Rules
    change too: CAPEv2 commit `9b599185` (2024-12-05) lengthened this rule's two repeated-byte patterns
    from 4 to 16 bytes to reduce false positives, so an older rule revision can match files that the
-   current one does not. Don't alter Burin Docs's binaries to change a scanner's result. That changes
+   current one does not. Don't alter Chisel Docs's binaries to change a scanner's result. That changes
    nothing about the software.
 7. **Report.** To the scanner, send the file's SHA-256, the release URL, the rule name and revision,
-   and the matched identifiers and offsets. Report Burin Docs problems at
+   and the matched identifiers and offsets. Report Chisel Docs problems at
    <https://github.com/wyattau/pdfcraft/issues> with the same facts.

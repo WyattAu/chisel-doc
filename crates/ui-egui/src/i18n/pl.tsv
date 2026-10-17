@@ -12,7 +12,7 @@
 # Clean-room: every entry was written from the plain meaning of the English label using ordinary
 # Polish computing vocabulary. No proprietary localisation resource, string table or product UI
 # (Acrobat's included) was consulted or copied; add entries the same way.
-# Product and technology names (Burin Docs, PDF, Acrobat JavaScript ...) stay in Latin letters;
+# Product and technology names (Chisel Docs, PDF, Acrobat JavaScript ...) stay in Latin letters;
 # the trailing "…" of dialog commands is kept.
 
 	Menu	Menu
@@ -158,17 +158,17 @@
 	Next page	Następna strona
 	Previous page	Poprzednia strona
 	Current page — type a page number or label (such as iv) and press Enter	Bieżąca strona — wpisz numer lub etykietę strony (np. iv) i naciśnij Enter
-	Welcome to Burin Docs	Witamy w Burin Docs
+	Welcome to Chisel Docs	Witamy w Chisel Docs
 	An open-source PDF workbench — local, private, and scriptable.	Otwarty zestaw narzędzi do PDF — lokalny, prywatny i obsługujący skrypty.
-	Join the Burin community	Dołącz do społeczności Burin
+	Join the Chisel community	Dołącz do społeczności Chisel
 	Get help, share feedback and follow development on Discord.	Uzyskaj pomoc, podziel się opinią i śledź rozwój na Discordzie.
 	Recommended tools	Polecane narzędzia
 	Use now	Użyj teraz
 	Open file	Otwórz plik
 	Recent	Ostatnie
-	Files you open in Burin Docs appear here. Drop a PDF anywhere to open it.	Pliki otwierane w Burin Docs pojawiają się tutaj. Upuść PDF w dowolnym miejscu, aby go otworzyć.
+	Files you open in Chisel Docs appear here. Drop a PDF anywhere to open it.	Pliki otwierane w Chisel Docs pojawiają się tutaj. Upuść PDF w dowolnym miejscu, aby go otworzyć.
 	Privacy	Prywatność
-	Burin Docs works offline. No telemetry, no account, and no cloud processing unless you add a provider.	Burin Docs działa offline. Bez telemetrii, konta i przetwarzania w chmurze, chyba że dodasz dostawcę.
+	Chisel Docs works offline. No telemetry, no account, and no cloud processing unless you add a provider.	Chisel Docs działa offline. Bez telemetrii, konta i przetwarzania w chmurze, chyba że dodasz dostawcę.
 	Scripts run in a sandbox without file or network access. With JavaScript off, Acrobat's standard format, validate and calculate functions still work.	Skrypty działają w piaskownicy bez dostępu do plików i sieci. Przy wyłączonym JavaScript standardowe funkcje formatowania, walidacji i obliczeń Acrobata nadal działają.
 	Back to all tools	Wróć do wszystkich narzędzi
 	Close panel	Zamknij panel
@@ -305,12 +305,12 @@
 	Split document…	Podziel dokument…
 	Number pages…	Ponumeruj strony…
 	Keyboard shortcuts	Skróty klawiaturowe
-	Join the Burin Discord	Dołącz do Discorda Burin
-	Burin Docs web page	Strona internetowa Burin Docs
-	Burin Docs on GitHub	Burin Docs na GitHubie
-	Burin website	Strona internetowa Burin
+	Join the Chisel Discord	Dołącz do Discorda Chisel
+	Chisel Docs web page	Strona internetowa Chisel Docs
+	Chisel Docs on GitHub	Chisel Docs na GitHubie
+	Chisel website	Strona internetowa Chisel
 	Check for updates…	Sprawdź aktualizacje…
-	About Burin Docs	O Burin Docs
+	About Chisel Docs	O Chisel Docs
 	Export a PDF	Eksportuj PDF
 	Export to	Eksportuj do
 	Microsoft Word (.docx)	Microsoft Word (.docx)
@@ -767,9 +767,9 @@
 	Check for updates	Sprawdź aktualizacje
 	No check has run yet.	Nie sprawdzono jeszcze aktualizacji.
 	Checking for a newer version…	Sprawdzanie dostępności nowszej wersji…
-	Burin Docs {v} is available.	Burin Docs {v} jest dostępny.
+	Chisel Docs {v} is available.	Chisel Docs {v} jest dostępny.
 	You have version {c}. Download the new version from its release page.	Masz wersję {c}. Pobierz nową wersję ze strony wydania.
-	Burin Docs {c} is up to date.	Burin Docs {c} jest aktualny.
+	Chisel Docs {c} is up to date.	Chisel Docs {c} jest aktualny.
 	Couldn't check for updates: {e}	Nie można sprawdzić aktualizacji: {e}
 	You have version {c}. All releases are listed at {page}.	Masz wersję {c}. Wszystkie wydania są dostępne na {page}.
 	Asks GitHub for the latest release. Nothing is downloaded or installed automatically.	Sprawdza najnowsze wydanie na GitHubie. Nic nie jest pobierane ani instalowane automatycznie.
@@ -887,8 +887,8 @@
 	No changes allowed	Zmiany niedozwolone
 	Annotations, form fill-in, and digital signatures	Adnotacje, wypełnianie formularzy i podpisy cyfrowe
 	Form fill-in and digital signatures	Wypełnianie formularzy i podpisy cyfrowe
-	The key is in the macOS Keychain, which may ask to allow Burin Docs to use it.	Klucz znajduje się w pęku kluczy macOS, który może poprosić o zgodę na jego użycie przez Burin Docs.
-	The key is in the Windows certificate store, which may ask to allow Burin Docs to use it.	Klucz znajduje się w magazynie certyfikatów Windows, który może poprosić o zgodę na jego użycie przez Burin Docs.
+	The key is in the macOS Keychain, which may ask to allow Chisel Docs to use it.	Klucz znajduje się w pęku kluczy macOS, który może poprosić o zgodę na jego użycie przez Chisel Docs.
+	The key is in the Windows certificate store, which may ask to allow Chisel Docs to use it.	Klucz znajduje się w magazynie certyfikatów Windows, który może poprosić o zgodę na jego użycie przez Chisel Docs.
 	Digital ID password	Hasło identyfikatora cyfrowego
 	Back	Wstecz
 	Validate all	Zweryfikuj wszystkie
@@ -1241,7 +1241,7 @@
 	Downsample to	Zmniejsz rozdzielczość do
 	Also recognize pages that already have text	Rozpoznaj także strony, które zawierają już tekst
 	Pictures on those pages are recognized too; words already in the page's text are not added again	Obrazy na tych stronach też są rozpoznawane; słowa, które już są w tekście strony, nie są dodawane ponownie
-	Text recognition isn't installed: its model files are missing. Reinstall Burin Docs, or set PDFCRAFT_MODELS to the folder that holds them.	Rozpoznawanie tekstu nie jest zainstalowane: brakuje plików modeli. Zainstaluj Burin Docs ponownie lub ustaw PDFCRAFT_MODELS na folder zawierający te pliki.
+	Text recognition isn't installed: its model files are missing. Reinstall Chisel Docs, or set PDFCRAFT_MODELS to the folder that holds them.	Rozpoznawanie tekstu nie jest zainstalowane: brakuje plików modeli. Zainstaluj Chisel Docs ponownie lub ustaw PDFCRAFT_MODELS na folder zawierający te pliki.
 	Settings	Ustawienia
 	Optional	Opcjonalne
 	Planned · {m}	Planowane · {m}
@@ -1388,7 +1388,7 @@
 	Anyone opening the document will need this password. It's applied when you save.	Każda osoba otwierająca dokument będzie potrzebować tego hasła. Zostanie zastosowane przy zapisie.
 	The document opens without a password; this password is needed to change the restrictions. It's applied when you save.	Dokument otwiera się bez hasła; to hasło jest potrzebne do zmiany ograniczeń. Zostanie zastosowane przy zapisie.
 	Recover unsaved documents?	Odzyskać niezapisane dokumenty?
-	Burin Docs didn't shut down normally. These documents had changes that were autosaved:	Burin Docs nie został zamknięty prawidłowo. Automatycznie zapisano zmiany w tych dokumentach:
+	Chisel Docs didn't shut down normally. These documents had changes that were autosaved:	Chisel Docs nie został zamknięty prawidłowo. Automatycznie zapisano zmiany w tych dokumentach:
 	just now	przed chwilą
 	{n} min ago	{n} min temu
 	{n} h ago	{n} godz. temu
@@ -1547,10 +1547,10 @@
 	On the web, open or drop an image to convert it	W wersji internetowej otwórz lub upuść obraz, aby go przekonwertować
 	Couldn't optimize the file: {e}	Nie można zoptymalizować pliku: {e}
 	Couldn't write {path}: {e}	Nie można zapisać {path}: {e}
-	The form asks to be submitted to {u}; Burin Docs doesn't send form data. Save the document to keep your entries.	Formularz wymaga wysłania do {u}; Burin Docs nie wysyła danych formularza. Zapisz dokument, aby zachować wpisane dane.
+	The form asks to be submitted to {u}; Chisel Docs doesn't send form data. Save the document to keep your entries.	Formularz wymaga wysłania do {u}; Chisel Docs nie wysyła danych formularza. Zapisz dokument, aby zachować wpisane dane.
 	This PDF uses the unsupported {s} action.	Ten PDF używa nieobsługiwanej akcji {s}.
 	{name}: the {other} action isn't supported yet	{name}: akcja {other} nie jest jeszcze obsługiwana
-	{name} submits the form to {url}; Burin Docs doesn't send form data. Save the document to keep your entries.	{name} wysyła formularz do {url}; Burin Docs nie wysyła danych formularza. Zapisz dokument, aby zachować wpisane dane.
+	{name} submits the form to {url}; Chisel Docs doesn't send form data. Save the document to keep your entries.	{name} wysyła formularz do {url}; Chisel Docs nie wysyła danych formularza. Zapisz dokument, aby zachować wpisane dane.
 	Export stopped: {e}	Eksport zatrzymany: {e}
 	Exported 1 image	Wyeksportowano 1 obraz
 	Exported {n} images	Liczba wyeksportowanych obrazów: {n}
@@ -1714,7 +1714,7 @@
 	Couldn't open {name}: {e}	Nie można otworzyć {name}: {e}
 	Couldn't read {name}: {e}	Nie można odczytać {name}: {e}
 	Portable mode is off: {folder} can't be written ({error}). Settings are kept in your user folder instead.	Tryb przenośny jest wyłączony: nie można zapisywać w {folder} ({error}). Ustawienia są przechowywane w folderze użytkownika.
-	Burin Docs is drawing without a graphics processor, so it may be slow. Updating the graphics driver may help.	Burin Docs renderuje bez procesora graficznego, więc może działać wolno. Aktualizacja sterownika graficznego może pomóc.
+	Chisel Docs is drawing without a graphics processor, so it may be slow. Updating the graphics driver may help.	Chisel Docs renderuje bez procesora graficznego, więc może działać wolno. Aktualizacja sterownika graficznego może pomóc.
 	Couldn't save: {e}	Nie można zapisać: {e}
 	Downloading attachments on the web arrives with M3.10 ({n} bytes ready)	Pobieranie załączników w wersji internetowej będzie dostępne w M3.10 (gotowe bajty: {n})
 	`{command}` {when}	`{command}` {when}
@@ -1787,8 +1787,8 @@
 	Signed and all signatures are valid.	Dokument jest podpisany i wszystkie podpisy są prawidłowe.
 	At least one signature has problems.	Co najmniej jeden podpis ma problemy.
 	This document is secured. Some changes are restricted by its security settings.	Ten dokument jest zabezpieczony. Niektóre zmiany są ograniczone ustawieniami zabezpieczeń.
-	This is a dynamic XFA form, which Burin Docs can't display yet. What you see is the file's placeholder page.	To dynamiczny formularz XFA, którego Burin Docs nie potrafi jeszcze wyświetlić. Widzisz stronę zastępczą pliku.
-	This form also contains XFA data, which Burin Docs doesn't read yet. You can fill its fields, but Acrobat may show the XFA values instead.	Ten formularz zawiera również dane XFA, których Burin Docs jeszcze nie odczytuje. Możesz wypełniać jego pola, ale Acrobat może zamiast nich wyświetlać wartości XFA.
+	This is a dynamic XFA form, which Chisel Docs can't display yet. What you see is the file's placeholder page.	To dynamiczny formularz XFA, którego Chisel Docs nie potrafi jeszcze wyświetlić. Widzisz stronę zastępczą pliku.
+	This form also contains XFA data, which Chisel Docs doesn't read yet. You can fill its fields, but Acrobat may show the XFA values instead.	Ten formularz zawiera również dane XFA, których Chisel Docs jeszcze nie odczytuje. Możesz wypełniać jego pola, ale Acrobat może zamiast nich wyświetlać wartości XFA.
 	This document contains {n} interactive form fields.	Ten dokument zawiera interaktywne pola formularza w liczbie {n}.
 	This file was damaged and has been repaired. Saving keeps the repaired version.	Ten plik był uszkodzony i został naprawiony. Zapis zachowa naprawioną wersję.
 	Dismiss	Zamknij komunikat
@@ -1837,7 +1837,7 @@
 	there are no pages to print	brak stron do wydrukowania
 	the document has no tags	dokument nie ma tagów
 	{0}: {1}	{0}: {1}
-	the text recognition models are not installed (reinstall Burin Docs, or set PDFCRAFT_MODELS to the folder that holds them)	modele rozpoznawania tekstu nie są zainstalowane (zainstaluj Burin Docs ponownie lub ustaw PDFCRAFT_MODELS na folder zawierający modele)
+	the text recognition models are not installed (reinstall Chisel Docs, or set PDFCRAFT_MODELS to the folder that holds them)	modele rozpoznawania tekstu nie są zainstalowane (zainstaluj Chisel Docs ponownie lub ustaw PDFCRAFT_MODELS na folder zawierający modele)
 	the image is empty	obraz jest pusty
 	this file isn't XFDF, FDF, XML or text form data	ten plik nie zawiera danych formularza XFDF, FDF, XML ani tekstowych
 	nothing in the file matches this document	żadne dane w pliku nie pasują do tego dokumentu
@@ -2043,11 +2043,11 @@
 	Choose a PNG or JPEG image (up to 4 MiB). Transparency is preserved.	Wybierz obraz PNG lub JPEG (do 4 MiB). Przezroczystość zostanie zachowana.
 	Couldn't import the signature image: {e}	Nie można zaimportować obrazu podpisu: {e}
 	Go to page…	Przejdź do strony…
-	Reopen the files that were open when Burin Docs last closed	Otwórz ponownie pliki otwarte przy ostatnim zamknięciu Burin Docs
+	Reopen the files that were open when Chisel Docs last closed	Otwórz ponownie pliki otwarte przy ostatnim zamknięciu Chisel Docs
 	The PDF text fonts can't draw “{c}” ({code}). Choose supported text.	Czcionki tekstu PDF nie obsługują znaku „{c}” ({code}). Wybierz obsługiwany tekst.
 	The standard fonts can't draw “{c}” ({code}). Only Western European characters can be added as text for now.	Standardowe czcionki nie obsługują znaku „{c}” ({code}). Na razie można dodawać tylko tekst ze znakami zachodnioeuropejskimi.
-	This field's font can't draw “{c}” ({code}), so Burin Docs shows ? in its place. The value is saved, and other PDF viewers redraw the field from it.	Czcionka tego pola nie obsługuje znaku „{c}” ({code}), więc Burin Docs wyświetla w jego miejscu ?. Wartość została zapisana, a inne przeglądarki PDF odrysują pole na jej podstawie.
-	The fonts Burin Docs writes with can't draw “{c}” ({code}), so it shows as ? in every PDF viewer. The text is saved.	Czcionki, którymi pisze Burin Docs, nie obsługują znaku „{c}” ({code}), więc w każdej przeglądarce PDF w jego miejscu widać ?. Tekst został zapisany.
+	This field's font can't draw “{c}” ({code}), so Chisel Docs shows ? in its place. The value is saved, and other PDF viewers redraw the field from it.	Czcionka tego pola nie obsługuje znaku „{c}” ({code}), więc Chisel Docs wyświetla w jego miejscu ?. Wartość została zapisana, a inne przeglądarki PDF odrysują pole na jej podstawie.
+	The fonts Chisel Docs writes with can't draw “{c}” ({code}), so it shows as ? in every PDF viewer. The text is saved.	Czcionki, którymi pisze Chisel Docs, nie obsługują znaku „{c}” ({code}), więc w każdej przeglądarce PDF w jego miejscu widać ?. Tekst został zapisany.
 	Open arrow	Otwarta strzałka
 	Closed arrow	Zamknięta strzałka
 	Butt	Poprzeczna kreska
@@ -2165,8 +2165,8 @@
 	Write this email?	Napisać tę wiadomość e-mail?
 	XFA form: its fields and its XFA data are kept in step, so other viewers show what you fill in.	Formularz XFA: pola i dane XFA są synchronizowane, aby inne przeglądarki wyświetlały wpisane wartości.
 	{n} contributors · {c} commits	Współtwórców: {n} · Commitów: {c}
-	{who} in this document tried to open an address Burin Docs won't open: {e}.	Element „{who}” w tym dokumencie próbował otworzyć adres, którego Burin Docs nie otworzy: {e}.
-	{who} in this document tried to open an address Burin Docs won't open: {e}. Only web (http, https) and email (mailto) links open from documents.	Element „{who}” w tym dokumencie próbował otworzyć adres, którego Burin Docs nie otworzy: {e}. Z dokumentów otwierane są tylko łącza internetowe (http, https) i pocztowe (mailto).
+	{who} in this document tried to open an address Chisel Docs won't open: {e}.	Element „{who}” w tym dokumencie próbował otworzyć adres, którego Chisel Docs nie otworzy: {e}.
+	{who} in this document tried to open an address Chisel Docs won't open: {e}. Only web (http, https) and email (mailto) links open from documents.	Element „{who}” w tym dokumencie próbował otworzyć adres, którego Chisel Docs nie otworzy: {e}. Z dokumentów otwierane są tylko łącza internetowe (http, https) i pocztowe (mailto).
 	{who} in this document wants to open this address in your browser:	Element „{who}” w tym dokumencie chce otworzyć ten adres w przeglądarce:
 	{who} in this document wants to open your email app with this address:	Element „{who}” w tym dokumencie chce otworzyć aplikację pocztową z tym adresem:
 	ΔLOC	ΔLOC
@@ -2308,7 +2308,7 @@ animation effects	Off	Wyłączone
 	no output folder was chosen	nie wybrano folderu wyjściowego
 @plural	Downloaded {n} PDF|Downloaded {n} PDFs	Pobrano {n} plik PDF|Pobrano {n} pliki PDF|Pobrano {n} plików PDF
 	Scan	Skanuj
-	Sign a sheet of white paper and take a photo of it in bright, even light (use the flash). Choose the photo or drop it here: Burin Docs finds the signature and removes the paper.	Podpisz się na białej kartce i zrób jej zdjęcie przy jasnym, równomiernym świetle (użyj lampy błyskowej). Wybierz zdjęcie lub upuść je tutaj: Burin Docs znajdzie podpis i usunie papier.
+	Sign a sheet of white paper and take a photo of it in bright, even light (use the flash). Choose the photo or drop it here: Chisel Docs finds the signature and removes the paper.	Podpisz się na białej kartce i zrób jej zdjęcie przy jasnym, równomiernym świetle (użyj lampy błyskowej). Wybierz zdjęcie lub upuść je tutaj: Chisel Docs znajdzie podpis i usunie papier.
 	Choose photo…	Wybierz zdjęcie…
 	No photo chosen	Nie wybrano zdjęcia
 	Photo	Zdjęcie

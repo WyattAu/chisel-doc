@@ -1,9 +1,9 @@
 //! Preferences › Appearance: the appearance mode (follow the system, light or dark) above a light
-//! and a dark theme card, each with a small picture of Burin Docs in that theme.
+//! and a dark theme card, each with a small picture of Chisel Docs in that theme.
 
 use egui::{Rect, RichText, pos2, vec2};
 
-use crate::BurinDocsApp;
+use crate::ChiselDocsApp;
 use crate::theme::{self, ThemeKind, ThemePreference, Tokens};
 use crate::widgets;
 
@@ -27,7 +27,7 @@ fn mode_command(preference: ThemePreference) -> &'static str {
     }
 }
 
-/// A miniature Burin Docs window in `kind`'s colours: title bar and tabs, the tool bar, the page
+/// A miniature Chisel Docs window in `kind`'s colours: title bar and tabs, the tool bar, the page
 /// thumbnails, a page on the pasteboard and the right-hand panel.
 fn preview(ui: &mut egui::Ui, kind: ThemeKind, width: f32) {
     let p = Tokens::for_kind(kind);
@@ -115,7 +115,7 @@ fn card(ui: &mut egui::Ui, t: &Tokens, title: &str, active: bool, themes: &[(The
 }
 
 /// The Appearance section of Preferences.
-pub fn preferences_section(ui: &mut egui::Ui, app: &mut BurinDocsApp, t: &Tokens) {
+pub fn preferences_section(ui: &mut egui::Ui, app: &mut ChiselDocsApp, t: &Tokens) {
     ui.label(RichText::new(tl_ctx!("theme", "Appearance")).font(theme::semibold(13.0)));
     ui.horizontal(|ui| {
         ui.label(tl!("Appearance mode"));
@@ -152,11 +152,11 @@ mod tests {
     /// Active.
     #[test]
     fn preferences_choose_the_appearance_mode_and_show_both_themes() {
-        let mut app = BurinDocsApp::new();
+        let mut app = ChiselDocsApp::new();
         app.set_option("language", "en").unwrap();
         let mut fonts = false;
         let mut h = Harness::builder().with_size(egui::vec2(640.0, 400.0)).build_ui_state(
-            move |ui, app: &mut BurinDocsApp| {
+            move |ui, app: &mut ChiselDocsApp| {
                 // The app's fonts (the semibold headings) take effect from the next frame.
                 if !fonts {
                     ui.ctx().set_fonts(theme::font_definitions());
@@ -192,11 +192,11 @@ mod tests {
     /// Clicking a theme card, or its radio row, picks that theme, not only the mode combo box.
     #[test]
     fn clicking_a_theme_card_picks_that_theme() {
-        let mut app = BurinDocsApp::new();
+        let mut app = ChiselDocsApp::new();
         app.set_option("language", "en").unwrap();
         let mut fonts = false;
         let mut h = Harness::builder().with_size(egui::vec2(640.0, 400.0)).build_ui_state(
-            move |ui, app: &mut BurinDocsApp| {
+            move |ui, app: &mut ChiselDocsApp| {
                 if !fonts {
                     ui.ctx().set_fonts(theme::font_definitions());
                     fonts = true;

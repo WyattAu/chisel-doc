@@ -1,7 +1,7 @@
 //! `cargo xtask assets`: enforce the asset policy (AGENTS.md §1).
 //!
 //! `ATTRIBUTION.toml` lists every asset: committed or vendored files (`[[asset]]`), files that
-//! Cargo dependencies compile into Burin Docs (`[[bundled]]`), and files xtask downloads at build
+//! Cargo dependencies compile into Chisel Docs (`[[bundled]]`), and files xtask downloads at build
 //! time (`[[fetched]]`). This gate fails when:
 //! - an asset-like file in the repository has no entry, or its SHA-256 differs;
 //! - a licence is not on the allowlist, or a declared licence file is missing;
@@ -36,10 +36,10 @@ pub const ALLOWED_LICENCES: &[&str] = &[
 ];
 
 /// The closed list of Adobe-authored, non-visual technical data (AGENTS.md §1.1): (crate, path).
-/// Burin's own brand marks (the Burin name and logos): shipped in the app and docs, but
+/// Chisel's own brand marks (the Chisel name and logos): shipped in the app and docs, but
 /// not licensed for reuse by forks. Allowed only for `kind = "logo"` entries under `assets/brand/`
 /// (AGENTS.md §1.2).
-pub const BRAND_LICENCE: &str = "LicenseRef-Burin-Trademark";
+pub const BRAND_LICENCE: &str = "LicenseRef-Chisel-Trademark";
 
 pub const ADOBE_DATA_ALLOWED: &[(&str, &str)] = &[("hayro-cmap", "assets/cmaps.brotli"), ("hayro-interpret", "src/font/generated/metrics.rs")];
 
@@ -357,7 +357,7 @@ pub fn models(args: &[String]) -> Result<()> {
 
 /// The credits shipped beside the models (their licences require attribution).
 fn models_attribution(m: &Manifest) -> String {
-    let mut s = String::from("Burin Docs's text recognition (Scan & OCR) uses these models, unmodified.\n");
+    let mut s = String::from("Chisel Docs's text recognition (Scan & OCR) uses these models, unmodified.\n");
     for f in m.fetched.iter().filter(|f| f.kind == "model") {
         let _ = write!(
             s,
@@ -373,7 +373,7 @@ pub fn render_markdown(m: &Manifest) -> String {
     let mut s = String::new();
     s.push_str("# Attribution\n\n");
     s.push_str("<!-- Generated from ATTRIBUTION.toml by `cargo xtask assets --write`. Do not edit by hand. -->\n\n");
-    s.push_str("Every asset Burin Docs includes, bundles or uses to build its published material, with its author, source and licence. ");
+    s.push_str("Every asset Chisel Docs includes, bundles or uses to build its published material, with its author, source and licence. ");
     s.push_str(
         "The policy is in [AGENTS.md](AGENTS.md) §1. The machine-readable list, with SHA-256 hashes, is [ATTRIBUTION.toml](ATTRIBUTION.toml). ",
     );
@@ -557,7 +557,7 @@ mod tests {
             ("assets/brand/mark.svg", "icon", false),
             ("assets/icons/mark.svg", "logo", false),
         ] {
-            let mut a = asset(path, "Burin", kind, BRAND_LICENCE);
+            let mut a = asset(path, "Chisel", kind, BRAND_LICENCE);
             a.licence_file = "assets/brand/LICENSE-brand.txt".into();
             let m = Manifest { asset: vec![a], ..Default::default() };
             let p = check(&root, &m, &[], &BTreeSet::new());
@@ -580,7 +580,7 @@ mod tests {
     fn first_party_adobe_data_only_on_the_closed_list() {
         let l = lock(&[]);
         // The generated standard-14 table is on the list, as `kind = "data"`.
-        let mut ok = asset("crates/fonts/src/std14_metrics.rs", "Adobe (Core14 AFM metrics); tables by the Burin Docs contributors", "data", "MIT");
+        let mut ok = asset("crates/fonts/src/std14_metrics.rs", "Adobe (Core14 AFM metrics); tables by the Chisel Docs contributors", "data", "MIT");
         ok.adobe_data = true;
         let m = Manifest { asset: vec![ok], ..Default::default() };
         assert!(check(&root(), &m, &[], &l).is_empty(), "{:?}", check(&root(), &m, &[], &l));

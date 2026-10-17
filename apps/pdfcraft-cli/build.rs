@@ -13,9 +13,9 @@ fn main() {
         return;
     }
     let mut res = winresource::WindowsResource::new();
-    res.set("ProductName", "Burin Docs")
-        .set("FileDescription", "Burin Docs command-line tool")
-        .set("LegalCopyright", "Copyright (c) the Burin Docs contributors. MIT OR Apache-2.0.")
+    res.set("ProductName", "Chisel Docs")
+        .set("FileDescription", "Chisel Docs command-line tool")
+        .set("LegalCopyright", "Copyright (c) the Chisel Docs contributors. MIT OR Apache-2.0.")
         .set("OriginalFilename", "pdfcraft-cli.exe")
         .set("InternalName", "pdfcraft-cli");
     if let Err(e) = res.compile() {

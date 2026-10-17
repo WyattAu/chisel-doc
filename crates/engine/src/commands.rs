@@ -370,12 +370,12 @@ pub const COMMANDS: &[CommandSpec] = &[
     c("page.split", "Split document…", PAGES, None, Assembly, "scissors"),
     c("page.number", "Number pages…", PAGES, None, Assembly, "hash"),
     c("help.shortcuts", "Keyboard shortcuts", HELP, None, Nothing, "circle-help"),
-    c("help.discord", "Join the Burin Discord", HELP, None, Nothing, "messages-square"),
-    c("help.app_page", "Burin Docs web page", HELP, None, Nothing, "globe"),
-    c("help.github", "Burin Docs on GitHub", HELP, None, Nothing, "code-xml"),
-    c("help.website", "Burin website", HELP, None, Nothing, "external-link"),
+    c("help.discord", "Join the Chisel Discord", HELP, None, Nothing, "messages-square"),
+    c("help.app_page", "Chisel Docs web page", HELP, None, Nothing, "globe"),
+    c("help.github", "Chisel Docs on GitHub", HELP, None, Nothing, "code-xml"),
+    c("help.website", "Chisel website", HELP, None, Nothing, "external-link"),
     c("help.check_updates", "Check for updates…", HELP, None, Nothing, "cloud"),
-    c("help.about", "About Burin Docs", HELP, None, Nothing, "info"),
+    c("help.about", "About Chisel Docs", HELP, None, Nothing, "info"),
 ];
 
 pub fn command(id: &str) -> Option<&'static CommandSpec> {

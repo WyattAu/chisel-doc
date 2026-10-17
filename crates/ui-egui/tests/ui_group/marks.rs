@@ -3,7 +3,7 @@
 use egui_kittest::Harness;
 use egui_kittest::kittest::Queryable;
 use pdfcraft_engine::MarkKind;
-use pdfcraft_ui_egui::{Dialog, BurinDocsApp};
+use pdfcraft_ui_egui::{Dialog, ChiselDocsApp};
 
 const FIXTURE: &[u8] = b"%PDF-1.7
 1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj
@@ -14,9 +14,9 @@ const FIXTURE: &[u8] = b"%PDF-1.7
 trailer << /Root 1 0 R >>
 %%EOF";
 
-fn harness() -> Harness<'static, BurinDocsApp> {
+fn harness() -> Harness<'static, ChiselDocsApp> {
     let mut h = Harness::builder().with_size(egui::vec2(1400.0, 900.0)).build_eframe(|_cc| {
-        let mut app = BurinDocsApp::new();
+        let mut app = ChiselDocsApp::new();
         app.set_option("language", "en").unwrap();
         app.open_bytes("doc.pdf", None, FIXTURE.to_vec()).unwrap();
         app
@@ -25,7 +25,7 @@ fn harness() -> Harness<'static, BurinDocsApp> {
     h
 }
 
-fn marks(h: &Harness<'static, BurinDocsApp>) -> Vec<MarkKind> {
+fn marks(h: &Harness<'static, ChiselDocsApp>) -> Vec<MarkKind> {
     let s = h.state();
     s.session.get(s.views[0].id).unwrap().marks().to_vec()
 }

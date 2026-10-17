@@ -1,4 +1,4 @@
-# Burin Docs parity checklist vs Acrobat Pro (offline feature set). Generated from plan docs; maintained by hand.
+# Chisel Docs parity checklist vs Acrobat Pro (offline feature set). Generated from plan docs; maintained by hand.
 # Validated and reported by `cargo xtask parity`. Schema: see the [schema] table.
 # Status rules: `shipped` = usable today with at least one cited test; `partial` = part exists (notes say what is
 # missing); `planned` = not started; `na` = Adobe-cloud-only (notes name the local or pluggable alternative).
@@ -35,7 +35,7 @@ status = "shipped"
 commands = ["file.open"]
 tools = ["doc_open"]
 evidence = ["crates/automation/tests/automation.rs::open_inspect_render_and_find", "crates/ui-egui/tests/ui.rs::opening_a_pdf_shows_comments_and_bookmarks", "crates/ui-egui/tests/ui.rs::files_and_quit_from_the_operating_system", "crates/ui-egui/src/open_worker_tests.rs::a_chosen_tool_runs_on_its_file_only_after_native_preparation_commits"]
-notes = "File ▸ Open, the command line (Linux and Windows file associations), the Windows MSI's \"Edit with Burin Docs\" entry on PDF files' File Explorer right-click menu (#682; several selected PDFs open as tabs of one window), and on macOS Finder, Open With and the Dock (Apple events; the bundle declares PDF as a document type). Not yet: a first-level Windows 11 menu entry (needs package identity) or Combine from the file manager (#585)"
+notes = "File ▸ Open, the command line (Linux and Windows file associations), the Windows MSI's \"Edit with Chisel Docs\" entry on PDF files' File Explorer right-click menu (#682; several selected PDFs open as tabs of one window), and on macOS Finder, Open With and the Dock (Apple events; the bundle declares PDF as a document type). Not yet: a first-level Windows 11 menu entry (needs package identity) or Combine from the file manager (#585)"
 
 [[feature]]
 id = "core.repair-broken-files"
@@ -647,7 +647,7 @@ status = "shipped"
 commands = []
 tools = []
 evidence = ["crates/engine/src/tests.rs::reload_reads_the_new_file_into_the_same_document", "crates/ui-egui/tests/reload.rs::a_rebuilt_file_reloads_in_place_keeping_the_page_and_zoom", "crates/ui-egui/tests/reload.rs::a_half_written_file_waits_until_the_pdf_is_whole", "crates/ui-egui/tests/reload.rs::saving_does_not_reload_or_lose_undo", "crates/ui-egui/tests/reload.rs::unsaved_changes_are_kept_until_reload_is_chosen", "crates/ui-egui/tests/reload.rs::a_deleted_file_leaves_the_document_open", "crates/ui-egui/tests/reload.rs::nothing_reloads_with_the_preference_off", "crates/ui-egui/tests/reload.rs::a_shorter_new_version_drops_what_pointed_into_the_old_one", "crates/ui-egui/tests/reload.rs::saving_over_a_file_changed_by_something_else_asks_first", "crates/ui-egui/tests/reload.rs::saving_checks_the_file_with_the_watcher_off_too", "crates/ui-egui/tests/reload.rs::opening_a_file_that_is_open_focuses_its_tab"]
-notes = "Desktop, on by default (Preferences ▸ Documents and view, #431), for LaTeX/Typst builds: a worker thread checks each open file's metadata every 250 ms and reads a change once it has settled and ends in %%EOF; a clean document reloads in place (same tab, page, zoom, scroll; old page images stay until new ones are drawn), one with unsaved changes gets a Reload notice; Burin Docs's own saves never reload. Save asks before writing over a version of the file the document did not come from, watcher on or off, with Save as… to keep it (#2166); a file that is open already comes to the front instead of opening twice. Measured on Windows: one check 11 µs per file, reload of a 417-page 0.9 MB pdflatex file 16 ms. Not yet: OS change notifications (polling adds up to 250 ms), the web build; a reload clears undo history, like Revert."
+notes = "Desktop, on by default (Preferences ▸ Documents and view, #431), for LaTeX/Typst builds: a worker thread checks each open file's metadata every 250 ms and reads a change once it has settled and ends in %%EOF; a clean document reloads in place (same tab, page, zoom, scroll; old page images stay until new ones are drawn), one with unsaved changes gets a Reload notice; Chisel Docs's own saves never reload. Save asks before writing over a version of the file the document did not come from, watcher on or off, with Save as… to keep it (#2166); a file that is open already comes to the front instead of opening twice. Measured on Windows: one check 11 µs per file, reload of a 417-page 0.9 MB pdflatex file 16 ms. Not yet: OS change notifications (polling adds up to 250 ms), the web build; a reload clears undo history, like Revert."
 
 [[feature]]
 id = "core.signed-save-policy"
@@ -695,7 +695,7 @@ status = "shipped"
 commands = []
 tools = []
 evidence = ["crates/ui-egui/tests/editing.rs::the_last_session_reopens_its_files_pages_and_active_tab", "crates/ui-egui/tests/editing.rs::quitting_with_unsaved_changes_still_remembers_every_file", "crates/ui-egui/tests/editing.rs::the_last_session_is_off_by_default_and_skips_missing_and_duplicate_files", "crates/ui-egui/src/last_session.rs::malformed_sessions_are_skipped_and_capped"]
-notes = "Desktop, off by default (Preferences ▸ Documents and view, #442): the files open when Burin Docs last closed reopen at the page each showed, with the same tab in front; files named on the command line open after them, in front; files that are gone, and documents the Recovery dialog offers, are skipped. Quitting with unsaved changes still remembers every tab. Not yet: zoom, layout and scroll position within the page (#418); only the first encrypted file asks for its password (later ones stay closed), and a file opened after it dismisses that prompt; a save that fails partway through a quit can leave the remembered list from that quit; never-saved documents and the web build have no paths to reopen."
+notes = "Desktop, off by default (Preferences ▸ Documents and view, #442): the files open when Chisel Docs last closed reopen at the page each showed, with the same tab in front; files named on the command line open after them, in front; files that are gone, and documents the Recovery dialog offers, are skipped. Quitting with unsaved changes still remembers every tab. Not yet: zoom, layout and scroll position within the page (#418); only the first encrypted file asks for its password (later ones stay closed), and a file opened after it dismisses that prompt; a save that fails partway through a quit can leave the remembered list from that quit; never-saved documents and the web build have no paths to reopen."
 
 [[feature]]
 id = "core.usage-rights-preserve"
@@ -951,7 +951,7 @@ status = "shipped"
 commands = []
 tools = []
 evidence = ["crates/ui-egui/tests/ui.rs::selection_works_in_every_view_rotation"]
-notes = "Burin Docs draws a percentage on its fixed 96-dpi basis: 96/72 logical pixels per PDF point at 100%. Acrobat draws it at its Page Display resolution, with logical pixels per PDF point = ppi / 72 × zoom (checked black-box with Custom resolutions of 96, 110 and 120 ppi on one display), so the same percentage can differ in size. Acrobat's Use System Setting resolution is not reproduced. Tracked with misc.prefs-page-display"
+notes = "Chisel Docs draws a percentage on its fixed 96-dpi basis: 96/72 logical pixels per PDF point at 100%. Acrobat draws it at its Page Display resolution, with logical pixels per PDF point = ppi / 72 × zoom (checked black-box with Custom resolutions of 96, 110 and 120 ppi on one display), so the same percentage can differ in size. Acrobat's Use System Setting resolution is not reproduced. Tracked with misc.prefs-page-display"
 
 [[feature]]
 id = "view.zoom-actual-size"
@@ -963,7 +963,7 @@ status = "shipped"
 commands = []
 tools = []
 evidence = ["crates/ui-egui/tests/view.rs::actual_size_fit_width_and_fit_page"]
-notes = "Actual size is 100% on Burin Docs's fixed 96-dpi basis: 96/72 logical pixels per PDF point. Acrobat's Actual Size uses its Page Display resolution (ppi / 72 logical pixels per PDF point at 100%), which Burin Docs does not offer yet, so the two can draw a page at different sizes. Tracked with misc.prefs-page-display"
+notes = "Actual size is 100% on Chisel Docs's fixed 96-dpi basis: 96/72 logical pixels per PDF point. Acrobat's Actual Size uses its Page Display resolution (ppi / 72 logical pixels per PDF point at 100%), which Chisel Docs does not offer yet, so the two can draw a page at different sizes. Tracked with misc.prefs-page-display"
 
 [[feature]]
 id = "view.zoom-fit-page"
@@ -1527,7 +1527,7 @@ status = "shipped"
 commands = ["edit.column_select"]
 tools = ["text_extract"]
 evidence = ["crates/render/src/text.rs::a_column_selection_takes_one_table_column", "crates/render/src/text.rs::a_column_selection_across_columns_reads_row_by_row", "crates/render/src/text.rs::right_to_left_rows_read_right_to_left", "crates/render/src/text.rs::vertical_lines_keep_reading_order", "crates/ui-egui/tests/ui_group/column_select.rs::alt_drag_selects_only_the_text_inside_the_rectangle", "crates/ui-egui/tests/ui_group/column_select.rs::the_column_select_tool_needs_no_modifier", "crates/ui-egui/tests/ui_group/column_select.rs::alt_drag_with_the_highlighter_marks_only_the_column", "crates/automation/tests/automation.rs::text_extract_with_a_rect_takes_one_column"]
-notes = "Issue #740. Holding Alt (Option on macOS) when a drag starts selects only the text inside the rectangle drawn, with the Select tool, the text markup tools and Redact (with Highlight and Redact the drag must start on text, since off text they draw an area box). Edit ▸ Column select does the same with a plain drag. A glyph counts when its centre is inside. Copy gives one row per visual line, top to bottom; pieces side by side (table cells) are separated by a tab, right to left in right-to-left rows; vertical text keeps reading order. text_extract takes the same rectangle as rect. Platforms: on Linux desktops whose window manager moves windows with Alt-drag (Xfce, Cinnamon and MATE by default; KDE Plasma 5 and other setups with Alt as the window modifier; GNOME and Plasma 6 use Super) the drag never reaches Burin Docs, so use Edit ▸ Column select or change that setting. On Windows, releasing Alt does not open a system menu (the window has no native menu). The web build has the same Linux caveat in the browser. Checked by hand on Linux (Fedora) with the Column select tool; Alt/Option-drag, and macOS and Windows generally, rest on the kittest tests. Missing: selection across pages, ⇧-click extending a column, a default shortcut, and a check of Acrobat's own copied-text format (not observed)."
+notes = "Issue #740. Holding Alt (Option on macOS) when a drag starts selects only the text inside the rectangle drawn, with the Select tool, the text markup tools and Redact (with Highlight and Redact the drag must start on text, since off text they draw an area box). Edit ▸ Column select does the same with a plain drag. A glyph counts when its centre is inside. Copy gives one row per visual line, top to bottom; pieces side by side (table cells) are separated by a tab, right to left in right-to-left rows; vertical text keeps reading order. text_extract takes the same rectangle as rect. Platforms: on Linux desktops whose window manager moves windows with Alt-drag (Xfce, Cinnamon and MATE by default; KDE Plasma 5 and other setups with Alt as the window modifier; GNOME and Plasma 6 use Super) the drag never reaches Chisel Docs, so use Edit ▸ Column select or change that setting. On Windows, releasing Alt does not open a system menu (the window has no native menu). The web build has the same Linux caveat in the browser. Checked by hand on Linux (Fedora) with the Column select tool; Alt/Option-drag, and macOS and Windows generally, rest on the kittest tests. Missing: selection across pages, ⇧-click extending a column, a default shortcut, and a check of Acrobat's own copied-text format (not observed)."
 
 [[feature]]
 id = "view.copy-text"
@@ -2401,7 +2401,7 @@ status = "shipped"
 commands = ["edit.header_footer.update", "edit.header_footer.remove"]
 tools = ["doc_header_footer", "doc_remove_marks"]
 evidence = ["crates/edit/src/tests.rs::replace_and_remove_restore_the_original_content", "crates/ui-egui/tests/ui_group/marks.rs::header_and_footer_dialog_inserts_tokens_and_applies_to_a_subset"]
-notes = "recognises Burin Docs marks; Acrobat-made headers are not detected yet"
+notes = "recognises Chisel Docs marks; Acrobat-made headers are not detected yet"
 
 [[feature]]
 id = "edit.header-footer-tokens"
@@ -3561,7 +3561,7 @@ status = "partial"
 commands = []
 tools = ["comment_add"]
 evidence = ["crates/annot/src/tests.rs::every_tool_creates_a_drawable_comment", "crates/engine/src/tests.rs::highlight_multiplies_over_text", "crates/annot/src/tests.rs::polygons_clouds_connected_lines_callouts_and_carets_are_drawn"]
-notes = "appearances for every type Burin Docs creates (highlight multiplies; clouds, callouts, stamps, polygons, carets); rich text not yet"
+notes = "appearances for every type Chisel Docs creates (highlight multiplies; clouds, callouts, stamps, polygons, carets); rich text not yet"
 
 [[feature]]
 id = "comment.sticky-note"
@@ -4077,7 +4077,7 @@ status = "shipped"
 commands = ["comment.stamp"]
 tools = ["comment_add"]
 evidence = ["crates/annot/src/tests.rs::stamps_draw_their_label_and_by_line", "crates/ui-egui/tests/stamps.rs::choosing_and_placing_stamps", "crates/automation/tests/automation.rs::stamps_through_tools", "crates/engine/src/tests.rs::rubber_stamps_point_left_as_displayed_on_rotated_pages"]
-notes = "12 standard business stamps in Burin Docs's own design; ISO 32000 stamp names where defined. A stamp placed on a rotated page reads upright as the page is displayed (#1398)"
+notes = "12 standard business stamps in Chisel Docs's own design; ISO 32000 stamp names where defined. A stamp placed on a rotated page reads upright as the page is displayed (#1398)"
 
 [[feature]]
 id = "comment.stamps-sign-here"
@@ -4729,7 +4729,7 @@ status = "shipped"
 commands = ["form.flatten"]
 tools = ["doc_flatten"]
 evidence = ["crates/edit/src/tests.rs::flattening_draws_appearances_into_the_page_and_removes_the_comments", "crates/edit/src/tests.rs::flattening_keeps_a_valued_widget_it_cannot_draw", "crates/engine/src/tests.rs::flattening_keeps_the_look_and_drops_the_objects", "crates/automation/tests/automation.rs::flattening_through_tools"]
-notes = "widgets drawn into content and pruned from the field tree; a widget with no appearance to draw (none stored, or none for its selected state) stays a live field rather than losing its value, so a form with such fields is not fully flattened — Acrobat regenerates appearances first, which Burin Docs does not yet do here"
+notes = "widgets drawn into content and pruned from the field tree; a widget with no appearance to draw (none stored, or none for its selected state) stays a live field rather than losing its value, so a form with such fields is not fully flattened — Acrobat regenerates appearances first, which Chisel Docs does not yet do here"
 
 [[feature]]
 id = "form.prepare-form-mode"
@@ -5257,7 +5257,7 @@ status = "shipped"
 commands = ["form.flatten"]
 tools = ["doc_flatten", "xfa_to_static"]
 evidence = ["crates/xfa/src/tests.rs::stripping_takes_the_xfa_out_and_leaves_an_ordinary_document", "crates/engine/src/tests.rs::flattening_an_xfa_form_bakes_its_pages_and_takes_the_xfa_out", "crates/engine/src/tests.rs::an_xfa_form_converts_to_a_static_form_that_keeps_its_fields", "crates/automation/tests/automation.rs::xfa_forms_flatten_and_convert_to_static_through_tools"]
-notes = "Flatten form fields on a laid-out XFA form bakes the fields into the pages and takes the XFA out (packets, /NeedsRendering, Burin Docs's private keys), so every viewer, Adobe's included, shows the baked pages rather than laying the form out again from the template. xfa_to_static (tool and engine edit) keeps the laid-out pages and the fields with their values as an ordinary AcroForm whose scripts no longer run. Both undoable until saved. Missing: a menu entry for the conversion (the tool and the MCP server have it); flattening keeps the layout as Burin Docs laid it out, not as Acrobat would (form.xfa-dynamic)"
+notes = "Flatten form fields on a laid-out XFA form bakes the fields into the pages and takes the XFA out (packets, /NeedsRendering, Chisel Docs's private keys), so every viewer, Adobe's included, shows the baked pages rather than laying the form out again from the template. xfa_to_static (tool and engine edit) keeps the laid-out pages and the fields with their values as an ordinary AcroForm whose scripts no longer run. Both undoable until saved. Missing: a menu entry for the conversion (the tool and the MCP server have it); flattening keeps the layout as Chisel Docs laid it out, not as Acrobat would (form.xfa-dynamic)"
 
 [[feature]]
 id = "form.fill-sign-text"
@@ -5269,7 +5269,7 @@ status = "shipped"
 commands = ["sign.fill.text"]
 tools = ["fill_sign_add"]
 evidence = ["crates/ui-egui/tests/fill_sign.rs::text_marks_and_date", "crates/annot/src/tests.rs::fill_and_sign_items_are_drawn", "crates/automation/tests/automation.rs::fill_and_sign_through_tools", "crates/engine/src/tests.rs::typed_text_reads_across_as_displayed_on_rotated_pages"]
-notes = "typewriter FreeText, 10 pt Helvetica. Reads across as displayed on pages with /Rotate (sideways-stored scans): the box follows the displayed axes and the appearance is turned back (Burin Docs key /PCTextRotate); other apps that regenerate the appearance from /DA draw it unturned. A later page rotation does not re-turn it. Field detection does not work on scanned (image-only) forms yet"
+notes = "typewriter FreeText, 10 pt Helvetica. Reads across as displayed on pages with /Rotate (sideways-stored scans): the box follows the displayed axes and the appearance is turned back (Chisel Docs key /PCTextRotate); other apps that regenerate the appearance from /DA draw it unturned. A later page rotation does not re-turn it. Field detection does not work on scanned (image-only) forms yet"
 
 [[feature]]
 id = "form.fill-sign-marks"
@@ -5281,7 +5281,7 @@ status = "shipped"
 commands = ["sign.fill.check", "sign.fill.cross", "sign.fill.dot", "sign.fill.line"]
 tools = ["fill_sign_add"]
 evidence = ["crates/ui-egui/tests/fill_sign.rs::text_marks_and_date", "crates/annot/src/tests.rs::fill_and_sign_items_are_drawn"]
-notes = "Burin Docs-drawn stamps"
+notes = "Chisel Docs-drawn stamps"
 
 [[feature]]
 id = "form.fill-sign-date"
@@ -5925,7 +5925,7 @@ status = "shipped"
 commands = ["sign.digital", "sign.certify"]
 tools = ["sign_document"]
 evidence = ["crates/sign/tests/pdf.rs::encrypted_documents_are_signed_with_an_unencrypted_contents", "crates/sign/tests/pdf.rs::encrypted_documents_are_signed_only_as_their_permissions_allow", "crates/sign/tests/pdf.rs::encrypted_documents_take_a_document_timestamp", "crates/cos/tests/encryption.rs::signature_contents_stay_unencrypted", "crates/automation/tests/automation.rs::signing_an_encrypted_form_through_tools"]
-notes = "RC4-40/128, AES-128 and AES-256 Standard security; the incremental update keeps /Encrypt and /ID, encrypts the new strings and streams, and leaves the signature /Contents unencrypted (§7.6.2), which reading also honours. Opened with the user password, permissions (Table 22) apply: existing signature fields need fill-forms, new fields need annotate + modify, certifying needs modify, a document timestamp needs fill-forms; the owner may do anything. Not yet: certificate (public-key) security, which Burin Docs can't open; checked only against Burin Docs's own validator, not yet against an external one (pyHanko) or Acrobat"
+notes = "RC4-40/128, AES-128 and AES-256 Standard security; the incremental update keeps /Encrypt and /ID, encrypts the new strings and streams, and leaves the signature /Contents unencrypted (§7.6.2), which reading also honours. Opened with the user password, permissions (Table 22) apply: existing signature fields need fill-forms, new fields need annotate + modify, certifying needs modify, a document timestamp needs fill-forms; the owner may do anything. Not yet: certificate (public-key) security, which Chisel Docs can't open; checked only against Chisel Docs's own validator, not yet against an external one (pyHanko) or Acrobat"
 
 [[feature]]
 id = "sign.pkcs11"
@@ -6069,7 +6069,7 @@ status = "shipped"
 commands = ["sign.digital"]
 tools = ["sign_document"]
 evidence = ["crates/sign/tests/crypto.rs::signatures_round_trip_for_every_key_type", "crates/sign/tests/crypto.rs::rsa_signatures_are_read_with_every_digestinfo_variant", "crates/sign/tests/crypto.rs::ecdsa_signatures_are_read_as_der_non_minimal_der_or_raw", "crates/sign/tests/crypto.rs::verifies_ecdsa_on_p521_and_the_brainpool_curves", "crates/sign/tests/crypto.rs::keys_of_unknown_algorithms_are_unsupported_not_wrong", "crates/sign/tests/crypto.rs::tolerated_encodings_are_noted_and_standard_ones_are_not", "crates/sign/tests/crypto.rs::weak_digests_say_so_in_words_that_are_pinned", "crates/sign/tests/crypto.rs::an_rsa_signature_value_not_below_the_modulus_is_refused", "crates/sign/tests/crypto.rs::hostile_rsa_signature_values_are_wrong_not_crashes", "crates/sign/tests/algorithms.rs::rsa_with_sha3_sha512_256_and_ripemd160", "crates/sign/tests/algorithms.rs::rsa_pss_with_its_declared_parameters", "crates/sign/tests/algorithms.rs::ed25519_signs_the_signed_attributes_themselves", "crates/sign/tests/algorithms.rs::ecdsa_on_brainpool_p512r1", "crates/sign/tests/algorithms.rs::brainpool_p512r1_keys_must_have_coordinates_reduced_modulo_p", "crates/sign/tests/algorithms.rs::only_weak_digests_leave_a_note_when_a_signature_validates", "crates/sign/tests/pdf.rs::validates_the_legacy_adbe_x509_rsa_sha1_format"]
-notes = "SHA-256, SHA-384 for P-384; SHA-1 refused for new signatures, validated in old ones. Validation also reads SHA-224, SHA-512/224, SHA-512/256, SHA3-224/256/384/512, RIPEMD-160, RSA PKCS#1 with or without the DigestInfo NULL (a bare digest without any DigestInfo is refused), RSA-PSS with its declared MGF1 hash and salt length, ECDSA as DER/non-minimal DER/raw r||s on P-256, P-384, P-521 and brainpoolP256r1/P384r1/P512r1 (the last hand-written on crypto-bigint, checked against OpenSSL), Ed25519 (RFC 8419), and the legacy adbe.x509.rsa_sha1 format. An RSA value not below the modulus is refused (RFC 8017 5.2.2). SHA-1 and RIPEMD-160 validate but the signature details say the algorithm is weak (wording pinned by tests); tolerated encodings are listed in the details. An algorithm Burin Docs cannot check gives Unknown, not Invalid. Still missing: Ed448/SHAKE, DSA, brainpool curves other than P256/P384/P512, signing with the new digests"
+notes = "SHA-256, SHA-384 for P-384; SHA-1 refused for new signatures, validated in old ones. Validation also reads SHA-224, SHA-512/224, SHA-512/256, SHA3-224/256/384/512, RIPEMD-160, RSA PKCS#1 with or without the DigestInfo NULL (a bare digest without any DigestInfo is refused), RSA-PSS with its declared MGF1 hash and salt length, ECDSA as DER/non-minimal DER/raw r||s on P-256, P-384, P-521 and brainpoolP256r1/P384r1/P512r1 (the last hand-written on crypto-bigint, checked against OpenSSL), Ed25519 (RFC 8419), and the legacy adbe.x509.rsa_sha1 format. An RSA value not below the modulus is refused (RFC 8017 5.2.2). SHA-1 and RIPEMD-160 validate but the signature details say the algorithm is weak (wording pinned by tests); tolerated encodings are listed in the details. An algorithm Chisel Docs cannot check gives Unknown, not Invalid. Still missing: Ed448/SHAKE, DSA, brainpool curves other than P256/P384/P512, signing with the new digests"
 
 [[feature]]
 id = "sign.certify"
@@ -7949,7 +7949,7 @@ status = "shipped"
 commands = ["print.dialog"]
 tools = ["printers", "printer_options", "doc_print"]
 evidence = ["crates/print/src/tests.rs::spooler_arguments_and_printer_list", "crates/print/src/tests.rs::driverless_printers_join_the_list_without_a_queue", "crates/print/src/tests.rs::windows_printers_carry_one_default_and_keep_their_names", "crates/print/src/tests.rs::printer_options_come_from_the_ppd", "crates/print/src/tests.rs::printer_option_defaults_and_job_arguments", "crates/ui-egui/tests/print.rs::print_dialog_shows_the_printer_driver_options", "crates/ui-egui/tests/print.rs::printers_listed_in_the_background_preselect_the_default_unless_one_was_picked", "crates/ui-egui/src/web_print.rs::resolution_falls_with_the_sheet_count_and_long_jobs_are_refused", "crates/ui-egui/src/web_print.rs::large_sheets_are_drawn_within_the_pixel_cap_and_bad_sizes_are_refused", "crates/ui-egui/src/web_print.rs::a_sink_error_or_a_page_that_isnt_there_stops_the_job"]
-notes = "CUPS queues via lpstat -p -d and driverless destinations without a queue via lpstat -e; on Windows shared craft-print lists the queues (EnumPrinters), the default (GetDefaultPrinter) and each driver's two-sided support in this process, and draws jobs as vectors with Windows.Data.Pdf into the XPS print API with a driver-validated PrintTicket (exact paper, orientation, no scaling; portrait and landscape sheets in one job via /Rotate), starting no PowerShell, so printing works under App Control script enforcement (#1107); the printer list and submission run on workers; Save as PDF on every platform. Properties…: on CUPS the driver's own PPD job options (tray, paper type, finishing …, not installable options or what the dialog sets) for this job, sent as lp -o; on Windows the driver's Printing Preferences window (printui), saved as that printer's per-user defaults rather than per job. On the web: \"Browser's print dialog\" (the default there) reaches the system's printers through the browser; Burin Docs draws the sheets itself (300 dpi up to 100 sheets, 200 up to 300, 150 up to 1,000; at most 64 megapixels a sheet and 1 GiB a job) and prints them from a hidden iframe, one per printed page, a landscape sheet among portrait ones turned onto the paper; copies, two-sided and colour are chosen in the browser's dialog; a browser that refuses to print gets the print-ready PDF as a download. Checked in headless Chromium, not yet in Firefox or Safari; pictures, not vectors; sheets of another paper size print at their own size only where the browser honours named @page sizes (Chromium doesn't)"
+notes = "CUPS queues via lpstat -p -d and driverless destinations without a queue via lpstat -e; on Windows shared craft-print lists the queues (EnumPrinters), the default (GetDefaultPrinter) and each driver's two-sided support in this process, and draws jobs as vectors with Windows.Data.Pdf into the XPS print API with a driver-validated PrintTicket (exact paper, orientation, no scaling; portrait and landscape sheets in one job via /Rotate), starting no PowerShell, so printing works under App Control script enforcement (#1107); the printer list and submission run on workers; Save as PDF on every platform. Properties…: on CUPS the driver's own PPD job options (tray, paper type, finishing …, not installable options or what the dialog sets) for this job, sent as lp -o; on Windows the driver's Printing Preferences window (printui), saved as that printer's per-user defaults rather than per job. On the web: \"Browser's print dialog\" (the default there) reaches the system's printers through the browser; Chisel Docs draws the sheets itself (300 dpi up to 100 sheets, 200 up to 300, 150 up to 1,000; at most 64 megapixels a sheet and 1 GiB a job) and prints them from a hidden iframe, one per printed page, a landscape sheet among portrait ones turned onto the paper; copies, two-sided and colour are chosen in the browser's dialog; a browser that refuses to print gets the print-ready PDF as a download. Checked in headless Chromium, not yet in Firefox or Safari; pictures, not vectors; sheets of another paper size print at their own size only where the browser honours named @page sizes (Chromium doesn't)"
 
 [[feature]]
 id = "print.copies-collate"
@@ -10093,7 +10093,7 @@ status = "partial"
 commands = []
 tools = []
 evidence = []
-notes = "Release builds provide signed and notarized macOS artifacts and code-signed Windows installers when signing credentials are configured (packaging/macos/package.sh; packaging/windows/sign.ps1; README.md). Linux AppImage, Flatpak, deb and rpm packages ship, but are not code-signed. Windows MSI creates a Start menu shortcut, an optional (default on) desktop shortcut, an optional (default on, INSTALLPDFCONTEXTMENU) \"Edit with Burin Docs\" File Explorer menu entry for PDF files (#682) and an optional (default on, INSTALLIMAGECONTEXTMENU) \"Create PDF with Burin Docs…\" entry for images; an update keeps whichever of the three the installed version has (#1058, #305). It confirms full-UI completion with Finish (#143); packaging/windows/test-msi.ps1 checks the compiled MSI and windows-arm64.yml checks installation/removal. PDF files use a dedicated embedded document icon when Burin Docs is chosen as the default reader (confirmed in Windows Explorer); first-page thumbnails remain unsupported."
+notes = "Release builds provide signed and notarized macOS artifacts and code-signed Windows installers when signing credentials are configured (packaging/macos/package.sh; packaging/windows/sign.ps1; README.md). Linux AppImage, Flatpak, deb and rpm packages ship, but are not code-signed. Windows MSI creates a Start menu shortcut, an optional (default on) desktop shortcut, an optional (default on, INSTALLPDFCONTEXTMENU) \"Edit with Chisel Docs\" File Explorer menu entry for PDF files (#682) and an optional (default on, INSTALLIMAGECONTEXTMENU) \"Create PDF with Chisel Docs…\" entry for images; an update keeps whichever of the three the installed version has (#1058, #305). It confirms full-UI completion with Finish (#143); packaging/windows/test-msi.ps1 checks the compiled MSI and windows-arm64.yml checks installation/removal. PDF files use a dedicated embedded document icon when Chisel Docs is chosen as the default reader (confirmed in Windows Explorer); first-page thumbnails remain unsupported."
 
 [[feature]]
 id = "misc.web-deploy"

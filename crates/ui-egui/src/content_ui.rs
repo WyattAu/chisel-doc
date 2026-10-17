@@ -42,15 +42,15 @@ pub(crate) fn undrawable_message(c: char) -> String {
     )
 }
 
-/// The warning after an edit that saved text its font can't draw: Burin Docs drew `?` for it (a form
+/// The warning after an edit that saved text its font can't draw: Chisel Docs drew `?` for it (a form
 /// field, which other viewers redraw from its value, or a comment, where the `?` shows everywhere).
 pub(crate) fn undrawn_message(n: &pdfcraft_engine::TextNotice) -> String {
     let template = if n.redrawn_elsewhere {
         tl!(
-            "This field's font can't draw “{c}” ({code}), so Burin Docs shows ? in its place. The value is saved, and other PDF viewers redraw the field from it."
+            "This field's font can't draw “{c}” ({code}), so Chisel Docs shows ? in its place. The value is saved, and other PDF viewers redraw the field from it."
         )
     } else {
-        tl!("The fonts Burin Docs writes with can't draw “{c}” ({code}), so it shows as ? in every PDF viewer. The text is saved.")
+        tl!("The fonts Chisel Docs writes with can't draw “{c}” ({code}), so it shows as ? in every PDF viewer. The text is saved.")
     };
     crate::i18n::fmt(template, &[("c", &n.ch.to_string()), ("code", &format!("U+{:04X}", u32::from(n.ch)))])
 }
@@ -662,7 +662,7 @@ pub(crate) fn hint(ui: &mut egui::Ui, t: &Tokens) {
     ui.add_space(4.0);
 }
 
-impl crate::BurinDocsApp {
+impl crate::ChiselDocsApp {
     /// Pick an image file for the active document, read it, and call `then` with its name and
     /// bytes: now when `save_override` answers (tests and automation never see a native dialog),
     /// otherwise on a later frame, and only if that document is still the active one.

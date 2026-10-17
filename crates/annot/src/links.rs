@@ -11,7 +11,7 @@ pub enum LinkAction {
     /// A page of this document (0-based), shown fitting the window (`/Fit`).
     Page(usize),
     Uri(String),
-    /// Something Burin Docs doesn't edit yet (named destination, JavaScript…): kept as is.
+    /// Something Chisel Docs doesn't edit yet (named destination, JavaScript…): kept as is.
     Other(String),
 }
 

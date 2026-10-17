@@ -1,8 +1,8 @@
 //! State-based waits for native preparation, which completes between UI frames.
 use egui_kittest::Harness;
-use pdfcraft_ui_egui::BurinDocsApp;
+use pdfcraft_ui_egui::ChiselDocsApp;
 
-pub fn wait_until(h: &mut Harness<'static, BurinDocsApp>, what: &str, ready: impl Fn(&BurinDocsApp) -> bool) {
+pub fn wait_until(h: &mut Harness<'static, ChiselDocsApp>, what: &str, ready: impl Fn(&ChiselDocsApp) -> bool) {
     let deadline = std::time::Instant::now() + std::time::Duration::from_secs(30);
     loop {
         h.step();

@@ -23,7 +23,7 @@ jobs:
     uses: wyattau/craft-common-actions/.github/workflows/release.yml@main
     with:
       app-name: pdfcraft
-      app-title: Burin Docs
+      app-title: Chisel Docs
       craft-fonts-ref: 3d9ab3a132ed0eff457e424226a435a901da30d3
       version: ${{ inputs.version }}
     secrets:

@@ -4,7 +4,7 @@
 use egui::Pos2;
 use egui_kittest::Harness;
 use egui_kittest::kittest::Queryable;
-use pdfcraft_ui_egui::BurinDocsApp;
+use pdfcraft_ui_egui::ChiselDocsApp;
 
 /// One page with layers Red (on) and Green (off), a radio-button group, each drawing a band;
 /// a "show-red" push button turns Red on and a link toggles Green.
@@ -35,9 +35,9 @@ fn fixture() -> Vec<u8> {
     out
 }
 
-fn harness(setup: impl FnOnce(&mut BurinDocsApp) + 'static) -> Harness<'static, BurinDocsApp> {
+fn harness(setup: impl FnOnce(&mut ChiselDocsApp) + 'static) -> Harness<'static, ChiselDocsApp> {
     let mut h = Harness::builder().with_size(egui::vec2(1400.0, 900.0)).build_eframe(move |_cc| {
-        let mut app = BurinDocsApp::new();
+        let mut app = ChiselDocsApp::new();
         app.set_option("language", "en").unwrap();
         app.open_bytes("layers.pdf", None, fixture()).unwrap();
         app.set_option("zoom", "150").unwrap();
@@ -49,13 +49,13 @@ fn harness(setup: impl FnOnce(&mut BurinDocsApp) + 'static) -> Harness<'static, 
 }
 
 /// The screen position of a point given in PDF user space (y up) on the 300 × 400 page.
-fn at(h: &Harness<'static, BurinDocsApp>, x: f32, y: f32) -> Pos2 {
+fn at(h: &Harness<'static, ChiselDocsApp>, x: f32, y: f32) -> Pos2 {
     let r = h.state().views[0].page_screen_rect(0).unwrap();
     let k = r.width() / 300.0;
     r.min + egui::vec2(x * k, (400.0 - y) * k)
 }
 
-fn click(h: &mut Harness<'static, BurinDocsApp>, p: Pos2) {
+fn click(h: &mut Harness<'static, ChiselDocsApp>, p: Pos2) {
     h.hover_at(p);
     h.run_steps(1);
     h.drag_at(p);
@@ -65,7 +65,7 @@ fn click(h: &mut Harness<'static, BurinDocsApp>, p: Pos2) {
 }
 
 /// Whether Red and Green are shown.
-fn shown(h: &Harness<'static, BurinDocsApp>) -> Vec<(String, bool)> {
+fn shown(h: &Harness<'static, ChiselDocsApp>) -> Vec<(String, bool)> {
     let s = h.state();
     s.session.get(s.views[0].id).unwrap().info.layers.iter().map(|l| (l.name.clone(), l.visible)).collect()
 }

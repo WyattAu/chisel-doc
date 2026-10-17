@@ -3,11 +3,11 @@
 
 use egui_kittest::Harness;
 use egui_kittest::kittest::Queryable;
-use pdfcraft_ui_egui::BurinDocsApp;
+use pdfcraft_ui_egui::ChiselDocsApp;
 
-fn harness() -> Harness<'static, BurinDocsApp> {
+fn harness() -> Harness<'static, ChiselDocsApp> {
     let mut h = Harness::builder().with_size(egui::vec2(1400.0, 900.0)).build_eframe(|_cc| {
-        let mut app = BurinDocsApp::new();
+        let mut app = ChiselDocsApp::new();
         app.set_option("language", "en").unwrap();
         app
     });
@@ -15,7 +15,7 @@ fn harness() -> Harness<'static, BurinDocsApp> {
     h
 }
 
-fn preference(h: &Harness<'static, BurinDocsApp>) -> String {
+fn preference(h: &Harness<'static, ChiselDocsApp>) -> String {
     format!("{:?}", h.state().theme_preference)
 }
 

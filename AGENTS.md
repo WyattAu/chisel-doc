@@ -1,7 +1,7 @@
-# AGENTS.md — rules for AI agents and contributors (Burin Docs fork)
+# AGENTS.md — rules for AI agents and contributors (Chisel Docs fork)
 
 Derived from upstream PdfCraft's contributor rules, forked and tightened for
-the Burin program. Section numbering inside §1 is preserved because code and
+the Chisel program. Section numbering inside §1 is preserved because code and
 tooling reference it (`xtask/src/assets.rs`, `xtask/src/screenshots.rs`).
 
 ## §1 Asset policy
@@ -16,9 +16,9 @@ attested. Do not add new Adobe-authored files.
 
 ### §1.2 Brand assets
 
-Brand marks live in `assets/brand/` with licence `LicenseRef-Burin-Trademark`
+Brand marks live in `assets/brand/` with licence `LicenseRef-Chisel-Trademark`
 (terms: `assets/brand/LICENSE-brand.txt`). They are **not** open source, may
-be used only unmodified within Burin, and forks must remove them. Only
+be used only unmodified within Chisel, and forks must remove them. Only
 `kind = "logo"` entries may use that licence (enforced by `cargo xtask
 assets`). Current artwork is PLACEHOLDER pending name screening — see
 `REBRAND.md`.
@@ -87,7 +87,7 @@ harness and the regression upstream as a PR.
 Contributors may read public specs (ISO 32000, public corpus documentation)
 and upstream PdfCraft source. **Nobody reads or copies
 `storytold/artcraft-services`** — it is licensed under a custom fair-source
-licence incompatible with this fork, and its code must not influence Burin's
+licence incompatible with this fork, and its code must not influence Chisel's
 service layer.
 
 ## CI gates
@@ -105,7 +105,7 @@ service layer.
 
 Internal crate names are still `pdfcraft-*` (unpublished identifiers — rename
 deferred by decision; do not rename opportunistically). User-facing strings
-use **Burin Docs**. App id: `com.wyattau.burin.doc`. If you change an English
+use **Chisel Docs**. App id: `com.wyattau.chisel.doc`. If you change an English
 UI source string that contains the app name, mirror it in every
 `crates/ui-egui/src/i18n/*.tsv`.
 
@@ -113,4 +113,4 @@ UI source string that contains the app name, mirror it in every
 
 DCO sign-off (`git commit -s`) is required; no CLA. Security issues: see
 `SECURITY.md` upstream policy retained for the engine; program-level contact
-is the Burin repo security page.
+is the Chisel repo security page.

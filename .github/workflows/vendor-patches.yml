@@ -1,4 +1,4 @@
-# Burin vendor gate — keep the patch ledger and the patched sources honest.
+# Chisel vendor gate — keep the patch ledger and the patched sources honest.
 #
 # The vendored crates under vendor/ are excluded from the workspace, so the
 # main matrix never runs them and nothing verifies vendor/README.md. Two jobs:

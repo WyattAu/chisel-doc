@@ -3523,7 +3523,7 @@ fn printing_through_tools() {
     let mut a = auto(&dir);
     let doc = ok(&mut a, "doc_open", json!({ "path": "a.pdf" }))["doc"].as_u64().unwrap();
     assert!(ok(&mut a, "printers", json!({}))["printers"].is_array());
-    let none = ok(&mut a, "printer_options", json!({ "printer": "No_Such_Queue_Burin Docs" }));
+    let none = ok(&mut a, "printer_options", json!({ "printer": "No_Such_Queue_Chisel Docs" }));
     assert_eq!((none["count"].as_u64(), none["options"].as_array().map(Vec::len)), (Some(0), Some(0)));
     assert!(matches!(a.call("printer_options", &json!({})), Err(ToolError::InvalidArgs(_))));
     assert!(matches!(
@@ -4188,7 +4188,7 @@ fn comment_checkmarks_locks_hiding_and_summaries_through_tools() {
 /// value, a button caption, a text box and Fill & Sign text are kept as typed (as Acrobat keeps
 /// them) and the result's `warnings` names the character; a form also asks other viewers to
 /// redraw it. Where the `?` would be permanent the tool refuses: a typed signature, a redaction's
-/// overlay text, a new document from text, and flattening what Burin Docs drew with `?`. A comment
+/// overlay text, a new document from text, and flattening what Chisel Docs drew with `?`. A comment
 /// summary that quotes such text writes it as [U+XXXX].
 #[test]
 fn text_the_standard_fonts_cannot_draw_is_never_silent_through_tools() {

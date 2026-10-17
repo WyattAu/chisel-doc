@@ -6,7 +6,7 @@
 //! is read only once it has stopped changing ([`SETTLE`] apart) and ends like a whole PDF: its
 //! last KiB is read first, so a file still being written costs one small read. The new bytes go
 //! to the UI thread, which is woken for them: a clean document is reloaded in place, keeping its
-//! tab, page, zoom and scroll; one with unsaved changes gets a notice instead. Burin Docs's own
+//! tab, page, zoom and scroll; one with unsaved changes gets a notice instead. Chisel Docs's own
 //! saves are recognised by the file's stamp after writing, so they never reload.
 
 use std::collections::HashMap;
@@ -18,7 +18,7 @@ use std::time::{Duration, SystemTime};
 
 use pdfcraft_engine::DocId;
 
-use crate::BurinDocsApp;
+use crate::ChiselDocsApp;
 
 /// How often an unchanged file is looked at.
 pub const IDLE: Duration = Duration::from_millis(250);
@@ -66,9 +66,9 @@ impl Stamp {
 pub struct Watched {
     pub doc: DocId,
     pub path: String,
-    /// The version Burin Docs last read or wrote (`None`: the first one the watcher sees).
+    /// The version Chisel Docs last read or wrote (`None`: the first one the watcher sees).
     pub known: Option<Stamp>,
-    /// Which reading or writing of the file by Burin Docs this is for (an open, a save, Save As):
+    /// Which reading or writing of the file by Chisel Docs this is for (an open, a save, Save As):
     /// a version the watcher found for an earlier one is older than the document is now.
     pub epoch: u64,
 }
@@ -243,15 +243,15 @@ pub struct FileWatch {
     found: Arc<Mutex<Vec<Changed>>>,
     /// What the watcher was last told.
     sent: Vec<Watched>,
-    /// In tests ([`BurinDocsApp::run_inline`]) there is no thread: each frame looks once.
+    /// In tests ([`ChiselDocsApp::run_inline`]) there is no thread: each frame looks once.
     inline: Watcher,
-    /// The version of each document's file that Burin Docs last read or wrote.
+    /// The version of each document's file that Chisel Docs last read or wrote.
     known: HashMap<DocId, Stamp>,
     /// The version each document came from (its open, reload or last save). Unlike `known`,
     /// a version found on disk and not applied (the document had unsaved changes) is not
     /// recorded here, so Save can tell that the file is not the one the document came from.
     basis: HashMap<DocId, Stamp>,
-    /// How many times Burin Docs has read or written each document's file: a version the watcher
+    /// How many times Chisel Docs has read or written each document's file: a version the watcher
     /// found before the latest one is older than the document in memory, and is not applied
     /// (#1802).
     epoch: HashMap<DocId, u64>,
@@ -260,7 +260,7 @@ pub struct FileWatch {
 }
 
 impl FileWatch {
-    /// Burin Docs read or wrote `path` for `doc`: that version is not a change, and anything the
+    /// Chisel Docs read or wrote `path` for `doc`: that version is not a change, and anything the
     /// watcher found before it is stale.
     pub fn known_now(&mut self, doc: DocId, path: &str) {
         self.known_as(doc, Stamp::at(path));
@@ -296,7 +296,7 @@ impl FileWatch {
     }
 }
 
-impl BurinDocsApp {
+impl ChiselDocsApp {
     /// The documents to watch: every open one with a file, while the preference is on.
     fn watched(&self) -> impl Iterator<Item = (DocId, &str, Option<Stamp>, u64)> {
         self.views.iter().filter(|_| self.reload_changed_files).filter_map(|v| {
@@ -374,7 +374,7 @@ impl BurinDocsApp {
         if !same_file || self.watch.epoch(c.doc) != c.epoch {
             return;
         }
-        // Burin Docs wrote this version itself (a save), or it was handled already.
+        // Chisel Docs wrote this version itself (a save), or it was handled already.
         if self.watch.known.get(&c.doc) == Some(&c.stamp) {
             return;
         }
@@ -488,10 +488,10 @@ mod tests {
         file.set_modified(SystemTime::now() + Duration::from_secs(60)).unwrap();
     }
 
-    fn harness(path: &str) -> Harness<'static, BurinDocsApp> {
+    fn harness(path: &str) -> Harness<'static, ChiselDocsApp> {
         let path = path.to_owned();
         let mut h = Harness::builder().with_size(egui::vec2(1400.0, 900.0)).build_eframe(move |_cc| {
-            let mut app = BurinDocsApp::new();
+            let mut app = ChiselDocsApp::new();
             app.set_option("language", "en").unwrap();
             app.run_inline = true;
             app.open_path(&path);
@@ -503,7 +503,7 @@ mod tests {
 
     /// Version B of the open file, found by the watcher but not yet applied: queued as the worker
     /// thread queues what it finds between frames.
-    fn find_new_version(app: &mut BurinDocsApp, path: &str, bytes: &[u8]) -> Vec<Changed> {
+    fn find_new_version(app: &mut ChiselDocsApp, path: &str, bytes: &[u8]) -> Vec<Changed> {
         rebuild(path, bytes);
         // One look sees the change, the next sees it settled and reads it.
         let (mut found, _) = app.watch.inline.tick();
@@ -512,7 +512,7 @@ mod tests {
         found
     }
 
-    fn doc<'a>(h: &'a Harness<'static, BurinDocsApp>) -> &'a pdfcraft_engine::Document {
+    fn doc<'a>(h: &'a Harness<'static, ChiselDocsApp>) -> &'a pdfcraft_engine::Document {
         let app = h.state();
         app.session.get(app.views[0].id).unwrap()
     }

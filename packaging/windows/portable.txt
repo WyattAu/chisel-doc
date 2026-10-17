@@ -1,9 +1,9 @@
-Burin Docs portable mode
+Chisel Docs portable mode
 
-While this file sits next to pdfcraft.exe, Burin Docs keeps its settings, log files, crash-recovery
-autosaves and new digital IDs in the Burin DocsData folder beside it, and writes nothing to
-%APPDATA% or %LOCALAPPDATA%. Copy the whole folder to move Burin Docs with its settings.
+While this file sits next to pdfcraft.exe, Chisel Docs keeps its settings, log files, crash-recovery
+autosaves and new digital IDs in the Chisel DocsData folder beside it, and writes nothing to
+%APPDATA% or %LOCALAPPDATA%. Copy the whole folder to move Chisel Docs with its settings.
 
-Delete this file to use the normal per-user folders (%APPDATA%\Burin Docs and
-%LOCALAPPDATA%\Burin Docs) instead. If Burin DocsData can't be written (for example on a read-only
-drive), Burin Docs says so and uses the per-user folders instead.
+Delete this file to use the normal per-user folders (%APPDATA%\Chisel Docs and
+%LOCALAPPDATA%\Chisel Docs) instead. If Chisel DocsData can't be written (for example on a read-only
+drive), Chisel Docs says so and uses the per-user folders instead.

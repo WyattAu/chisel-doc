@@ -1,14 +1,14 @@
 [Desktop Entry]
 Type=Application
-Name=Burin Docs
+Name=Chisel Docs
 GenericName=PDF Editor
 Comment=Read, organize, combine, split and secure PDFs
 Exec=pdfcraft %U
 TryExec=pdfcraft
-Icon=com.wyattau.burin.doc
+Icon=com.wyattau.chisel.doc
 Terminal=false
 StartupNotify=true
-StartupWMClass=com.wyattau.burin.doc
+StartupWMClass=com.wyattau.chisel.doc
 Categories=Office;Viewer;
 Keywords=pdf;viewer;editor;annotate;sign;forms;merge;split;
 MimeType=application/pdf;

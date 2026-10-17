@@ -13,7 +13,7 @@ use pdfcraft_engine::{
     word_count::{self, Options, Report},
 };
 
-use crate::{BurinDocsApp, widgets};
+use crate::{ChiselDocsApp, widgets};
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 struct Key {
@@ -104,7 +104,7 @@ impl Draft {
     }
 }
 
-pub(crate) fn body(ui: &mut egui::Ui, app: &mut BurinDocsApp) -> bool {
+pub(crate) fn body(ui: &mut egui::Ui, app: &mut ChiselDocsApp) -> bool {
     ui.heading(tl!("Word count"));
     let Some((view, id)) = app.active_ids() else { return true };
     let Some(doc) = app.session.get(id) else { return true };
@@ -167,14 +167,14 @@ mod tests {
         for inline in [true, false] {
             let bytes = pdfcraft_engine::Session::new().create_from_text("Words", "Hello world\u{c}Another three words").unwrap();
             let mut h = Harness::builder().with_size(egui::vec2(1200.0, 900.0)).build_eframe(|_| {
-                let mut app = BurinDocsApp::new();
+                let mut app = ChiselDocsApp::new();
                 app.run_inline = inline;
                 app.set_option("language", "en").unwrap();
                 app.open_bytes("words.pdf", None, bytes.as_ref().clone()).unwrap();
                 app.run_command("file.word_count");
                 app
             });
-            let wait = |h: &mut Harness<'_, BurinDocsApp>| {
+            let wait = |h: &mut Harness<'_, ChiselDocsApp>| {
                 let deadline = std::time::Instant::now() + std::time::Duration::from_secs(10);
                 while h.state().word_count_draft.result.is_none() {
                     assert!(std::time::Instant::now() < deadline, "word-count worker timed out");

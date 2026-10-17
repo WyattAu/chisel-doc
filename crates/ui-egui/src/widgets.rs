@@ -3,7 +3,7 @@
 use egui::{Align2, Color32, CornerRadius, Rect, Response, Sense, Stroke, vec2};
 
 use crate::theme::{self, Tokens};
-use crate::{BurinDocsApp, icons};
+use crate::{ChiselDocsApp, icons};
 
 /// Horizontal and vertical inset of a single-line field.
 const FIELD_MARGIN: egui::Margin = egui::Margin::symmetric(10, 6);
@@ -376,7 +376,7 @@ fn wrapped_lines(ui: &egui::Ui, text: &str, font: &egui::FontId, width: f32, tru
 }
 
 /// Transient message at the bottom centre.
-pub fn toast(app: &mut BurinDocsApp, ctx: &egui::Context) {
+pub fn toast(app: &mut ChiselDocsApp, ctx: &egui::Context) {
     let Some((msg, start)) = app.toast.clone() else { return };
     let now = ctx.input(|i| i.time);
     let start = if start == 0.0 { now } else { start };
@@ -428,10 +428,10 @@ pub struct ProgressNotice {
 /// Where the progress notice keeps its height this frame, for placing the toast above it.
 const PROGRESS_HEIGHT: &str = "progress-notice-height";
 
-/// Draw [`BurinDocsApp::progress_notice`]: the label, a bar that eases towards the fraction with
+/// Draw [`ChiselDocsApp::progress_notice`]: the label, a bar that eases towards the fraction with
 /// a light sweeping across it, the percentage and Cancel. Returns true when Cancel was clicked.
 /// With animation effects off ([`crate::motion`]) the bar steps to the fraction and has no sweep.
-pub fn progress_notice(app: &BurinDocsApp, ctx: &egui::Context) -> bool {
+pub fn progress_notice(app: &ChiselDocsApp, ctx: &egui::Context) -> bool {
     let Some(p) = &app.progress_notice else { return false };
     let t = Tokens::get(ctx);
     let screen = ctx.content_rect();
@@ -499,23 +499,23 @@ pub fn progress_notice(app: &BurinDocsApp, ctx: &egui::Context) -> bool {
     cancel
 }
 
-/// The Burin wordmark (our brand logo, assets/brand/), sized to `height`.
+/// The Chisel wordmark (our brand logo, assets/brand/), sized to `height`.
 pub fn app_logo(ui: &mut egui::Ui, height: f32) -> Response {
     let dark = ui.visuals().dark_mode;
     let (uri, bytes): (&str, &'static [u8]) = if dark {
-        ("bytes://burin-logo-white.svg", include_bytes!("../../../assets/brand/logo-white.svg"))
+        ("bytes://chisel-logo-white.svg", include_bytes!("../../../assets/brand/logo-white.svg"))
     } else {
-        ("bytes://burin-logo.svg", include_bytes!("../../../assets/brand/logo.svg"))
+        ("bytes://chisel-logo.svg", include_bytes!("../../../assets/brand/logo.svg"))
     };
-    ui.add(egui::Image::from_bytes(uri, bytes).max_height(height).alt_text("Burin"))
+    ui.add(egui::Image::from_bytes(uri, bytes).max_height(height).alt_text("Chisel"))
 }
 
-/// The Burin mark (brand blue, works on light and dark), `size` points square.
+/// The Chisel mark (brand blue, works on light and dark), `size` points square.
 pub fn app_mark(ui: &mut egui::Ui, size: f32) -> Response {
     ui.add(
-        egui::Image::from_bytes("bytes://burin-mark.svg", include_bytes!("../../../assets/brand/mark.svg"))
+        egui::Image::from_bytes("bytes://chisel-mark.svg", include_bytes!("../../../assets/brand/mark.svg"))
             .fit_to_exact_size(vec2(size, size))
-            .alt_text("Burin"),
+            .alt_text("Chisel"),
     )
 }
 
@@ -687,7 +687,7 @@ mod tests {
         output.drop_without_applying_deltas();
     }
 
-    fn toast_rect(app: &mut BurinDocsApp, ctx: &egui::Context, width: f32, now: &mut f64) -> Rect {
+    fn toast_rect(app: &mut ChiselDocsApp, ctx: &egui::Context, width: f32, now: &mut f64) -> Rect {
         // Let the Area settle after a notice/viewport change, without advancing to
         // expiry. No native rendering or renderer worker is needed for this layout.
         for _ in 0..3 {
@@ -704,7 +704,7 @@ mod tests {
     #[test]
     fn toast_width_adapts_to_long_notices_and_narrow_viewports() {
         let ctx = egui::Context::default();
-        let mut app = BurinDocsApp::new();
+        let mut app = ChiselDocsApp::new();
         let mut now = 1.0;
         app.notify("Saved");
         let short = toast_rect(&mut app, &ctx, 1280.0, &mut now);

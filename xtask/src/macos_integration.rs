@@ -37,17 +37,17 @@ struct Probe {
 pub fn run(args: &[String]) -> anyhow::Result<()> {
     let options = parse_args(args)?;
     if options.help {
-        println!("Usage: cargo xtask macos-integration [--bundle Burin Docs.app] [--pdf file.pdf]");
+        println!("Usage: cargo xtask macos-integration [--bundle Chisel Docs.app] [--pdf file.pdf]");
         return Ok(());
     }
     let mut report = String::new();
-    writeln!(report, "Burin Docs macOS integration diagnostics")?;
+    writeln!(report, "Chisel Docs macOS integration diagnostics")?;
     writeln!(report, "target: {} / {}", std::env::consts::OS, std::env::consts::ARCH)?;
     writeln!(report, "os version: {}", os_version())?;
 
     match options.bundle.as_deref() {
         Some(bundle) => write_bundle_report(&mut report, bundle)?,
-        None => writeln!(report, "bundle: not supplied (use --bundle /path/to/Burin Docs.app)")?,
+        None => writeln!(report, "bundle: not supplied (use --bundle /path/to/Chisel Docs.app)")?,
     }
 
     write_tool_report(&mut report, "quick look", "qlmanage", &["-m", "plugins"])?;
@@ -110,7 +110,7 @@ fn write_bundle_report(report: &mut String, bundle: &Path) -> anyhow::Result<()>
         writeln!(report, "  bundle identifier: {bundle_id}")?;
         writeln!(report, "  minimum macOS: {minimum}")?;
         writeln!(report, "  PDF registration: {}", pdf_registration(text))?;
-        let executable = plist_value(text, "CFBundleExecutable").unwrap_or_else(|| "Burin Docs".into());
+        let executable = plist_value(text, "CFBundleExecutable").unwrap_or_else(|| "Chisel Docs".into());
         write_architecture_report(report, &contents.join("MacOS").join(executable))?;
     } else if plist.exists() {
         writeln!(report, "  Info.plist: present but not UTF-8 XML (binary plist inspection unavailable)")?;
@@ -316,8 +316,8 @@ mod tests {
     #[test]
     fn parses_optional_paths() {
         assert_eq!(
-            parse_args(&args(&["--bundle", "Burin Docs.app", "--pdf", "fixture.pdf"])).expect("arguments"),
-            Options { help: false, bundle: Some("Burin Docs.app".into()), pdf: Some("fixture.pdf".into()) }
+            parse_args(&args(&["--bundle", "Chisel Docs.app", "--pdf", "fixture.pdf"])).expect("arguments"),
+            Options { help: false, bundle: Some("Chisel Docs.app".into()), pdf: Some("fixture.pdf".into()) }
         );
     }
 
@@ -329,7 +329,7 @@ mod tests {
     #[test]
     fn reads_pdf_bundle_values_without_invoking_macos_tools() {
         let plist = r#"
-            <key>CFBundleIdentifier</key><string>com.wyattau.burin.doc</string>
+            <key>CFBundleIdentifier</key><string>com.wyattau.chisel.doc</string>
             <key>LSMinimumSystemVersion</key><string>11.0</string>
             <key>CFBundleDocumentTypes</key><array><dict>
               <key>CFBundleTypeRole</key><string>Editor</string>
@@ -337,7 +337,7 @@ mod tests {
               <key>LSItemContentTypes</key><array><string>com.adobe.pdf</string></array>
             </dict></array>
         "#;
-        assert_eq!(plist_value(plist, "CFBundleIdentifier").as_deref(), Some("com.wyattau.burin.doc"));
+        assert_eq!(plist_value(plist, "CFBundleIdentifier").as_deref(), Some("com.wyattau.chisel.doc"));
         assert_eq!(plist_value(plist, "LSMinimumSystemVersion").as_deref(), Some("11.0"));
         assert_eq!(pdf_registration(plist), "com.adobe.pdf (role=Editor, rank=Alternate)");
     }

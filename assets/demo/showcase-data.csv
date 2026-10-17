@@ -1,4 +1,4 @@
-# Illustrative sample data behind the charts on page 7 of the Burin Docs showcase.
+# Illustrative sample data behind the charts on page 7 of the Chisel Docs showcase.
 # These are made-up numbers for demonstration, not measurements.
 chart,series,label,value
 pages_per_second,throughput,Text,189

@@ -1,4 +1,4 @@
-# Burin Docs
+# Chisel Docs
 
 **An industrial-hardening fork of [PdfCraft](https://github.com/storytold/pdfcraft) —
 a PDF reader and editor written from scratch in pure Rust.**
@@ -9,7 +9,7 @@ a PDF reader and editor written from scratch in pure Rust.**
 
 ## What this fork is
 
-Burin Docs takes upstream PdfCraft's engine (33-crate pure-Rust workspace:
+Chisel Docs takes upstream PdfCraft's engine (33-crate pure-Rust workspace:
 `cos` object system, `render`, `sign`, `redact`, `audit`, OCR, forms) and
 wraps it in a defence-grade engineering program:
 
@@ -20,7 +20,7 @@ wraps it in a defence-grade engineering program:
   `.github/workflows/estate-gate.yml` for the current posture.
 - **Rebrand gate**: zero upstream brand marks outside the attribution
   allowlist (`.rebrand-allowlist.txt`), enforced in CI. See `REBRAND.md`.
-- **Platform track** (separate `burin-platform` repo): OIDC/passkey auth,
+- **Platform track** (separate `chisel-platform` repo): OIDC/passkey auth,
   content-addressed asset store, tamper-evident audit trails, render-job
   orchestration, opt-in telemetry with committed latency budgets.
 
@@ -30,7 +30,7 @@ Same as upstream — the toolchain is unmodified:
 
 ```sh
 git clone <this repository>
-cd burin-doc
+cd chisel-doc
 cargo check --locked --workspace
 cargo run --release -p pdfcraft -- file.pdf
 cargo test --workspace
@@ -47,4 +47,4 @@ MIT OR Apache-2.0. The derivation is Apache-2.0. Required notices:
 its apps are unrelated to, and do not endorse, this fork.
 
 Program documentation (licensing audit, naming, platform design, 90-day plan)
-lives outside this repository in the Burin program workspace.
+lives outside this repository in the Chisel program workspace.

@@ -1,16 +1,16 @@
-# Flatpak manifest for Burin Docs, ready for a Flathub submission.
+# Flatpak manifest for Chisel Docs, ready for a Flathub submission.
 #
 # Flatpak builds run offline, so the crate sources must be vendored first. From the repo root:
 #
 #   curl -fsSLO https://raw.githubusercontent.com/flatpak/flatpak-builder-tools/master/cargo/flatpak-cargo-generator.py
 #   python3 flatpak-cargo-generator.py Cargo.lock -o packaging/linux/flatpak/cargo-sources.json
-#   flatpak-builder --user --install --force-clean build-flatpak packaging/linux/flatpak/com.wyattau.burin.doc.yml
-#   flatpak run com.wyattau.burin.doc
+#   flatpak-builder --user --install --force-clean build-flatpak packaging/linux/flatpak/com.wyattau.chisel.doc.yml
+#   flatpak run com.wyattau.chisel.doc
 #
 # For Flathub, replace the `dir` source with a `git` source pinned to a release tag and commit.
-# The single-file .flatpak attached to each release comes from com.wyattau.burin.doc.bundle.yml,
+# The single-file .flatpak attached to each release comes from com.wyattau.chisel.doc.bundle.yml,
 # which repackages the prebuilt release binaries. Keep runtime-version and finish-args identical.
-id: com.wyattau.burin.doc
+id: com.wyattau.chisel.doc
 runtime: org.freedesktop.Platform
 runtime-version: '25.08'
 sdk: org.freedesktop.Sdk
@@ -48,14 +48,14 @@ modules:
     build-commands:
       - cargo --offline build --release --locked -p pdfcraft
       - install -Dm755 target/release/pdfcraft /app/bin/pdfcraft
-      - install -Dm644 packaging/linux/com.wyattau.burin.doc.desktop /app/share/applications/com.wyattau.burin.doc.desktop
-      - install -Dm644 packaging/linux/com.wyattau.burin.doc.mime.xml /app/share/mime/packages/com.wyattau.burin.doc.xml
+      - install -Dm644 packaging/linux/com.wyattau.chisel.doc.desktop /app/share/applications/com.wyattau.chisel.doc.desktop
+      - install -Dm644 packaging/linux/com.wyattau.chisel.doc.mime.xml /app/share/mime/packages/com.wyattau.chisel.doc.xml
       - mkdir -p /app/share/icons && cp -R assets/app-icon/hicolor /app/share/icons/
       - >-
         version=$(awk '/^\[/{p=($0=="[workspace.package]");next} p&&$1=="version"{gsub(/[" ]/,"",$3);print $3;exit}' Cargo.toml);
         install -d /app/share/metainfo;
         sed -e "s/@VERSION@/$version/" -e "s/@DATE@/$(date -u +%Y-%m-%d)/"
-        packaging/linux/com.wyattau.burin.doc.metainfo.xml.in > /app/share/metainfo/com.wyattau.burin.doc.metainfo.xml
+        packaging/linux/com.wyattau.chisel.doc.metainfo.xml.in > /app/share/metainfo/com.wyattau.chisel.doc.metainfo.xml
     sources:
       - type: dir
         path: ../../..

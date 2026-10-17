@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Build, sign and (optionally) notarize the macOS release artifacts:
 #
-#   $DIST/pdfcraft-<version>-macos-<arch>.dmg          Burin Docs.app on a drag-to-Applications DMG
+#   $DIST/pdfcraft-<version>-macos-<arch>.dmg          Chisel Docs.app on a drag-to-Applications DMG
 #   $DIST/pdfcraft-cli-<version>-macos-<arch>.zip      the headless CLI
 #
 # Usage: packaging/macos/package.sh [--arch universal|aarch64|x86_64] [--skip-build]
@@ -39,7 +39,7 @@ export MACOSX_DEPLOYMENT_TARGET=11.0
 IDENTITY="${MACOS_SIGN_IDENTITY:--}"
 SHORT_VERSION="${VERSION%%-*}"
 WORK="$CARGO_TARGET_DIR/macos-package"
-APP="$WORK/Burin Docs.app"
+APP="$WORK/Chisel Docs.app"
 DMG="$DIST/pdfcraft-$VERSION-macos-$ARCH.dmg"
 CLI_ZIP="$DIST/pdfcraft-cli-$VERSION-macos-$ARCH.zip"
 
@@ -52,7 +52,7 @@ else
   warn "macOS: APPLE_ID / APPLE_PASSWORD / APPLE_TEAM_ID incomplete; signed but not notarized"
 fi
 
-echo "==> Burin Docs $VERSION for macOS ($ARCH), identity: $IDENTITY, notarize: $NOTARIZE"
+echo "==> Chisel Docs $VERSION for macOS ($ARCH), identity: $IDENTITY, notarize: $NOTARIZE"
 
 # ---- build -------------------------------------------------------------------------------------
 if [ "$SKIP_BUILD" = 0 ]; then
@@ -97,13 +97,13 @@ notarize() {
   fi
 }
 
-# ---- Burin Docs.app ----------------------------------------------------------------------------
+# ---- Chisel Docs.app ----------------------------------------------------------------------------
 echo "==> assembling $APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 # Executable and icon carry the display name (CFBundleExecutable / CFBundleIconFile).
-cp "$WORK/bin/pdfcraft" "$APP/Contents/MacOS/Burin Docs"
-cp "$ROOT/assets/app-icon/pdfcraft.icns" "$APP/Contents/Resources/Burin Docs.icns"
-# The standard About panel (Burin Docs menu > About Burin Docs) shows Credits.rtf under the version:
+cp "$WORK/bin/pdfcraft" "$APP/Contents/MacOS/Chisel Docs"
+cp "$ROOT/assets/app-icon/pdfcraft.icns" "$APP/Contents/Resources/Chisel Docs.icns"
+# The standard About panel (Chisel Docs menu > About Chisel Docs) shows Credits.rtf under the version:
 # the website and Discord links the in-app About dialog has (#1287).
 cp "$HERE/Credits.rtf" "$APP/Contents/Resources/Credits.rtf"
 copy_font_licences "$APP/Contents/Resources"
@@ -118,13 +118,13 @@ printf 'APPL????' >"$APP/Contents/PkgInfo"
 
 # Sign inside-out: nested code first, then the bundle itself (no --deep on the final signature).
 # Today the only nested code is the main executable; frameworks/helpers would be signed here too.
-sign --options runtime --entitlements "$HERE/entitlements.plist" "$APP/Contents/MacOS/Burin Docs"
+sign --options runtime --entitlements "$HERE/entitlements.plist" "$APP/Contents/MacOS/Chisel Docs"
 sign --options runtime --entitlements "$HERE/entitlements.plist" "$APP"
 codesign --verify --strict --deep --verbose=2 "$APP"
 
 if [ "$NOTARIZE" = 1 ]; then
-  ditto -c -k --keepParent "$APP" "$WORK/Burin Docs-notarize.zip"
-  notarize "$WORK/Burin Docs-notarize.zip"
+  ditto -c -k --keepParent "$APP" "$WORK/Chisel Docs-notarize.zip"
+  notarize "$WORK/Chisel Docs-notarize.zip"
   xcrun stapler staple "$APP"
   xcrun stapler validate "$APP"
   spctl --assess --type execute -vvv "$APP"
@@ -134,7 +134,7 @@ fi
 echo "==> building $DMG"
 STAGE="$WORK/dmg"
 mkdir -p "$STAGE"
-ditto "$APP" "$STAGE/Burin Docs.app"
+ditto "$APP" "$STAGE/Chisel Docs.app"
 ln -s /Applications "$STAGE/Applications"
 # Finder window layout: background, icon size and positions (packaging/macos/dmg/README.md).
 mkdir -p "$STAGE/.background"
@@ -161,7 +161,7 @@ hdiutil_retry() {
     sleep $((attempt * 10))
   done
 }
-hdiutil_retry create create -srcfolder "$STAGE" -volname "Burin Docs" -fs HFS+ -format UDZO -imagekey zlib-level=9 -ov "$DMG"
+hdiutil_retry create create -srcfolder "$STAGE" -volname "Chisel Docs" -fs HFS+ -format UDZO -imagekey zlib-level=9 -ov "$DMG"
 sign "$DMG"
 codesign --verify --strict --verbose=2 "$DMG"
 # The app inside the image must still pass --strict, so a makehybrid-style regression can't ship.
@@ -169,7 +169,7 @@ MOUNT="$WORK/dmg-check"
 rm -rf "$MOUNT"
 mkdir -p "$MOUNT"
 hdiutil_retry attach attach -nobrowse -readonly -mountpoint "$MOUNT" "$DMG" >/dev/null
-if ! codesign --verify --strict --deep --verbose=2 "$MOUNT/Burin Docs.app"; then
+if ! codesign --verify --strict --deep --verbose=2 "$MOUNT/Chisel Docs.app"; then
   hdiutil_retry detach detach "$MOUNT" >/dev/null || true
   exit 1
 fi

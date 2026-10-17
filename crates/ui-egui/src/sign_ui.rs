@@ -11,7 +11,7 @@ use pdfcraft_engine::{SignOptions, SignatureImage, SignatureInfo, SignatureStatu
 use crate::canvas::{DocView, PageXform, Snapshot, SnapshotKind};
 use crate::fill_sign::SavedSig;
 use crate::theme::{self, Tokens};
-use crate::{BurinDocsApp, icons, widgets};
+use crate::{ChiselDocsApp, icons, widgets};
 
 /// A digital ID the app knows about (Acrobat: Digital ID files). The file stays where it is;
 /// its password is asked for at each signing.
@@ -22,7 +22,7 @@ pub struct DigitalIdEntry {
     pub issuer: String,
     pub email: String,
     pub expires: String,
-    /// Why the ID can't sign (a Windows store certificate whose key Burin Docs can't use): shown
+    /// Why the ID can't sign (a Windows store certificate whose key Chisel Docs can't use): shown
     /// greyed with the reason, and never selectable.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub unusable: Option<String>,
@@ -185,8 +185,8 @@ pub(crate) fn page_input(ui: &egui::Ui, resp: &egui::Response, xf: &PageXform, p
     }
 }
 
-/// Where new digital IDs are saved: next to the recovery folder (`…/Burin Docs/Digital IDs`, or
-/// `BurinDocsData/Digital IDs` in portable mode).
+/// Where new digital IDs are saved: next to the recovery folder (`…/Chisel Docs/Digital IDs`, or
+/// `ChiselDocsData/Digital IDs` in portable mode).
 fn id_dir() -> Option<PathBuf> {
     crate::recovery::RecoveryStore::default_dir().and_then(|d| d.parent().map(|p| p.join("Digital IDs")))
 }
@@ -265,7 +265,7 @@ fn entry_unusable(u: &sign::windows::Unusable) -> DigitalIdEntry {
     }
 }
 
-impl BurinDocsApp {
+impl ChiselDocsApp {
     /// Start signing: the rectangle (or field) is known; show Sign with a Digital ID.
     pub fn start_signing(&mut self, page: usize, rect: Option<[f64; 4]>, field: Option<String>, certify: Option<u8>) {
         self.refresh_os_key_store_ids();
@@ -630,7 +630,7 @@ impl BurinDocsApp {
 }
 
 /// Draw the signing dialogs; returns `true` when the dialog should close.
-pub(crate) fn dialog(ui: &mut egui::Ui, app: &mut BurinDocsApp, t: &Tokens) -> bool {
+pub(crate) fn dialog(ui: &mut egui::Ui, app: &mut ChiselDocsApp, t: &Tokens) -> bool {
     let Some(step) = app.sign_draft.as_ref().map(|d| d.step) else { return true };
     match step {
         SignStep::Choose => choose(ui, app, t),
@@ -653,7 +653,7 @@ fn error(ui: &mut egui::Ui, err: &Option<String>) {
     }
 }
 
-fn choose(ui: &mut egui::Ui, app: &mut BurinDocsApp, t: &Tokens) -> bool {
+fn choose(ui: &mut egui::Ui, app: &mut ChiselDocsApp, t: &Tokens) -> bool {
     title(ui, "Sign with a Digital ID");
     ui.label(tl!("Choose the digital ID that you want to use for signing:"));
     ui.add_space(6.0);
@@ -763,7 +763,7 @@ fn choose(ui: &mut egui::Ui, app: &mut BurinDocsApp, t: &Tokens) -> bool {
     close
 }
 
-fn configure(ui: &mut egui::Ui, app: &mut BurinDocsApp, t: &Tokens) -> bool {
+fn configure(ui: &mut egui::Ui, app: &mut ChiselDocsApp, t: &Tokens) -> bool {
     title(ui, "Configure a Digital ID for Signing");
     let Some(d) = app.sign_draft.as_mut() else { return true };
     let mut close = false;
@@ -966,7 +966,7 @@ fn preview(
     ui.painter().galley(egui::pos2(x, inner.center().y - galley.size().y / 2.0), galley, Color32::BLACK);
 }
 
-fn sign_as(ui: &mut egui::Ui, app: &mut BurinDocsApp, t: &Tokens) -> bool {
+fn sign_as(ui: &mut egui::Ui, app: &mut ChiselDocsApp, t: &Tokens) -> bool {
     let ids = app.digital_ids.clone();
     // The time as the signature will show it (signing takes the session clock then).
     let date = sign::pdf::display_date(&app.session.signing_date());
@@ -1061,9 +1061,9 @@ fn sign_as(ui: &mut egui::Ui, app: &mut BurinDocsApp, t: &Tokens) -> bool {
             ui.label("");
             ui.label(
                 egui::RichText::new(if entry.path.starts_with("windows:") {
-                    tl!("The key is in the Windows certificate store, which may ask to allow Burin Docs to use it.")
+                    tl!("The key is in the Windows certificate store, which may ask to allow Chisel Docs to use it.")
                 } else {
-                    tl!("The key is in the macOS Keychain, which may ask to allow Burin Docs to use it.")
+                    tl!("The key is in the macOS Keychain, which may ask to allow Chisel Docs to use it.")
                 })
                 .small()
                 .color(t.text_muted),
@@ -1484,7 +1484,7 @@ mod tests {
     /// Create a digital ID named "Grace Hopper" in `dir`, as Configure New Digital ID ▸ Create
     /// does. Returns where it was saved.
     fn create_in(dir: &std::path::Path) -> Result<PathBuf, String> {
-        let mut app = BurinDocsApp::new();
+        let mut app = ChiselDocsApp::new();
         app.export_dir_override = Some(dir.to_string_lossy().into_owned());
         let mut draft = SignDraft::new(0, None, None, None, &[]);
         // P-256 keeps the test fast.
@@ -1567,7 +1567,7 @@ mod tests {
         let dir = scratch();
         let file = dir.join("old.p12");
         std::fs::write(&file, b"not opened").unwrap();
-        let mut app = BurinDocsApp::new();
+        let mut app = ChiselDocsApp::new();
         app.digital_ids = vec![listed("windows:abc", "Store"), listed(&file.to_string_lossy(), "Old"), listed("/ids/new.p12", "New")];
         let mut draft = SignDraft::new(0, None, None, None, &app.digital_ids);
         draft.selected = Some(2);
@@ -1586,7 +1586,7 @@ mod tests {
         // leaves only the store ID, which isn't saved.
         assert!(app.remove_digital_id(1));
         assert_eq!(app.sign_draft.as_ref().unwrap().selected, Some(0));
-        let mut fresh = BurinDocsApp::new();
+        let mut fresh = ChiselDocsApp::new();
         fresh.restore(&app.persist());
         assert!(fresh.digital_ids.is_empty(), "the removal survives a restart: {:?}", fresh.digital_ids);
         let _ = std::fs::remove_dir_all(&dir);

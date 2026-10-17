@@ -1,6 +1,6 @@
-# Burin fuzz gate — libFuzzer harnesses over untrusted-input code paths.
+# Chisel fuzz gate — libFuzzer harnesses over untrusted-input code paths.
 #
-# Doctrine (burin-fork-plan/04-first-90-days.md weeks 3–6): PR smoke is
+# Doctrine (chisel-fork-plan/04-first-90-days.md weeks 3–6): PR smoke is
 # advisory (`continue-on-error`) and graduates to blocking at the ratchet
 # review, once the harness set is green on nightly runs. Upstream's stable
 # mutation driver (`cargo xtask fuzz`, whole-document open/render/edit/save,

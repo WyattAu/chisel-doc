@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build and package Burin Docs for Linux (<arch> is x86_64 or aarch64, or riscv64 when cross-compiling):
+# Build and package Chisel Docs for Linux (<arch> is x86_64 or aarch64, or riscv64 when cross-compiling):
 #
 #   $DIST/pdfcraft-<version>-linux-<arch>.AppImage  any distro with glibc >= the build host's
 #   $DIST/pdfcraft-<version>-linux-<arch>.AppImage.zsync  delta updates (needs zsyncmake)
@@ -26,7 +26,7 @@ set -euo pipefail
 # shellcheck source=../env.sh
 . "$(dirname "${BASH_SOURCE[0]}")/../env.sh"
 HERE="$ROOT/packaging/linux"
-APP_ID=com.wyattau.burin.doc
+APP_ID=com.wyattau.chisel.doc
 
 SKIP_BUILD=0
 FORMATS="appimage deb rpm tar cli"
@@ -46,11 +46,11 @@ case "$ARCH" in
   aarch64 | arm64) ARCH=aarch64; DEB_ARCH=arm64 ;;
   *) echo "unsupported architecture $ARCH" >&2; exit 2 ;;
 esac
-export PDFCRAFT_MAINTAINER="${PDFCRAFT_MAINTAINER:-Burin Docs maintainers <maintainers@wyattau.com>}"
+export PDFCRAFT_MAINTAINER="${PDFCRAFT_MAINTAINER:-Chisel Docs maintainers <maintainers@wyattau.com>}"
 LABEL_SUFFIX="${PDFCRAFT_BUILD_LABEL:+-$PDFCRAFT_BUILD_LABEL}"
 BASENAME="pdfcraft-$VERSION$LABEL_SUFFIX-linux-$ARCH"
 
-echo "==> Burin Docs $VERSION$LABEL_SUFFIX for Linux $ARCH ($FORMATS)"
+echo "==> Chisel Docs $VERSION$LABEL_SUFFIX for Linux $ARCH ($FORMATS)"
 
 if [ "$SKIP_BUILD" = 0 ]; then
   if [ -n "${CROSS_TARGET:-}" ]; then
@@ -125,7 +125,7 @@ fi
 
 # ---- AppImage -----------------------------------------------------------------------------------
 if has appimage; then
-  APPDIR="$WORK/Burin Docs.AppDir"
+  APPDIR="$WORK/Chisel Docs.AppDir"
   cp -R "$STAGE" "$APPDIR"
   mv "$APPDIR/usr/share/doc" "$WORK/doc-unused"
   ln -s usr/bin/pdfcraft "$APPDIR/AppRun"

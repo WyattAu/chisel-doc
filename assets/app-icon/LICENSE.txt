@@ -1,8 +1,8 @@
-Burin Docs app icon (pdfcraft.svg, pdfcraft-small.svg and every file derived from them in this
+Chisel Docs app icon (pdfcraft.svg, pdfcraft-small.svg and every file derived from them in this
 directory: pdfcraft-1024.png, pdfcraft.icns, pdfcraft.ico, hicolor/).
 
-Original artwork made for this project by the project owner, drawn in Burin and vectorised for
-Burin Docs (no third-party material). Licensed like the rest of Burin Docs, under either of
+Original artwork made for this project by the project owner, drawn in Chisel and vectorised for
+Chisel Docs (no third-party material). Licensed like the rest of Chisel Docs, under either of
 
   * Apache License, Version 2.0 (https://www.apache.org/licenses/LICENSE-2.0)
   * MIT license (https://opensource.org/licenses/MIT)

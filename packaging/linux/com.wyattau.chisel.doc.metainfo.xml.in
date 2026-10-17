@@ -2,22 +2,22 @@
 <!-- AppStream metadata (software centres, Flathub). Template: package.sh and the Flatpak
      manifest substitute @VERSION@ and @DATE@ from Cargo.toml and the build date. -->
 <component type="desktop-application">
-  <id>com.wyattau.burin.doc</id>
+  <id>com.wyattau.chisel.doc</id>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>MIT OR Apache-2.0</project_license>
-  <name>Burin Docs</name>
+  <name>Chisel Docs</name>
   <summary>Read, organize, combine, split and secure PDFs</summary>
   <developer id="ai.wyattau">
     <name>Learning Machines LLC</name>
   </developer>
   <description>
     <p>
-      Burin Docs is an open-source PDF workbench. Read, comment on, fill in and sign PDFs;
+      Chisel Docs is an open-source PDF workbench. Read, comment on, fill in and sign PDFs;
       organize, combine and split pages; edit, redact, protect and export documents.
     </p>
   </description>
-  <launchable type="desktop-id">com.wyattau.burin.doc.desktop</launchable>
-  <icon type="stock">com.wyattau.burin.doc</icon>
+  <launchable type="desktop-id">com.wyattau.chisel.doc.desktop</launchable>
+  <icon type="stock">com.wyattau.chisel.doc</icon>
   <!-- Only url types known to appstream 0.15 (Ubuntu 22.04, where CI validates): no vcs-browser. -->
   <url type="homepage">https://wyattau.com/apps/pdfcraft</url>
   <url type="bugtracker">https://github.com/wyattau/pdfcraft/issues</url>

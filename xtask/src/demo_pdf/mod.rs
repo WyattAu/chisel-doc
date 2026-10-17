@@ -1,4 +1,4 @@
-//! `cargo xtask demo-pdf`: build the Burin Docs showcase PDF.
+//! `cargo xtask demo-pdf`: build the Chisel Docs showcase PDF.
 //!
 //! 1. Render a procedural PNG and fill the placeholders in `assets/demo/showcase.html`.
 //! 2. Print the HTML with headless Chrome (tagged PDF, outline from headings).

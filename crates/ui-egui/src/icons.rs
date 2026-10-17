@@ -21,7 +21,7 @@ pub fn exists(name: &str) -> bool {
 }
 
 fn source(name: &str) -> egui::ImageSource<'static> {
-    // Burin Docs caches an unknown name under the resolved fallback name.
+    // Chisel Docs caches an unknown name under the resolved fallback name.
     white_icons().source(white_icons().canonical_name(name).unwrap_or("square"))
 }
 

@@ -627,7 +627,7 @@ pub(crate) fn after_refresh(view: &mut DocView, form: &[FormField]) {
 
 // ───────────────────────────────────────────────────────────────────────── Field Properties
 
-impl crate::BurinDocsApp {
+impl crate::ChiselDocsApp {
     /// Open Field Properties for a field of the active document.
     pub fn open_field_props(&mut self, name: &str, widget: usize) {
         let Some((index, id)) = self.active_ids() else { return };

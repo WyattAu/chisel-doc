@@ -33,9 +33,9 @@ fn the_exe_has_version_info_with_the_package_version() {
     let start = find(&exe, &utf16("VS_VERSION_INFO")).expect("no version resource");
     let resource = &exe[start..];
     for (key, value) in [
-        ("ProductName", "Burin Docs"),
-        ("FileDescription", "Burin Docs command-line tool"),
-        ("LegalCopyright", "Copyright (c) the Burin Docs contributors. MIT OR Apache-2.0."),
+        ("ProductName", "Chisel Docs"),
+        ("FileDescription", "Chisel Docs command-line tool"),
+        ("LegalCopyright", "Copyright (c) the Chisel Docs contributors. MIT OR Apache-2.0."),
         ("OriginalFilename", "pdfcraft-cli.exe"),
         ("InternalName", "pdfcraft-cli"),
         ("FileVersion", env!("CARGO_PKG_VERSION")),

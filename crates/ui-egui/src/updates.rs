@@ -1,17 +1,17 @@
 //! Help ▸ Check for updates (issue #28): ask for the latest release and offer its download page.
 //!
-//! The desktop app supplies how to ask ([`BurinDocsApp::update_source`]), so this crate has no
+//! The desktop app supplies how to ask ([`ChiselDocsApp::update_source`]), so this crate has no
 //! network code; without a source (the web build, tests) the command opens the releases page.
-//! Burin Docs never downloads or installs anything itself: the user downloads the new version.
+//! Chisel Docs never downloads or installs anything itself: the user downloads the new version.
 //! It asks only when the user does: there is no check at start (the owner's decision).
 
 use std::sync::Arc;
 
 use egui::{Align, Layout};
 
-use crate::{BurinDocsApp, theme, widgets};
+use crate::{ChiselDocsApp, theme, widgets};
 
-/// Where every Burin Docs release is listed.
+/// Where every Chisel Docs release is listed.
 pub const RELEASES_PAGE: &str = "https://github.com/wyattau/pdfcraft/releases";
 
 /// The latest published release.
@@ -62,7 +62,7 @@ pub(crate) struct Updates {
     pub(crate) open: bool,
 }
 
-impl BurinDocsApp {
+impl ChiselDocsApp {
     /// Help ▸ Check for updates: ask for the latest release and show the outcome.
     pub fn check_for_updates(&mut self) {
         let Some(source) = self.update_source.clone() else {
@@ -108,7 +108,7 @@ impl BurinDocsApp {
 }
 
 /// The Updates dialog.
-pub(crate) fn dialog(app: &mut BurinDocsApp, ctx: &egui::Context) {
+pub(crate) fn dialog(app: &mut ChiselDocsApp, ctx: &egui::Context) {
     if !app.updates.open {
         return;
     }
@@ -136,7 +136,7 @@ pub(crate) fn dialog(app: &mut BurinDocsApp, ctx: &egui::Context) {
             }
             Check::Done(Ok(r)) if is_newer(&r.version, current) => {
                 let version = r.version.trim_start_matches(['v', 'V']);
-                ui.label(egui::RichText::new(crate::i18n::fmt(tl!("Burin Docs {v} is available."), &[("v", version)])).strong());
+                ui.label(egui::RichText::new(crate::i18n::fmt(tl!("Chisel Docs {v} is available."), &[("v", version)])).strong());
                 ui.label(
                     egui::RichText::new(crate::i18n::fmt(
                         tl!("You have version {c}. Download the new version from its release page."),
@@ -147,7 +147,7 @@ pub(crate) fn dialog(app: &mut BurinDocsApp, ctx: &egui::Context) {
                 download = Some(r.url.clone());
             }
             Check::Done(Ok(_)) => {
-                ui.label(crate::i18n::fmt(tl!("Burin Docs {c} is up to date."), &[("c", current)]));
+                ui.label(crate::i18n::fmt(tl!("Chisel Docs {c} is up to date."), &[("c", current)]));
             }
             Check::Done(Err(e)) => {
                 ui.label(crate::i18n::fmt(tl!("Couldn't check for updates: {e}"), &[("e", &e.to_string())]));

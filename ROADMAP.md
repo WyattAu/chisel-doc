@@ -1,7 +1,7 @@
-# ROADMAP — Burin Docs
+# ROADMAP — Chisel Docs
 
 The upstream roadmap remains in git history (`upstream/main: ROADMAP.md`).
-This fork's direction is the Burin program's 90-day plan; summary:
+This fork's direction is the Chisel program's 90-day plan; summary:
 
 ## Done (week 1–2)
 
@@ -26,7 +26,7 @@ This fork's direction is the Burin program's 90-day plan; summary:
 
 ## Weeks 7–10 — platform slice 1
 
-- [ ] `burin-platform`: OIDC/PKCE + passkey auth, JWT sessions, RBAC
+- [ ] `chisel-platform`: OIDC/PKCE + passkey auth, JWT sessions, RBAC
 - [ ] Content-addressed asset store (BLAKE3, verify-on-read) behind the app's
       team library
 - [ ] Observability: opt-in OTLP in-app, always-on service metrics, real

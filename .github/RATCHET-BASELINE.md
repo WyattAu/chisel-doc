@@ -31,9 +31,9 @@ formcalc language edges):
 | `lib.rs` | 846 | 96 | 88.65% |
 | `xfa.rs` | 1055 | 107 | 89.86% |
 | `xfa_session.rs` | 90 | 13 | 85.56% |
-| **TOTAL** | **3900** | **452** | **88.41%** (was 87.00%) |
+| **TOTAL** | **3900** | **436** | **88.82%** (was 87.00%; lib.rs alone 90.43%) |
 
-Closed so far (+45 lines): document object model tour (numFields,
+Closed so far (+71 lines net): document object model tour (numFields,
 getNthFieldName, pageNum, documentFileName, info, all five field-kind type
 names), property setters/read round trips (required/hidden/readonly/
 textColor/fillColor), setFocus, option surfaces (numItems/getItemAt flag/
@@ -42,6 +42,12 @@ instance managers (removeInstance/setInstances + the `in` operator on the
 xfa proxy), oversized-script refusal, formcalc language edges (do..end,
 scientific notation, NaN/Infinity/-Infinity formatting, unterminated
 do-block errors, root refs).
+
+Second wave landed (radiobutton kind, app dialogs, formcalc parse errors).
+Skipped by design: the JS-side `xfa` proxy instance-manager methods and the
+session engine-failure paths — both need designed fixtures (a real xfa-node
+JS fixture; a wedged-engine injection) rather than guesses, and each guess
+cost a compile cycle without landing coverage.
 
 Known-advisory CI facts (not regressions):
 - `workspace-gate / coverage` fails on CI runners (instrumented build of the

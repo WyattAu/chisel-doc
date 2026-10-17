@@ -1,0 +1,93 @@
+# Burin fuzz gate — libFuzzer harnesses over untrusted-input code paths.
+#
+# Doctrine (artcraft-fork-plan/04-first-90-days.md weeks 3–6): PR smoke is
+# advisory (`continue-on-error`) and graduates to blocking at the ratchet
+# review, once the harness set is green on nightly runs. Upstream's stable
+# mutation driver (`cargo xtask fuzz`, whole-document open/render/edit/save,
+# already scheduled in ci.yml) stays untouched — this covers the two
+# untrusted-input crates with no direct libFuzzer target before this fork:
+# pdfcraft-cos (object layer) and pdfcraft-js (script sandbox).
+
+name: fuzz
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'crates/cos/**'
+      - 'crates/js/**'
+      - '.github/workflows/fuzz.yml'
+  pull_request:
+    paths:
+      - 'crates/cos/**'
+      - 'crates/js/**'
+      - '.github/workflows/fuzz.yml'
+  schedule:
+    - cron: '37 3 * * *' # nightly deep runs
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: fuzz smoke (per harness, 60s each)
+    continue-on-error: true # TODO(ratchet): remove at gate graduation review
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        harness:
+          - { dir: crates/cos, target: parse_indirect }
+          - { dir: crates/cos, target: lexer_object }
+          - { dir: crates/js, target: run }
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@nightly
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: fuzz-smoke-${{ matrix.harness.target }}
+      - name: Fuzz (${{ matrix.harness.target }})
+        working-directory: ${{ matrix.harness.dir }}
+        run: cargo fuzz run ${{ matrix.harness.target }} -- -runs=20000 -max_len=4096 -max_total_time=60
+      - name: Upload crash artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fuzz-crash-${{ matrix.harness.target }}-${{ github.run_number }}
+          path: ${{ matrix.harness.dir }}/fuzz/artifacts/${{ matrix.harness.target }}
+          if-no-files-found: ignore
+
+  deep:
+    name: fuzz deep (${{ matrix.harness.target }}, 15 min)
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        harness:
+          - { dir: crates/cos, target: parse_indirect }
+          - { dir: crates/cos, target: lexer_object }
+          - { dir: crates/js, target: run }
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@nightly
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: fuzz-deep-${{ matrix.harness.target }}
+      - name: Fuzz (${{ matrix.harness.target }})
+        working-directory: ${{ matrix.harness.dir }}
+        run: cargo fuzz run ${{ matrix.harness.target }} -- -max_total_time=900 -max_len=65536
+      - name: Upload findings
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fuzz-deep-${{ matrix.harness.target }}-${{ github.run_number }}
+          path: ${{ matrix.harness.dir }}/fuzz/artifacts/${{ matrix.harness.target }}
+          if-no-files-found: ignore

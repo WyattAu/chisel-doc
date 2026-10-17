@@ -1,0 +1,31 @@
+[package]
+name = "pdfcraft-cos-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2024"
+license = "MIT OR Apache-2.0"
+
+[package.metadata]
+cargo-fuzz = true
+
+# Detached from the PdfCraft workspace, matching crates/filters/fuzz:
+# run with `cargo +nightly fuzz run parse_indirect` from crates/cos/.
+[workspace]
+
+[dependencies]
+libfuzzer-sys = "0.4"
+pdfcraft-cos = { path = ".." }
+
+[[bin]]
+name = "parse_indirect"
+path = "fuzz_targets/parse_indirect.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "lexer_object"
+path = "fuzz_targets/lexer_object.rs"
+test = false
+doc = false
+bench = false

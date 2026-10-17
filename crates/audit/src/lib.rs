@@ -241,6 +241,7 @@ fn annots(doc: &Document, page: &Dict) -> Result<Vec<[f64; 4]>, AuditError> {
 /// # Ok(())
 /// # }
 /// ```
+#[cfg(feature = "trail")]
 pub mod trail {
     pub use chisel_audit::{AuditEvent, DocumentRef, DocumentTrail, Result, VerificationResult};
 

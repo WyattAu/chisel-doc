@@ -2,10 +2,14 @@
 # forked pdfcraft workspace.
 #
 # Doctrine (chisel-fork-plan/04-first-90-days.md): inherited code runs
-# ADVISORY first (continue-on-error) and graduates to blocking at the week-6
-# ratchet review; new platform code is born blocking. Upstream's own CI
-# (ci.yml, release.yml, ...) is untouched and keeps covering the default
-# feature build, packaging, and platforms.
+# ADVISORY first and graduates to blocking at the week-6 ratchet review.
+#
+# "Advisory" is enforced by BRANCH PROTECTION, not by the workflow: a job that
+# calls a reusable workflow may not set `continue-on-error` (GitHub rejects the
+# key on `uses:` jobs and the entire workflow fails to load — observed as a 0s
+# red). Advisory legs are therefore simply left out of the required-checks list
+# until they graduate. Upstream's own CI (ci.yml) is untouched and keeps covering
+# the default feature build across platforms.
 #
 # Reusable-workflow inputs are the real schema of rust-kit.yml@main:
 #   tier (a|b|c), all-features, loom, wasm, miri, miri-flags,
@@ -30,7 +34,6 @@ jobs:
   # The reusable workflow always additionally checks --no-default-features.
   workspace-gate:
     uses: WyattAu/engineering-standards/.github/workflows/rust-kit.yml@main
-    continue-on-error: true # TODO(ratchet): remove at W6 graduation review
     with:
       tier: c
       all-features: false
@@ -44,7 +47,6 @@ jobs:
   # locally (60-min job timeout forbids switching them on blind).
   gate-parser-cos:
     uses: WyattAu/engineering-standards/.github/workflows/rust-kit.yml@main
-    continue-on-error: true # TODO(ratchet): remove at W6 graduation review
     with:
       tier: a
       package: pdfcraft-cos
@@ -52,7 +54,6 @@ jobs:
 
   gate-parser-js:
     uses: WyattAu/engineering-standards/.github/workflows/rust-kit.yml@main
-    continue-on-error: true # TODO(ratchet): remove at W6 graduation review
     with:
       tier: a
       package: pdfcraft-js

@@ -7,7 +7,7 @@ pub(crate) enum Action {
     Reveal(DocId),
 }
 
-impl crate::PdfCraftApp {
+impl crate::BurinDocsApp {
     pub(crate) fn tab_action(&mut self, action: Action) {
         match action {
             Action::Close(id) => {
@@ -136,7 +136,7 @@ mod tests {
 
     #[test]
     fn confirmed_close_uses_id_and_cancel_keeps_history_empty() {
-        let mut app = crate::PdfCraftApp::new();
+        let mut app = crate::BurinDocsApp::new();
         app.open_bytes("first.pdf", Some("/tmp/first.pdf".into()), PDF.to_vec()).unwrap();
         let first = app.views[0].id;
         app.open_bytes("second.pdf", None, PDF.to_vec()).unwrap();
@@ -163,7 +163,7 @@ mod tests {
         let mut file = std::fs::OpenOptions::new().write(true).create_new(true).open(&path).unwrap();
         file.write_all(PDF).unwrap();
         drop(file);
-        let mut app = crate::PdfCraftApp::new();
+        let mut app = crate::BurinDocsApp::new();
         let path_text = path.to_str().unwrap();
         for _ in 0..12 {
             app.open_path(path_text);
@@ -188,7 +188,7 @@ mod tests {
         let mut file = std::fs::OpenOptions::new().create_new(true).write(true).open(&path).unwrap();
         file.write_all(PDF).unwrap();
         drop(file);
-        let mut app = crate::PdfCraftApp::new();
+        let mut app = crate::BurinDocsApp::new();
         app.open_path(text);
         app.close_tab(0);
         std::fs::remove_file(&path).unwrap();
@@ -245,7 +245,7 @@ mod tests {
 
 #[cfg(all(test, not(target_arch = "wasm32")))]
 mod ui_tests {
-    use crate::PdfCraftApp;
+    use crate::BurinDocsApp;
     use egui_kittest::{
         Harness,
         kittest::{NodeT, Queryable},
@@ -254,7 +254,7 @@ mod ui_tests {
     #[test]
     fn inactive_tab_menu_closes_target_and_disables_unavailable_actions() {
         let mut h = Harness::builder().with_size(egui::vec2(1400.0, 900.0)).build_eframe(|_| {
-            let mut app = PdfCraftApp::new();
+            let mut app = BurinDocsApp::new();
             app.set_option("language", "en").unwrap();
             for name in ["first.pdf", "second.pdf"] {
                 app.open_bytes(name, None, include_bytes!("../tests/data/form.pdf").to_vec()).unwrap();

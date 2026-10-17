@@ -1,11 +1,11 @@
 //! Filling in a form in the real shell (egui_kittest): typing, Tab, check boxes, radios, choices.
 
 use egui_kittest::Harness;
-use pdfcraft_ui_egui::PdfCraftApp;
+use pdfcraft_ui_egui::BurinDocsApp;
 
-fn harness() -> Harness<'static, PdfCraftApp> {
+fn harness() -> Harness<'static, BurinDocsApp> {
     let mut h = Harness::builder().with_size(egui::vec2(1400.0, 900.0)).build_eframe(|_cc| {
-        let mut app = PdfCraftApp::new();
+        let mut app = BurinDocsApp::new();
         app.set_option("language", "en").unwrap();
         app.open_bytes("form.pdf", None, include_bytes!("data/form.pdf").to_vec()).unwrap();
         app.set_option("left", "closed").unwrap();
@@ -23,13 +23,13 @@ fn harness() -> Harness<'static, PdfCraftApp> {
     h
 }
 
-fn value(h: &Harness<'static, PdfCraftApp>, name: &str) -> Vec<String> {
+fn value(h: &Harness<'static, BurinDocsApp>, name: &str) -> Vec<String> {
     let s = h.state();
     s.session.get(s.views[0].id).unwrap().form.iter().find(|f| f.name == name).unwrap().value.clone()
 }
 
 /// Click the centre of a field's widget.
-fn click_field(h: &mut Harness<'static, PdfCraftApp>, name: &str, widget: usize) {
+fn click_field(h: &mut Harness<'static, BurinDocsApp>, name: &str, widget: usize) {
     let p = {
         let s = h.state();
         let doc = s.session.get(s.views[0].id).unwrap();
@@ -215,7 +215,7 @@ fn lithuanian_calendar_localizes_months_and_weekdays_without_changing_field_valu
 
 /// The value of `name` in a saved PDF, read back by opening it in a fresh app.
 fn saved_value(path: &std::path::Path, name: &str) -> Vec<String> {
-    let mut app = PdfCraftApp::new();
+    let mut app = BurinDocsApp::new();
     app.set_option("language", "en").unwrap();
     app.open_bytes("saved.pdf", None, std::fs::read(path).unwrap()).unwrap();
     app.session.get(app.views[0].id).unwrap().form.iter().find(|f| f.name == name).unwrap().value.clone()
@@ -223,7 +223,7 @@ fn saved_value(path: &std::path::Path, name: &str) -> Vec<String> {
 
 /// Step frames until the save has written `path`, instead of assuming it is there after a fixed
 /// number of frames. The write is atomic, so the file appears only when it is complete.
-fn wait_for_file(h: &mut Harness<'static, PdfCraftApp>, path: &std::path::Path) {
+fn wait_for_file(h: &mut Harness<'static, BurinDocsApp>, path: &std::path::Path) {
     let deadline = std::time::Instant::now() + std::time::Duration::from_secs(30);
     while !path.exists() {
         assert!(std::time::Instant::now() < deadline, "the save never wrote {}", path.display());
@@ -288,7 +288,7 @@ fn tabbing_back_to_the_same_field_then_saving_keeps_the_committed_value() {
             validated_form()
         };
         let mut h = Harness::builder().with_size(egui::vec2(1400.0, 900.0)).build_eframe(|_cc| {
-            let mut app = PdfCraftApp::new();
+            let mut app = BurinDocsApp::new();
             app.set_option("language", "en").unwrap();
             app.open_bytes("tab.pdf", None, bytes).unwrap();
             app.set_option("left", "closed").unwrap();
@@ -360,13 +360,13 @@ fn key(key: egui::Key, modifiers: egui::Modifiers) -> egui::Event {
 }
 
 /// Deliver `events` together, in one frame.
-fn one_frame(h: &mut Harness<'static, PdfCraftApp>, events: Vec<egui::Event>) {
+fn one_frame(h: &mut Harness<'static, BurinDocsApp>, events: Vec<egui::Event>) {
     h.input_mut().events.extend(events);
     h.run_steps(1);
 }
 
 /// Type `text` into field `name`, then press ⌘S in the same frame as `last` (more input).
-fn type_then_save_in_one_frame(h: &mut Harness<'static, PdfCraftApp>, name: &str, text: &str, last: egui::Event, out: &std::path::Path) {
+fn type_then_save_in_one_frame(h: &mut Harness<'static, BurinDocsApp>, name: &str, text: &str, last: egui::Event, out: &std::path::Path) {
     click_field(h, name, 0);
     h.event(egui::Event::Text(text.into()));
     h.run_steps(2);
@@ -439,7 +439,7 @@ fn validated_form() -> Vec<u8> {
 fn pressing_another_text_field_validates_the_refused_value_once() {
     // The press commits `qty`; its release must not commit (and alert) a second time.
     let mut h = Harness::builder().with_size(egui::vec2(1400.0, 900.0)).build_eframe(|_cc| {
-        let mut app = PdfCraftApp::new();
+        let mut app = BurinDocsApp::new();
         app.set_option("language", "en").unwrap();
         app.open_bytes("order.pdf", None, validated_form_with_note()).unwrap();
         app.set_option("left", "closed").unwrap();
@@ -524,7 +524,7 @@ fn fields_over_text() -> Vec<u8> {
 #[test]
 fn buttons_over_text_show_the_pointing_hand_not_the_i_beam() {
     let mut h = Harness::builder().with_size(egui::vec2(1400.0, 900.0)).build_eframe(|_cc| {
-        let mut app = PdfCraftApp::new();
+        let mut app = BurinDocsApp::new();
         app.set_option("language", "en").unwrap();
         app.open_bytes("sheet.pdf", None, fields_over_text()).unwrap();
         app.set_option("left", "closed").unwrap();
@@ -541,7 +541,7 @@ fn buttons_over_text_show_the_pointing_hand_not_the_i_beam() {
         };
         (at("agree"), at("strength"), at("background"))
     };
-    let cursor_at = |h: &mut Harness<'static, PdfCraftApp>, p: egui::Pos2| {
+    let cursor_at = |h: &mut Harness<'static, BurinDocsApp>, p: egui::Pos2| {
         h.hover_at(p);
         h.run_steps(2);
         h.output().platform_output.cursor_icon
@@ -574,7 +574,7 @@ fn a_rejected_value_keeps_the_typing_and_stops_the_save() {
     let dir = scratch("rejected");
     let out = dir.join("saved.pdf");
     let mut h = Harness::builder().with_size(egui::vec2(1400.0, 900.0)).build_eframe(|_cc| {
-        let mut app = PdfCraftApp::new();
+        let mut app = BurinDocsApp::new();
         app.set_option("language", "en").unwrap();
         app.open_bytes("order.pdf", None, validated_form()).unwrap();
         app.set_option("left", "closed").unwrap();
@@ -630,7 +630,7 @@ fn refused_value_stops_save(commit_key: egui::Key, case: &str) {
     let dir = scratch(case);
     let out = dir.join("saved.pdf");
     let mut h = Harness::builder().with_size(egui::vec2(1400.0, 900.0)).build_eframe(|_cc| {
-        let mut app = PdfCraftApp::new();
+        let mut app = BurinDocsApp::new();
         app.set_option("language", "en").unwrap();
         app.open_bytes("order.pdf", None, validated_form()).unwrap();
         app.set_option("left", "closed").unwrap();
@@ -861,7 +861,7 @@ fn the_fields_panel_lists_a_field_on_a_missing_page_as_unplaced() {
         "<< /Type /Annot /Subtype /Widget /FT /Tx /T (orphan) /Rect [10 10 100 30] /P 99 /F 4 >>",
     ]);
     let mut h = Harness::builder().with_size(egui::vec2(1400.0, 900.0)).build_eframe(|_cc| {
-        let mut app = PdfCraftApp::new();
+        let mut app = BurinDocsApp::new();
         app.set_option("language", "en").unwrap();
         app.open_bytes("orphan.pdf", None, bytes).unwrap();
         app.set_option("panel", "fields").unwrap();
@@ -883,7 +883,7 @@ fn list_box_clicks_select_directly_and_ctrl_click_toggles_multi() {
         "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>",
     ]);
     let mut h = Harness::builder().with_size(egui::vec2(1400.0, 900.0)).build_eframe(|_cc| {
-        let mut app = PdfCraftApp::new();
+        let mut app = BurinDocsApp::new();
         app.set_option("language", "en").unwrap();
         app.open_bytes("lists.pdf", None, bytes).unwrap();
         app.set_option("left", "closed").unwrap();
@@ -956,9 +956,9 @@ fn auto_size_form() -> Vec<u8> {
     ])
 }
 
-fn auto_size_harness() -> Harness<'static, PdfCraftApp> {
+fn auto_size_harness() -> Harness<'static, BurinDocsApp> {
     let mut h = Harness::builder().with_size(egui::vec2(1400.0, 900.0)).build_eframe(|_cc| {
-        let mut app = PdfCraftApp::new();
+        let mut app = BurinDocsApp::new();
         app.set_option("language", "en").unwrap();
         app.open_bytes("auto.pdf", None, auto_size_form()).unwrap();
         app.set_option("left", "closed").unwrap();
@@ -971,7 +971,7 @@ fn auto_size_harness() -> Harness<'static, PdfCraftApp> {
 
 /// The on-screen size for `text` in the field, and how wide (single-line) or tall (multiline,
 /// wrapped at the box) that text is in the screen font, against the room inside the box (pt).
-fn on_screen_fit(h: &Harness<'static, PdfCraftApp>, name: &str, text: &str) -> (f32, f32, f32) {
+fn on_screen_fit(h: &Harness<'static, BurinDocsApp>, name: &str, text: &str) -> (f32, f32, f32) {
     let s = h.state();
     let f = s.session.get(s.views[0].id).unwrap().form.iter().find(|f| f.name == name).unwrap().clone();
     let w = f.widgets[0].clone();

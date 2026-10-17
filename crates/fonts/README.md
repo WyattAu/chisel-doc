@@ -1,6 +1,6 @@
 # pdfcraft-fonts
 
-Layer L2. Font helpers for the appearance streams PdfCraft generates (comments, form fields).
+Layer L2. Font helpers for the appearance streams Burin Docs generates (comments, form fields).
 
 Today it holds what generated appearances need without a font program:
 
@@ -19,7 +19,7 @@ Today it holds what generated appearances need without a font program:
   `set_undrawn_mark` (`UNDRAWN_MARK`, read back by `undrawn_mark`) so the edit is reported and
   flattening refuses. `script_missing` names what the typed-signature script font and its Inter fallback both lack.
 
-It also holds the fonts of the optional [craft-fonts](https://github.com/storytold/craft-fonts)
+It also holds the fonts of the optional [craft-fonts](https://github.com/wyattau/craft-fonts)
 build input. `build.rs` embeds them as `CRAFT_FONTS` when the build sets
 `CRAFT_FONTS_DIR=<checkout>` (and fails if it can't while `CRAFT_FONTS_REQUIRED=1`, as releases
 set). Without that variable `CRAFT_FONTS` is empty and everything below copes:
@@ -72,7 +72,7 @@ needed.
 wasm32 builds embed only BIZ UDPGothic Regular and any `Arab`, `Telu`, `Hebr` or `Thai` face, to keep the web build small: the web build
 currently has no Chinese face, so Chinese there still shows the replacement glyph.
 Font files are never
-committed here (`AGENTS.md` §1.4; team members: [craftrules `standards/fonts.md`](https://github.com/storytold/craftrules/blob/main/standards/fonts.md), internal).
+committed here (`AGENTS.md` §1.4; team members: [craftrules `standards/fonts.md`](https://upstream internal standards), internal).
 
 The full font subsystem (parsing, shaping, subsetting and embedding) arrives with M2.2/M7.
 

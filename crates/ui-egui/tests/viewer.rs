@@ -3,7 +3,7 @@
 
 use egui_kittest::Harness;
 use egui_kittest::kittest::{By, Queryable};
-use pdfcraft_ui_egui::{Dialog, PdfCraftApp};
+use pdfcraft_ui_egui::{Dialog, BurinDocsApp};
 
 /// `n` pages of 200×300; page i says "Page i+1" plus "page" and "Pages" for find tests.
 fn fixture(n: usize) -> Vec<u8> {
@@ -31,9 +31,9 @@ fn fixture(n: usize) -> Vec<u8> {
     out
 }
 
-fn harness() -> Harness<'static, PdfCraftApp> {
+fn harness() -> Harness<'static, BurinDocsApp> {
     let mut h = Harness::builder().with_size(egui::vec2(1400.0, 900.0)).build_eframe(|_cc| {
-        let mut app = PdfCraftApp::new();
+        let mut app = BurinDocsApp::new();
         app.set_option("language", "en").unwrap();
         app.open_bytes("a.pdf", None, fixture(5)).unwrap();
         app.open_bytes("b.pdf", None, fixture(2)).unwrap();
@@ -306,7 +306,7 @@ fn layouts_fit_height_labels_and_system_theme() {
     assert_eq!(h.state().theme_preference, pdfcraft_ui_egui::theme::ThemePreference::System);
 }
 
-fn page_input_focused(h: &Harness<'static, PdfCraftApp>) -> bool {
+fn page_input_focused(h: &Harness<'static, BurinDocsApp>) -> bool {
     let focused = h.ctx.memory(|m| m.focused());
     let view = &h.state().views[h.state().active.unwrap()];
     // Also identifies the original editor when running this test-only patch on the baseline.
@@ -314,14 +314,14 @@ fn page_input_focused(h: &Harness<'static, PdfCraftApp>) -> bool {
 }
 
 /// Exercise the real navigation editor, including its focus and Enter handling.
-fn focus_page_input(h: &mut Harness<'static, PdfCraftApp>) {
+fn focus_page_input(h: &mut Harness<'static, BurinDocsApp>) {
     let text = h.state().views[h.state().active.unwrap()].page_input.clone();
     h.get(By::new().role(egui::accesskit::Role::TextInput).value(&text)).focus();
     h.run_steps(1);
     assert!(page_input_focused(h), "the actual page editor has focus");
 }
 
-fn type_page_input(h: &mut Harness<'static, PdfCraftApp>, text: &str) {
+fn type_page_input(h: &mut Harness<'static, BurinDocsApp>, text: &str) {
     focus_page_input(h);
     h.key_press_modifiers(egui::Modifiers::COMMAND, egui::Key::A);
     h.run_steps(1);
@@ -330,7 +330,7 @@ fn type_page_input(h: &mut Harness<'static, PdfCraftApp>, text: &str) {
     h.run_steps(2);
 }
 
-fn restart_page_labels(h: &mut Harness<'static, PdfCraftApp>) {
+fn restart_page_labels(h: &mut Harness<'static, BurinDocsApp>) {
     use pdfcraft_engine::{Edit, LabelStyle};
     let session = std::mem::take(&mut h.state_mut().session);
     h.state_mut().session = session.with_clock(|| 1_700_000_000);
@@ -669,7 +669,7 @@ fn two_page_view_steps_a_spread_at_a_time() {
     h.state_mut().views[0].fit = Fit::Width;
     h.state_mut().views[0].layout = PageLayout::TwoUp;
     h.run_steps(4);
-    let step = |h: &mut Harness<'static, PdfCraftApp>, key| {
+    let step = |h: &mut Harness<'static, BurinDocsApp>, key| {
         h.key_press_modifiers(Modifiers::COMMAND, key);
         h.run_steps(4);
         h.state().views[0].current
@@ -694,7 +694,7 @@ trailer << /Root 1 0 R >>
 %%EOF"
         .to_vec();
     let mut h = Harness::builder().with_size(egui::vec2(1200.0, 800.0)).build_eframe(move |_cc| {
-        let mut app = PdfCraftApp::new();
+        let mut app = BurinDocsApp::new();
         app.set_option("language", "en").unwrap();
         app.open_bytes("damaged.pdf", None, damaged.clone()).unwrap();
         app
@@ -734,14 +734,14 @@ fn initial_view_is_edited_and_honoured_on_open() {
     assert_eq!(s.session.get(id).unwrap().can_undo(), Some("Change document properties"));
     // Opening the saved file follows it.
     let bytes = s.session.save_bytes(id).unwrap();
-    let mut app = PdfCraftApp::new();
+    let mut app = BurinDocsApp::new();
     app.set_option("language", "en").unwrap();
     app.open_bytes("again.pdf", None, bytes.to_vec()).unwrap();
     let view = &app.views[0];
     assert_eq!((view.current, view.cover, app.right), (1, true, Some(pdfcraft_ui_egui::RightPanel::Bookmarks)));
 }
 
-fn drag(h: &mut Harness<'static, PdfCraftApp>, a: egui::Pos2, b: egui::Pos2) {
+fn drag(h: &mut Harness<'static, BurinDocsApp>, a: egui::Pos2, b: egui::Pos2) {
     h.hover_at(a);
     h.run_steps(1);
     h.drag_at(a);
@@ -800,7 +800,7 @@ fn tab_and_window_show_the_document_title_when_asked() {
     use pdfcraft_engine::Edit;
     let mut h = harness();
     h.run_steps(2);
-    assert_eq!(h.state().window_title, "b.pdf — PdfCraft");
+    assert_eq!(h.state().window_title, "b.pdf — Burin Docs");
     {
         let s = h.state_mut();
         let id = s.views[s.active.unwrap()].id;
@@ -810,7 +810,7 @@ fn tab_and_window_show_the_document_title_when_asked() {
         s.session.apply(id, Edit::SetInitialView(Box::new(v))).unwrap();
     }
     h.run_steps(2);
-    assert_eq!(h.state().window_title, "Quarterly report — PdfCraft");
+    assert_eq!(h.state().window_title, "Quarterly report — Burin Docs");
     h.get_by_label_contains("Quarterly report");
 }
 
@@ -829,7 +829,7 @@ fn a_placeholder_title_leaves_the_file_name_on_the_tab_and_window() {
         s.session.apply(id, Edit::SetInitialView(Box::new(v))).unwrap();
     }
     h.run_steps(2);
-    assert_eq!(h.state().window_title, "b.pdf — PdfCraft");
+    assert_eq!(h.state().window_title, "b.pdf — Burin Docs");
     assert!(h.query_by_label_contains("about:blank").is_none());
 }
 
@@ -972,7 +972,7 @@ fn each_document_keeps_its_own_scroll_position() {
     for v in &mut h.state_mut().views {
         v.fit = Fit::Width;
     }
-    let show = |h: &mut Harness<'static, PdfCraftApp>, i: usize| {
+    let show = |h: &mut Harness<'static, BurinDocsApp>, i: usize| {
         h.state_mut().active = Some(i);
         h.run_steps(4);
         h.state().views[i].current
@@ -1027,7 +1027,7 @@ fn a_new_document_opens_at_the_top_after_a_relaunch() {
     // Next launch: a document never seen before, which gets a.pdf's old id.
     let mut h = Harness::builder().with_size(egui::vec2(1400.0, 900.0)).build_eframe(|cc| {
         cc.egui_ctx.memory_mut(|m| *m = memory);
-        let mut app = PdfCraftApp::new();
+        let mut app = BurinDocsApp::new();
         app.set_option("language", "en").unwrap();
         app.open_bytes("c.pdf", None, fixture(5)).unwrap();
         app.views[0].fit = Fit::Width;
@@ -1056,7 +1056,7 @@ fn arrow_and_page_keys_move_through_a_scrolling_document() {
     h.run_steps(4);
     assert_eq!(h.state().views[0].layout, PageLayout::Single);
     assert!(h.state().views[0].continuous(), "the default view scrolls continuously");
-    let press = |h: &mut Harness<'static, PdfCraftApp>, key, times: usize| {
+    let press = |h: &mut Harness<'static, BurinDocsApp>, key, times: usize| {
         for _ in 0..times {
             h.key_press(key);
             h.run_steps(2);
@@ -1069,7 +1069,7 @@ fn arrow_and_page_keys_move_through_a_scrolling_document() {
     assert_eq!(press(&mut h, Key::ArrowLeft, 1), 1);
     assert_eq!(press(&mut h, Key::ArrowLeft, 1), 0);
     // ↓ scrolls a line at a time, Page Down a screen: count the presses that reach page 2
-    let presses = |h: &mut Harness<'static, PdfCraftApp>, key| {
+    let presses = |h: &mut Harness<'static, BurinDocsApp>, key| {
         let mut n = 0;
         while h.state().views[0].current == 0 {
             press(h, key, 1);
@@ -1106,7 +1106,7 @@ fn up_and_down_turn_pages_in_single_page_view() {
     h.state_mut().views[0].continuous = false;
     h.state_mut().views[0].fit = Fit::Page;
     h.run_steps(4);
-    let press = |h: &mut Harness<'static, PdfCraftApp>, key, times: usize| {
+    let press = |h: &mut Harness<'static, BurinDocsApp>, key, times: usize| {
         for _ in 0..times {
             h.key_press(key);
             h.run_steps(2);
@@ -1144,7 +1144,7 @@ fn v_h_and_space_pick_the_quick_tools() {
     let mut h = harness();
     h.state_mut().active = Some(0);
     h.run_steps(2);
-    let press = |h: &mut Harness<'static, PdfCraftApp>, key| {
+    let press = |h: &mut Harness<'static, BurinDocsApp>, key| {
         h.key_press(key);
         h.run_steps(2);
         h.state().quick_tool
@@ -1222,7 +1222,7 @@ fn page_down_steps_every_spread_when_several_fit_on_screen() {
     for fit in [Fit::Width, Fit::Page, Fit::Height] {
         let bytes = sized_fixture(&sizes);
         let mut h = Harness::builder().with_size(egui::vec2(1400.0, 900.0)).build_eframe(move |_cc| {
-            let mut app = PdfCraftApp::new();
+            let mut app = BurinDocsApp::new();
             app.set_option("language", "en").unwrap();
             app.open_bytes("book.pdf", None, bytes).unwrap();
             app
@@ -1245,10 +1245,10 @@ fn page_down_steps_every_spread_when_several_fit_on_screen() {
 }
 
 /// Open `sizes` in Fit width, continuous, with the Pages panel showing.
-fn pages_panel_harness(sizes: &[(u32, u32)]) -> Harness<'static, PdfCraftApp> {
+fn pages_panel_harness(sizes: &[(u32, u32)]) -> Harness<'static, BurinDocsApp> {
     let bytes = sized_fixture(sizes);
     let mut h = Harness::builder().with_size(egui::vec2(1400.0, 900.0)).build_eframe(move |_cc| {
-        let mut app = PdfCraftApp::new();
+        let mut app = BurinDocsApp::new();
         app.set_option("language", "en").unwrap();
         app.open_bytes("cheques.pdf", None, bytes).unwrap();
         app.right = Some(pdfcraft_ui_egui::RightPanel::Pages);
@@ -1262,12 +1262,12 @@ fn pages_panel_harness(sizes: &[(u32, u32)]) -> Harness<'static, PdfCraftApp> {
 }
 
 /// A thumbnail in the Pages panel (the panel lists pages as "Page n" buttons).
-fn thumbnail(h: &Harness<'static, PdfCraftApp>, label: &str) -> egui::Pos2 {
+fn thumbnail(h: &Harness<'static, BurinDocsApp>, label: &str) -> egui::Pos2 {
     h.get_all_by_label(label).find(|n| n.rect().left() > 1000.0).expect("the Pages panel thumbnail").rect().center()
 }
 
 /// Press and release `button` at `at`.
-fn press(h: &mut Harness<'static, PdfCraftApp>, at: egui::Pos2, button: egui::PointerButton) {
+fn press(h: &mut Harness<'static, BurinDocsApp>, at: egui::Pos2, button: egui::PointerButton) {
     h.hover_at(at);
     h.run_steps(1);
     h.event(egui::Event::PointerButton { pos: at, button, pressed: true, modifiers: Default::default() });
@@ -1314,7 +1314,7 @@ fn the_scroll_speed_preference_scales_mouse_wheel_notches() {
         h.state_mut().scroll_speed = speed;
         h.run_steps(2);
         let i = h.state().active.expect("a document is shown");
-        let top = |h: &Harness<'static, PdfCraftApp>| h.state().views[i].page_screen_rect(0).expect("page 1 on screen").min.y;
+        let top = |h: &Harness<'static, BurinDocsApp>| h.state().views[i].page_screen_rect(0).expect("page 1 on screen").min.y;
         let before = top(&h);
         h.event(egui::Event::PointerMoved(h.state().views[i].viewport_rect().center()));
         h.event(egui::Event::MouseWheel { unit, delta: egui::vec2(0.0, -dy), phase: egui::TouchPhase::Move, modifiers: egui::Modifiers::NONE });
@@ -1330,28 +1330,28 @@ fn the_scroll_speed_preference_scales_mouse_wheel_notches() {
     let point = egui::MouseWheelUnit::Point;
     let (normal_points, fast_points) = (scrolled(ScrollSpeed::Normal, point, 30.0), scrolled(ScrollSpeed::Fast, point, 30.0));
     assert!(normal_points > 0.0 && (normal_points - fast_points).abs() < 1.0, "trackpad: {normal_points} vs {fast_points}");
-    let mut app = PdfCraftApp::new();
+    let mut app = BurinDocsApp::new();
     app.set_option("scroll_speed", "fast").unwrap();
     assert!(app.set_option("scroll_speed", "warp").unwrap_err().contains("slow, normal, or fast"));
-    let mut again = PdfCraftApp::new();
+    let mut again = BurinDocsApp::new();
     again.restore(&app.persist());
     assert_eq!(again.scroll_speed, ScrollSpeed::Fast);
 }
 
 /// A 40 × 30 picture (one red corner) and a harness showing a PDF of it.
-fn picture_harness() -> (image::RgbaImage, Harness<'static, PdfCraftApp>) {
+fn picture_harness() -> (image::RgbaImage, Harness<'static, BurinDocsApp>) {
     picture_harness_sized(egui::vec2(1400.0, 900.0))
 }
 
 /// [`picture_harness`] in a window of this size.
-fn picture_harness_sized(size: egui::Vec2) -> (image::RgbaImage, Harness<'static, PdfCraftApp>) {
+fn picture_harness_sized(size: egui::Vec2) -> (image::RgbaImage, Harness<'static, BurinDocsApp>) {
     let mut px = image::RgbaImage::from_pixel(40, 30, image::Rgba([10, 200, 30, 255]));
     px.put_pixel(0, 0, image::Rgba([255, 0, 0, 255]));
     let mut png = std::io::Cursor::new(Vec::new());
     image::DynamicImage::ImageRgba8(px.clone()).write_to(&mut png, image::ImageFormat::Png).unwrap();
     let pdf = pdfcraft_engine::Session::new().create_from_images(&[("p.png".into(), png.into_inner())]).unwrap();
     let mut h = Harness::builder().with_size(size).build_eframe(move |_cc| {
-        let mut app = PdfCraftApp::new();
+        let mut app = BurinDocsApp::new();
         app.set_option("language", "en").unwrap();
         app.open_bytes("pic.pdf", None, pdf.to_vec()).unwrap();
         app
@@ -1435,7 +1435,7 @@ fn a_picture_inside_form_artwork_under_text_is_selected_and_copied() {
     }
     pdf.extend_from_slice(format!("trailer\n<< /Size {} /Root 1 0 R >>\nstartxref\n{xref}\n%%EOF\n", objs.len() + 1).as_bytes());
     let mut h = Harness::builder().with_size(egui::vec2(1400.0, 900.0)).build_eframe(move |_cc| {
-        let mut app = PdfCraftApp::new();
+        let mut app = BurinDocsApp::new();
         app.set_option("language", "en").unwrap();
         app.open_bytes("scan.pdf", None, pdf).unwrap();
         app
@@ -1468,7 +1468,7 @@ fn a_picture_inside_form_artwork_under_text_is_selected_and_copied() {
 
 /// A picture in Edit text & images, right-clicked so its menu is open (in a tall window, so the
 /// whole menu is on screen).
-fn picture_menu() -> (image::RgbaImage, Harness<'static, PdfCraftApp>) {
+fn picture_menu() -> (image::RgbaImage, Harness<'static, BurinDocsApp>) {
     let (px, mut h) = picture_harness_sized(egui::vec2(1400.0, 1500.0));
     h.state_mut().set_option("quick", "edit-text").unwrap();
     h.run_steps(3);
@@ -1482,7 +1482,7 @@ fn picture_menu() -> (image::RgbaImage, Harness<'static, PdfCraftApp>) {
     (px, h)
 }
 
-fn picture_count(h: &Harness<'static, PdfCraftApp>) -> usize {
+fn picture_count(h: &Harness<'static, BurinDocsApp>) -> usize {
     let s = h.state();
     s.session.get(s.active_ids().unwrap().1).unwrap().page_images(0).len()
 }
@@ -1505,7 +1505,7 @@ fn the_picture_menu_cuts_a_picture_to_the_clipboard_and_removes_it() {
 #[test]
 fn the_picture_menu_marks_a_picture_for_redaction() {
     let (_, mut h) = picture_menu();
-    let marks = |h: &Harness<'static, PdfCraftApp>| {
+    let marks = |h: &Harness<'static, BurinDocsApp>| {
         let s = h.state();
         s.session.get(s.active_ids().unwrap().1).unwrap().redaction_marks()
     };
@@ -1583,7 +1583,7 @@ fn mouse_wheel_scrolls_while_selecting_text() {
     h.event(egui::Event::PointerButton { pos: end, button: egui::PointerButton::Primary, pressed: false, modifiers: egui::Modifiers::NONE });
     h.run_steps(2);
 }
-fn selection_wheel_harness() -> (Harness<'static, PdfCraftApp>, usize, egui::Pos2) {
+fn selection_wheel_harness() -> (Harness<'static, BurinDocsApp>, usize, egui::Pos2) {
     let mut h = harness();
     h.state_mut().set_option("zoom", "200").unwrap();
     h.state_mut().set_option("left", "closed").unwrap();
@@ -1740,7 +1740,7 @@ fn page_command_without_selection_acts_on_the_page_pressed() {
     // Page 2 was gone to earlier; both pages show whole, so it stays current.
     h.state_mut().set_option("page", "2").unwrap();
     h.run_steps(5);
-    let at = |h: &Harness<'static, PdfCraftApp>, page: usize| {
+    let at = |h: &Harness<'static, BurinDocsApp>, page: usize| {
         let v = &h.state().views[h.state().active.unwrap()];
         v.page_screen_rect(page).expect("page on screen").center()
     };

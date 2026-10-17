@@ -1,0 +1,33 @@
+# .rebrand-allowlist.txt — the only places upstream marks may appear.
+# Consumed by the rebrand-gate job in .github/workflows/estate-gate.yml.
+#   "name/"  -> excluded directory (basename match)
+#   "name"   -> excluded file (basename match)
+# Every entry needs a reason. Additions are audited like estate deny-list edits.
+#
+# Legal attribution (must keep upstream marks verbatim — Apache-2.0 §4, upstream NOTICE):
+NOTICE
+LICENSE-APACHE
+LICENSE-MIT
+ATTRIBUTION.md
+ATTRIBUTION.toml
+# Dependency provenance: craft-libs + winprint.rs are consumed by pinned git rev
+# and their URLs must name their true source:
+Cargo.toml
+Cargo.lock
+deny.toml
+# Vendored third-party code carries its own provenance (audit at each vendor bump):
+vendor/
+# Contributor credits gallery:
+contributors/
+# This program's own planning docs (they discuss the upstream project by name):
+REBRAND.md
+
+# The gate itself — its detection regex must name the marks it catches:
+estate-gate.yml
+# Program docs: provenance/attribution statements that must name the upstream
+# project (README provenance section; the clean-room rule in AGENTS/CLAUDE
+# must name the forbidden repository to be enforceable; ROADMAP upstream track):
+README.md
+AGENTS.md
+CLAUDE.md
+ROADMAP.md

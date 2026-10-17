@@ -1,14 +1,14 @@
 [Desktop Entry]
 Type=Application
-Name=PdfCraft
+Name=Burin Docs
 GenericName=PDF Editor
 Comment=Read, organize, combine, split and secure PDFs
 Exec=pdfcraft %U
 TryExec=pdfcraft
-Icon=ai.storyteller.pdfcraft
+Icon=com.wyattau.burin.doc
 Terminal=false
 StartupNotify=true
-StartupWMClass=ai.storyteller.pdfcraft
+StartupWMClass=com.wyattau.burin.doc
 Categories=Office;Viewer;
 Keywords=pdf;viewer;editor;annotate;sign;forms;merge;split;
 MimeType=application/pdf;

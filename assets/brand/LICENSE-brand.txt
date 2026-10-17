@@ -1,0 +1,13 @@
+Burin brand assets
+==================
+
+Copyright (c) 2026 Wyatt Au. All rights reserved.
+
+The name "Burin", the wordmark, logos and marks in assets/brand/ are brand
+assets of the Burin program. They are NOT covered by the MIT OR Apache-2.0
+source licence of this repository, may be used only unmodified within Burin
+and its official materials, and must be removed from forks and modified
+distributions.
+
+The current files are PLACEHOLDER artwork pending final branding (REBRAND.md);
+this reservation applies unchanged when final artwork replaces them.

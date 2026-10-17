@@ -1,0 +1,96 @@
+# Burin estate gate — the WyattAu engineering-standards matrix, wired onto the
+# forked pdfcraft workspace.
+#
+# Doctrine (artcraft-fork-plan/04-first-90-days.md): inherited code runs
+# ADVISORY first (continue-on-error) and graduates to blocking at the week-6
+# ratchet review; new platform code is born blocking. Upstream's own CI
+# (ci.yml, release.yml, ...) is untouched and keeps covering the default
+# feature build, packaging, and platforms.
+#
+# Reusable-workflow inputs are the real schema of rust-kit.yml@main:
+#   tier (a|b|c), all-features, loom, wasm, miri, miri-flags,
+#   bench-regression, embedded, package, coverage-ignore-regex
+
+name: estate-gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # ---------------------------------------------------------------- workspace
+  # Whole-workspace gate at Tier C (coverage informational).
+  # all-features=false: upstream's optional `heif`/`avif` features pull system
+  # codecs the plain runner lacks; upstream ci.yml covers the default build.
+  # The reusable workflow always additionally checks --no-default-features.
+  workspace-gate:
+    uses: WyattAu/engineering-standards/.github/workflows/rust-kit.yml@main
+    continue-on-error: true # TODO(ratchet): remove at W6 graduation review
+    with:
+      tier: c
+      all-features: false
+
+  # ------------------------------------------------- untrusted-input crates
+  # Tier A, scoped per crate (rust-kit.yml `package` takes one crate per call).
+  # pdfcraft-cos is the PDF object-system parser; pdfcraft-js executes PDF
+  # JavaScript — both are attacker-facing. cargo-fuzz harnesses land in weeks
+  # 3–6 and hang off these calls; miri/loom toggles are enabled per-crate at
+  # the same ratchet, after the inherited test suites are triaged under miri
+  # locally (60-min job timeout forbids switching them on blind).
+  gate-parser-cos:
+    uses: WyattAu/engineering-standards/.github/workflows/rust-kit.yml@main
+    continue-on-error: true # TODO(ratchet): remove at W6 graduation review
+    with:
+      tier: a
+      package: pdfcraft-cos
+      all-features: false
+
+  gate-parser-js:
+    uses: WyattAu/engineering-standards/.github/workflows/rust-kit.yml@main
+    continue-on-error: true # TODO(ratchet): remove at W6 graduation review
+    with:
+      tier: a
+      package: pdfcraft-js
+      all-features: false
+
+  # ------------------------------------------------------------- rebrand gate
+  # BLOCKING from day one (upstream's brand terms require removal; Apache-2.0
+  # §6 grants no marks). This job is the definition of done for the sweep in
+  # REBRAND.md. Legal attribution (NOTICE/LICENSE/ATTRIBUTION, dependency
+  # provenance in Cargo.{toml,lock}, vendored third-party code) is allowlisted;
+  # everything else mentioning the upstream marks fails the build.
+  rebrand-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: no committed secrets (upstream services shipped .env/secrets; this repo must never)
+        run: |
+          test ! -e .env || { echo "::error::.env must not exist"; exit 1; }
+          test ! -d secrets || { echo "::error::secrets/ must not exist"; exit 1; }
+
+      - name: no upstream brand marks outside the allowlist
+        run: |
+          set -euo pipefail
+          EXCLUDES=(--exclude-dir=.git --exclude-dir=target)
+          while IFS= read -r line; do
+            [[ -z "$line" || "$line" == \#* ]] && continue
+            if [[ "$line" == */ ]]; then
+              EXCLUDES+=(--exclude-dir="${line%/}")
+            else
+              EXCLUDES+=(--exclude="$line")
+            fi
+          done < .rebrand-allowlist.txt
+          if grep -riE 'artcraft|storytold|storyteller|getartcraft' "${EXCLUDES[@]}" . ; then
+            echo "::error::upstream brand marks outside .rebrand-allowlist.txt — see REBRAND.md"
+            exit 1
+          fi
+          echo "rebrand gate: clean"

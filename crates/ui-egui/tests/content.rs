@@ -4,23 +4,23 @@
 use egui::{Pos2, pos2};
 use egui_kittest::Harness;
 use egui_kittest::kittest::Queryable;
-use pdfcraft_ui_egui::{PdfCraftApp, QuickTool};
+use pdfcraft_ui_egui::{BurinDocsApp, QuickTool};
 
-fn harness() -> Harness<'static, PdfCraftApp> {
+fn harness() -> Harness<'static, BurinDocsApp> {
     harness_with_step_dt(0.25)
 }
 
-fn harness_with_step_dt(step_dt: f32) -> Harness<'static, PdfCraftApp> {
+fn harness_with_step_dt(step_dt: f32) -> Harness<'static, BurinDocsApp> {
     harness_bytes_with_step_dt(include_bytes!("data/form.pdf").to_vec(), step_dt)
 }
 
-fn harness_bytes(bytes: Vec<u8>) -> Harness<'static, PdfCraftApp> {
+fn harness_bytes(bytes: Vec<u8>) -> Harness<'static, BurinDocsApp> {
     harness_bytes_with_step_dt(bytes, 0.25)
 }
 
-fn harness_bytes_with_step_dt(bytes: Vec<u8>, step_dt: f32) -> Harness<'static, PdfCraftApp> {
+fn harness_bytes_with_step_dt(bytes: Vec<u8>, step_dt: f32) -> Harness<'static, BurinDocsApp> {
     let mut h = Harness::builder().with_size(egui::vec2(1400.0, 900.0)).with_step_dt(step_dt).build_eframe(move |_cc| {
-        let mut app = PdfCraftApp::new();
+        let mut app = BurinDocsApp::new();
         app.set_option("language", "en").unwrap();
         app.open_bytes("form.pdf", None, bytes.clone()).unwrap();
         app.set_option("zoom", "150").unwrap();
@@ -36,13 +36,13 @@ fn harness_bytes_with_step_dt(bytes: Vec<u8>, step_dt: f32) -> Harness<'static, 
     h
 }
 
-fn at(h: &Harness<'static, PdfCraftApp>, x: f32, y: f32) -> Pos2 {
+fn at(h: &Harness<'static, BurinDocsApp>, x: f32, y: f32) -> Pos2 {
     let r = h.state().views[0].page_screen_rect(0).expect("on screen");
     let k = r.width() / 300.0;
     r.min + egui::vec2(x * k, y * k)
 }
 
-fn click(h: &mut Harness<'static, PdfCraftApp>, p: Pos2) {
+fn click(h: &mut Harness<'static, BurinDocsApp>, p: Pos2) {
     h.hover_at(p);
     h.run_steps(1);
     h.drag_at(p);
@@ -51,13 +51,13 @@ fn click(h: &mut Harness<'static, PdfCraftApp>, p: Pos2) {
     h.run_steps(3);
 }
 
-fn added(h: &Harness<'static, PdfCraftApp>) -> Vec<pdfcraft_engine::Added> {
+fn added(h: &Harness<'static, BurinDocsApp>) -> Vec<pdfcraft_engine::Added> {
     let s = h.state();
     s.session.get(s.views[0].id).unwrap().added().to_vec()
 }
 
 /// A click whose press and release arrive in the same frame, as a quick real mouse click does.
-fn quick_click(h: &mut Harness<'static, PdfCraftApp>, p: Pos2) {
+fn quick_click(h: &mut Harness<'static, BurinDocsApp>, p: Pos2) {
     h.hover_at(p);
     h.run_steps(1);
     for pressed in [true, false] {
@@ -66,7 +66,7 @@ fn quick_click(h: &mut Harness<'static, PdfCraftApp>, p: Pos2) {
     h.run_steps(3);
 }
 
-fn texts(h: &Harness<'static, PdfCraftApp>) -> Vec<String> {
+fn texts(h: &Harness<'static, BurinDocsApp>) -> Vec<String> {
     added(h)
         .into_iter()
         .filter_map(|a| match a.content {
@@ -392,7 +392,7 @@ fn finished_text_over_form_field_keeps_selection_and_drag_ownership() {
     assert_eq!(h.state().views[0].forms.focus.as_ref().map(|f| f.name.as_str()), Some("city"));
 }
 
-fn text_over_city() -> Harness<'static, PdfCraftApp> {
+fn text_over_city() -> Harness<'static, BurinDocsApp> {
     let mut h = harness_with_step_dt(1.0 / 60.0);
     assert!(h.state_mut().execute("edit.text"));
     h.run_steps(2);
@@ -462,7 +462,7 @@ fn closing_edit_panel_leaves_form_filling_available() {
 }
 
 /// The screen rectangle of an added item's display-space box (y up, from the page's bottom).
-fn item_on_screen(h: &Harness<'static, PdfCraftApp>, r: [f64; 4]) -> egui::Rect {
+fn item_on_screen(h: &Harness<'static, BurinDocsApp>, r: [f64; 4]) -> egui::Rect {
     let s = h.state();
     let ph = s.session.get(s.views[0].id).unwrap().info.pages[0].height;
     let page = s.views[0].page_screen_rect(0).expect("on screen");
@@ -486,14 +486,14 @@ fn probe(r: egui::Rect) -> egui::Rect {
 }
 
 /// Ink in the probes of the text's first and dragged places.
-fn ink_at(h: &mut Harness<'static, PdfCraftApp>, from: egui::Rect, to: egui::Rect) -> (usize, usize) {
+fn ink_at(h: &mut Harness<'static, BurinDocsApp>, from: egui::Rect, to: egui::Rect) -> (usize, usize) {
     let pixels = h.render().unwrap();
     (ink(&pixels, probe(from)), ink(&pixels, probe(to)))
 }
 
 /// Types text, finishes it, and drags it up without releasing, until the drag preview shows.
 /// Returns the text's box, its screen rectangles before and after, and the pointer.
-fn drag_added_text(h: &mut Harness<'static, PdfCraftApp>) -> ([f64; 4], egui::Rect, egui::Rect, Pos2) {
+fn drag_added_text(h: &mut Harness<'static, BurinDocsApp>) -> ([f64; 4], egui::Rect, egui::Rect, Pos2) {
     assert!(h.state_mut().execute("edit.text"));
     h.run_steps(2);
     let p = at(h, 40.0, 300.0);

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build PdfCraft for FreeBSD and package it:
+# Build Burin Docs for FreeBSD and package it:
 #   $DIST/pdfcraft-<version>-freebsd-<arch>.tar.gz   a /usr/local-style tree (bin/, share/)
 #
 # Extract it into /usr/local (or anywhere, and run bin/pdfcraft from there). The desktop entry,
@@ -11,7 +11,7 @@ set -euo pipefail
 # shellcheck source=../env.sh
 . "$(dirname "${BASH_SOURCE[0]}")/../env.sh"
 LINUX="$ROOT/packaging/linux"
-APP_ID=ai.storyteller.pdfcraft
+APP_ID=com.wyattau.burin.doc
 
 SKIP_BUILD=0
 while [ $# -gt 0 ]; do
@@ -30,7 +30,7 @@ case "$ARCH" in
 esac
 BASENAME="pdfcraft-$VERSION-freebsd-$ARCH"
 
-echo "==> PdfCraft $VERSION for FreeBSD $ARCH"
+echo "==> Burin Docs $VERSION for FreeBSD $ARCH"
 
 if [ "$SKIP_BUILD" = 0 ]; then
   (cd "$ROOT" && cargo build --release --locked -p pdfcraft -p pdfcraft-cli)

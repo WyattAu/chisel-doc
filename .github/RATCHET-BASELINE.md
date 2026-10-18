@@ -101,3 +101,22 @@ tickets — new findings are simply not allowed in.
 - `fuzz`: three harnesses, 59 309 cumulative runs, zero crashes.
 - `vendor ledger`: 356 citations verified, 0 findings; the six hermetic
   vendored crates' suites run in CI.
+
+## Trail-on-wasm32 status (2026-10-18)
+
+The `trail` feature stays **feature-gated** (native-only). Flipping it
+default-on exposed a uuid 1.26.1 feature-resolution gap: tamper-audit 0.2.1
+declares `uuid = { features = ["rng-getrandom"] }` in its wasm32 target
+table, the `rng` umbrella unifies into the wasm graph, but uuid's own
+compile-time check requires the *specific* `rng-getrandom`/`js`/`rng-rand`
+flags and does not see them through the transitive target table + feature
+unification. The wasm gate fails on uuid (and tokio's non-wasm feature set
+via the same new edge) even though every individual manifest is correct.
+
+Reverted to the green posture: trail feature-gated (native), wasm gate 31
+crates ok. The flip re-opens when either (a) tamper-audit adopts an
+explicitly wasm-safe uuid configuration validated in ITS wasm CI and
+documented for consumers, or (b) chisel-doc hosts the audit trail behind a
+service API on the web build (the server continuation design), removing
+the in-crate trail from the wasm surface entirely. Option (b) is the
+architecturally correct end state for the web target.

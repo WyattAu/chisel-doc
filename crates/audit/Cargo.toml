@@ -17,10 +17,11 @@ pdfcraft-edit = { workspace = true }
 pdfcraft-model = { workspace = true }
 thiserror = { workspace = true }
 
-# platform dogfood pin (exact rev): the tamper-evident trail for applied redactions.
-# Optional because tamper-audit's uuid IDs do not compile on wasm32 yet (no
-# configured randomness source there); the native editor enables this feature
-# and the web build defers the trail to the server continuation.
+# platform pin: the tamper-evident trail for applied redactions. Feature-
+# gated on wasm32 pending the tamper-audit-side uuid randomness-source
+# story (getrandom 0.3/0.4 target tables do not propagate their wasm rng
+# features through feature unification on uuid 1.26.1 - investigated
+# 2026-10-18; see the chisel-fork-plan notes). Native builds enable it.
 chisel-audit = { workspace = true, optional = true }
 
 [features]

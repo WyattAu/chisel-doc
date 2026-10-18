@@ -76,6 +76,15 @@ egui = "0.36"
 egui_extras = { version = "0.36", default-features = false, features = ["svg"] }
 eframe = { version = "0.36", default-features = false }
 egui_kittest = "0.36"
+# The estate's gated design-token contract (crates/ui-egui/src/theme_palette.rs):
+# theme-kit owns the palette and fails the build on a WCAG 2.1 violation.
+# theme-egui (the Visuals adapter) is deliberately NOT a dependency here: it is
+# compiled against egui 0.37, and this app pins 0.36 — Cargo cannot pair one
+# adapter with two toolkit majors (it would put two `ecolor` versions in the
+# graph and `Visuals` stops type-checking). The app places the gated roles
+# itself in theme::apply; theme-kit carries no toolkit coupling at all.
+theme-kit = "0.1.0"
+color-kit = "0.1.0"
 rfd = "0.17"
 
 [workspace.lints.rust]

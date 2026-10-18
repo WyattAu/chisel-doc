@@ -22,6 +22,12 @@ pdfcraft-platform = { workspace = true }
 egui = { workspace = true, features = ["bytemuck"] }
 egui_extras = { workspace = true }
 eframe = { workspace = true, features = ["default_fonts", "wgpu", "accesskit", "persistence", "links"] }
+# The estate's gated design-token contract: theme-kit owns the palette and
+# fails the build on a WCAG violation. theme-egui (the Visuals adapter) is
+# version-coupled to egui 0.37 and deliberately absent — see the workspace
+# Cargo.toml note; `theme::apply` places the gated roles itself.
+theme-kit = { workspace = true }
+color-kit = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 log = { workspace = true }

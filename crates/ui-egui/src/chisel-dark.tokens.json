@@ -1,0 +1,18 @@
+{
+  "$schema": "https://tr.designtokens.org/format/",
+  "$description": "Chisel Docs chrome palette (dark) — the roles the chrome theme owns. Note: Dark Gray keeps document pages white (plan/acrobat), so `surface` is chrome, not the page.",
+  "color": {
+    "surface":         { "$value": "#2E2E33", "$type": "color", "$description": "Cards, fields, document chrome" },
+    "surface-raised":  { "$value": "#26262A", "$type": "color", "$description": "Panels and chrome" },
+    "on-surface":      { "$value": "#ECECEF", "$type": "color", "$description": "Primary text and icons" },
+    "on-surface-muted":{ "$value": "#AEAEB6", "$type": "color", "$description": "Secondary text; text_faint (#97979E) is its darker sibling" },
+    "accent":          { "$value": "#4B8BF5", "$type": "color", "$description": "Links, selection, active states" },
+    "on-accent":       { "$value": "#0F1115", "$type": "color", "$description": "Text on accent fills" },
+    "warn":            { "$value": "#E3B341", "$type": "color", "$description": "Warning text on surface" },
+    "error":           { "$value": "#FF7B72", "$type": "color", "$description": "Error text on surface" },
+    "success":         { "$value": "#3FB950", "$type": "color", "$description": "Success text on surface" },
+    "selection":       { "$value": "#233A63", "$type": "color", "$description": "Selected row background" },
+    "border":          { "$value": "#3C3C43", "$type": "color", "$description": "Card border and dividers — decorative; see KNOWN_EXEMPTIONS" },
+    "focus-ring":      { "$value": "#58A6FF", "$type": "color", "$description": "Focus indication" }
+  }
+}

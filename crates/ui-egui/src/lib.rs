@@ -137,6 +137,10 @@ pub mod scroll_speed;
 mod system_fonts;
 mod tab_context;
 pub mod theme;
+/// The chrome palette as the estate's gated token contract (WCAG 2.1 gate at
+/// build time). [`theme`] keeps the bespoke document-editor chrome; this owns
+/// the design-system roles.
+pub mod theme_palette;
 pub mod ui_scale;
 pub mod updates;
 mod wheel_pager;

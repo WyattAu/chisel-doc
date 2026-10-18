@@ -1,0 +1,18 @@
+{
+  "$schema": "https://tr.designtokens.org/format/",
+  "$description": "Chisel Docs chrome palette (light) — the roles the chrome theme owns. Values are the shipped literals; the gate is the point.",
+  "color": {
+    "surface":         { "$value": "#FFFFFF", "$type": "color", "$description": "Cards, fields, document chrome" },
+    "surface-raised":  { "$value": "#FFFFFF", "$type": "color", "$description": "Panels and chrome; equal to surface by design (plan/acrobat neutral chrome)" },
+    "on-surface":      { "$value": "#222226", "$type": "color", "$description": "Primary text and icons" },
+    "on-surface-muted":{ "$value": "#5E5E66", "$type": "color", "$description": "Secondary text (text_muted); text_faint (#6B6B73) is its lighter sibling" },
+    "accent":          { "$value": "#1B63E0", "$type": "color", "$description": "Links, selection, active states" },
+    "on-accent":       { "$value": "#FFFFFF", "$type": "color", "$description": "Text on accent fills" },
+    "warn":            { "$value": "#8A5A00", "$type": "color", "$description": "Warning text on surface" },
+    "error":           { "$value": "#A40E26", "$type": "color", "$description": "Error text on surface" },
+    "success":         { "$value": "#1A7F37", "$type": "color", "$description": "Success text on surface" },
+    "selection":       { "$value": "#E6EEFD", "$type": "color", "$description": "Selected row background (accent_soft/selected)" },
+    "border":          { "$value": "#DADADE", "$type": "color", "$description": "Card border and dividers — decorative; see KNOWN_EXEMPTIONS" },
+    "focus-ring":      { "$value": "#1B63E0", "$type": "color", "$description": "Focus indication (egui draws its own from widgets.hovered.bg_stroke)" }
+  }
+}

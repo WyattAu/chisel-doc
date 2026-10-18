@@ -427,7 +427,33 @@ pub fn apply(ctx: &egui::Context, kind: ThemeKind) {
     ctx.set_theme(egui::ThemePreference::System);
     let t = Tokens::for_kind(kind);
     ctx.data_mut(|d| d.insert_temp(egui::Id::new("pdfcraft-theme"), t));
-    let mut v = if t.dark() { Visuals::dark() } else { Visuals::light() };
+    // The design-system roles come from the gated token contract (crate
+    // theme_palette): a colour that breaks WCAG 2.1 AA cannot reach here,
+    // and the dichromat variants derive from the same seed. The bespoke
+    // document-editor chrome below (titlebar, pasteboard, the press wash)
+    // stays hand-tuned — those are editor decisions, not roles.
+    let gated = match kind {
+        ThemeKind::Light => crate::theme_palette::light(),
+        ThemeKind::Dark => crate::theme_palette::dark(),
+    };
+    let v = match gated.as_ref().ok().and_then(|g| crate::theme_palette::visuals(g).ok()) {
+        Some(mut v) => {
+            // Editor chrome keeps its own identity on top of the roles.
+            v.window_fill = t.card;
+            v.faint_bg_color = t.hover;
+            v.selection.bg_fill = t.accent_soft;
+            v.selection.stroke = Stroke::new(1.0, t.accent);
+            v.window_stroke = Stroke::new(1.0, t.border);
+            v.hyperlink_color = t.accent_text;
+            v
+        }
+        None => {
+            // Unreachable in a gated build — theme_palette's own tests fail
+            // first — but a UI must never panic on a missing token.
+            if t.dark() { Visuals::dark() } else { Visuals::light() }
+        }
+    };
+    let mut v = v;
     v.panel_fill = t.panel;
     v.window_fill = t.card;
     v.window_stroke = Stroke::new(1.0, t.border);

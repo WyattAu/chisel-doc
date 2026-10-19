@@ -371,6 +371,10 @@ criteria = "safe-to-deploy"
 version = "0.10.2"
 criteria = "safe-to-deploy"
 
+[[exemptions.chisel-audit]]
+version = "0.1.0"
+criteria = "safe-to-deploy"
+
 [[exemptions.chrono]]
 version = "0.4.45"
 criteria = "safe-to-deploy"
@@ -405,6 +409,10 @@ criteria = "safe-to-deploy"
 
 [[exemptions.color]]
 version = "0.3.3"
+criteria = "safe-to-deploy"
+
+[[exemptions.color-kit]]
+version = "0.1.0"
 criteria = "safe-to-deploy"
 
 [[exemptions.color_quant]]
@@ -1971,6 +1979,10 @@ criteria = "safe-to-deploy"
 version = "1.2.0"
 criteria = "safe-to-deploy"
 
+[[exemptions.script-gate-kit]]
+version = "0.1.0"
+criteria = "safe-to-deploy"
+
 [[exemptions.sec1]]
 version = "0.8.1"
 criteria = "safe-to-deploy"
@@ -2251,6 +2263,10 @@ criteria = "safe-to-deploy"
 version = "0.2.0"
 criteria = "safe-to-deploy"
 
+[[exemptions.tamper-audit]]
+version = "0.2.1"
+criteria = "safe-to-deploy"
+
 [[exemptions.tap]]
 version = "1.0.1"
 criteria = "safe-to-deploy"
@@ -2265,6 +2281,10 @@ criteria = "safe-to-deploy"
 
 [[exemptions.termcolor]]
 version = "1.4.1"
+criteria = "safe-to-deploy"
+
+[[exemptions.theme-kit]]
+version = "0.1.0"
 criteria = "safe-to-deploy"
 
 [[exemptions.thin-vec]]
@@ -2481,6 +2501,10 @@ criteria = "safe-to-deploy"
 
 [[exemptions.uuid]]
 version = "1.26.1"
+criteria = "safe-to-deploy"
+
+[[exemptions.uuid-rng-internal]]
+version = "1.28.0"
 criteria = "safe-to-deploy"
 
 [[exemptions.vello_common]]

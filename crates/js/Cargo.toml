@@ -11,7 +11,7 @@ repository.workspace = true
 workspace = true
 
 [dependencies]
-script-gate-kit = { git = "https://github.com/WyattAu/chisel-platform", rev = "93dc6c3cb4f10c33fb6c174ac1ccbe69a4472490" }
+script-gate-kit = "0.1"
 boa_engine = { version = "0.22.0", default-features = false, features = ["annex-b"] }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]

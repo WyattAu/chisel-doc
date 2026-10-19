@@ -17,12 +17,8 @@ pdfcraft-edit = { workspace = true }
 pdfcraft-model = { workspace = true }
 thiserror = { workspace = true }
 
-# platform pin: the tamper-evident trail for applied redactions. Feature-
-# gated on wasm32 pending the tamper-audit-side uuid randomness-source
-# story (getrandom 0.3/0.4 target tables do not propagate their wasm rng
-# features through feature unification on uuid 1.26.1 - investigated
-# 2026-10-18; see the chisel-fork-plan notes). Native builds enable it.
-chisel-audit = { workspace = true, optional = true }
-
-[features]
-trail = ["dep:chisel-audit"]
+# platform pin: the tamper-evident trail for applied redactions. Required
+# on every target since tamper-audit 0.2.1 made the chain wasm-safe
+# (uuid randomness source + getrandom wasm_js configured in the consumer's
+# .cargo/config.toml); the trail ships on all platforms.
+chisel-audit = { workspace = true }

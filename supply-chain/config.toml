@@ -375,6 +375,10 @@ criteria = "safe-to-deploy"
 version = "0.1.0"
 criteria = "safe-to-deploy"
 
+[[exemptions.chisel-audit]]
+version = "0.1.1"
+criteria = "safe-to-deploy"
+
 [[exemptions.chrono]]
 version = "0.4.45"
 criteria = "safe-to-deploy"
@@ -1117,6 +1121,10 @@ criteria = "safe-to-deploy"
 
 [[exemptions.inout]]
 version = "0.2.2"
+criteria = "safe-to-deploy"
+
+[[exemptions.input-kit]]
+version = "0.1.0"
 criteria = "safe-to-deploy"
 
 [[exemptions.intrusive-collections]]
@@ -2429,6 +2437,10 @@ criteria = "safe-to-deploy"
 
 [[exemptions.uds_windows]]
 version = "1.2.1"
+criteria = "safe-to-deploy"
+
+[[exemptions.ui-text-edit]]
+version = "0.1.0"
 criteria = "safe-to-deploy"
 
 [[exemptions.unarray]]

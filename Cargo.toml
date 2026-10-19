@@ -85,6 +85,8 @@ egui_kittest = "0.36"
 # graph and `Visuals` stops type-checking). The app places the gated roles
 # itself in theme::apply; theme-kit carries no toolkit coupling at all.
 theme-kit = "0.1.0"
+ui-text-edit = "0.1.0"
+input-kit = "0.1.0"
 color-kit = "0.1.0"
 rfd = "0.17"
 

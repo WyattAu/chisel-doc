@@ -2942,6 +2942,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "input-kit"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7e6bc81165eb3e88a58c7eccad8cbf614cc5ecd88a480c6be6fc0e2e268d1c76"
+dependencies = [
+ "thiserror 2.0.21",
+ "unicode-segmentation",
+]
+
+[[package]]
 name = "intrusive-collections"
 version = "0.10.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4385,6 +4395,7 @@ dependencies = [
  "fontconfig-parser",
  "getrandom 0.4.3",
  "image",
+ "input-kit",
  "js-sys",
  "log",
  "objc2 0.6.4",
@@ -4407,6 +4418,7 @@ dependencies = [
  "sys-locale",
  "theme-kit",
  "toml",
+ "ui-text-edit",
  "unicode-bidi",
  "wasm-bindgen",
  "wasm-bindgen-futures",
@@ -6854,6 +6866,15 @@ dependencies = [
  "memoffset",
  "tempfile",
  "windows-sys 0.61.2",
+]
+
+[[package]]
+name = "ui-text-edit"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c8f9e02cd33705a0d262f190aa3d998cc7f5d7248db12e7759b95ae4021d431e"
+dependencies = [
+ "input-kit",
 ]
 
 [[package]]

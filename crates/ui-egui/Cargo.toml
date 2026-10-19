@@ -28,6 +28,11 @@ eframe = { workspace = true, features = ["default_fonts", "wgpu", "accesskit", "
 # Cargo.toml note; `theme::apply` places the gated roles itself.
 theme-kit = { workspace = true }
 color-kit = { workspace = true }
+# The estate's text-field layer. `ui-text-edit` works in grapheme clusters;
+# egui's CCursor is epaint's CharIndex, which counts chars. The comparison
+# lives in tests/grapheme_backspace.rs.
+ui-text-edit = { workspace = true }
+input-kit = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 log = { workspace = true }

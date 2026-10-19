@@ -1373,8 +1373,15 @@ pub(crate) fn composer(ctx: &egui::Context, view: &mut DocView, info: &DocInfo, 
                 ComposerKind::Replace => tl!("Replacement text"),
                 _ => tl!("Add a comment"),
             };
-            let edit =
-                ui.add(egui::TextEdit::multiline(&mut c.text).hint_text(hint).desired_rows(3).desired_width(f32::INFINITY).id_salt("composer-text"));
+            // Cluster-aware: Backspace and Delete remove whole characters, so a
+            // comment written with an accent or an emoji does not need two
+            // presses and never shows a half-character in between.
+            let edit = crate::cluster_text::cluster_text_edit_multiline(ui, &mut c.text)
+                .hint_text(hint)
+                .desired_rows(3)
+                .desired_width(f32::INFINITY)
+                .id_salt("composer-text")
+                .show();
             if c.focus {
                 edit.request_focus();
                 c.focus = false;

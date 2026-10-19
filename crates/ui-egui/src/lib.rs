@@ -136,6 +136,7 @@ pub mod scroll_speed;
 #[cfg(not(target_arch = "wasm32"))]
 mod system_fonts;
 mod tab_context;
+pub mod cluster_text;
 pub mod theme;
 /// The chrome palette as the estate's gated token contract (WCAG 2.1 gate at
 /// build time). [`theme`] keeps the bespoke document-editor chrome; this owns

@@ -492,6 +492,13 @@ pub(crate) fn overlay(ctx: &egui::Context, view: &mut DocView, info: &DocInfo, f
                 let font = (field_text_size(ui.painter(), f, w, &fx.text) * zoom).clamp(3.0, 64.0);
                 // The field is pale yellow in every theme, so the caret must not follow the theme (pale in dark mode) (#655).
                 ui.visuals_mut().text_cursor.stroke.color = crate::edit_text_ui::caret_color_on(FIELD_FILL);
+                // Cluster-aware deletion. This field cannot use `cluster_text_edit_*`,
+                // because it is laid out inside a fixed rect and the click that
+                // lands on the page needs the galley, so it drives the
+                // intercept itself around its own layout.
+                let field_id = egui::Id::new(("form-field", view.id.0, &f.name, focus.widget));
+                let cluster_action =
+                    crate::cluster_text::take_cluster_intercept(ui.ctx(), field_id, &fx.text);
                 let mut te = if multiline { egui::TextEdit::multiline(&mut fx.text) } else { egui::TextEdit::singleline(&mut fx.text) };
                 te = te
                     // Wraps (inside the 3 px side margins) at the width the size was fitted to:
@@ -502,7 +509,7 @@ pub(crate) fn overlay(ctx: &egui::Context, view: &mut DocView, info: &DocInfo, f
                     .text_color(Color32::BLACK)
                     .margin(egui::Margin::symmetric(3, 1))
                     .password(f.has(field_flags::PASSWORD))
-                    .id(egui::Id::new(("form-field", view.id.0, &f.name, focus.widget)));
+                    .id(field_id);
                 if let Some(max) = f.max_len {
                     te = te.char_limit(max);
                 }
@@ -515,6 +522,11 @@ pub(crate) fn overlay(ctx: &egui::Context, view: &mut DocView, info: &DocInfo, f
                     laid_out = Some((out.galley, out.galley_pos));
                     out.response.response
                 });
+                // egui never saw the keystroke, so the deletion and the cursor
+                // fix happen here, after the layout that needed the galley.
+                if let Some(action) = cluster_action {
+                    crate::cluster_text::apply_cluster_action(ui.ctx(), field_id, &mut fx.text, action);
+                }
                 if let Some(press) = fx.press.take()
                     && let Some((galley, pos)) = laid_out
                     && let Some(mut st) = egui::TextEdit::load_state(ui.ctx(), r.id)

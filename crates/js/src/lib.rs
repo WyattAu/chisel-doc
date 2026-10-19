@@ -1031,7 +1031,6 @@ fn refuse(source: &str) -> Option<String> {
     script_gate_kit::inspect_js(source).map(|v| v.to_string())
 }
 
-
 /// Run `script` for `event`, after the document-level scripts (`doc_scripts`, which define the
 /// functions field scripts call), with the form's `fields`.
 pub fn run(script: &str, event: &Event, doc: &DocInfo, fields: &[FieldState], doc_scripts: &[String], limits: Limits) -> Outcome {

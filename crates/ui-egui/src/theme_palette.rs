@@ -18,7 +18,7 @@
 //! the literal chisel-doc has always shipped (theme.rs, 2026-10-18); the
 //! gate's findings are reported, not silently applied.
 
-use theme_kit::{audit, derive, Audit, Role, ThemeError, TokenGraph, Variant};
+use theme_kit::{Audit, Role, ThemeError, TokenGraph, Variant, audit, derive};
 
 /// The seed roles chisel-doc's chrome owns. Values are the shipped palette,
 /// verbatim — see `theme.rs::Tokens::for_kind`.
@@ -52,11 +52,7 @@ pub fn audit_all() -> Result<Vec<Audited>, ThemeError> {
     let mut out = Vec::new();
     for (name, graph) in [("light", light()?), ("dark", dark()?)] {
         out.push((name.to_owned(), audit(&graph, None)));
-        for kind in [
-            color_kit::CvdKind::Protanopia,
-            color_kit::CvdKind::Deuteranopia,
-            color_kit::CvdKind::Tritanopia,
-        ] {
+        for kind in [color_kit::CvdKind::Protanopia, color_kit::CvdKind::Deuteranopia, color_kit::CvdKind::Tritanopia] {
             let variant = derive(&graph, Variant::Cvd(kind))?;
             out.push((format!("{name}/{kind:?}"), audit(&variant, None)));
         }
@@ -72,23 +68,12 @@ pub fn audit_all() -> Result<Vec<Audited>, ThemeError> {
 /// adapter exists to express; when the app moves to egui 0.37 it swaps to
 /// `theme_egui::to_visuals` and this function disappears.
 pub fn visuals(graph: &TokenGraph) -> Result<egui::Visuals, ThemeError> {
-    let mut v = if graph
-        .require(Role::Surface)?
-        .oklab()?
-        .l
-        < 0.5
-    {
-        egui::Visuals::dark()
-    } else {
-        egui::Visuals::light()
-    };
+    let mut v = if graph.require(Role::Surface)?.oklab()?.l < 0.5 { egui::Visuals::dark() } else { egui::Visuals::light() };
     let role = |r: Role| -> Result<egui::Color32, ThemeError> {
         let view = graph.require(r)?.to_srgb8()?;
         Ok(egui::Color32::from_rgba_unmultiplied(view.r, view.g, view.b, view.a))
     };
-    let stroke = |r: Role, w: f32| -> Result<egui::Stroke, ThemeError> {
-        Ok(egui::Stroke::new(w, role(r)?))
-    };
+    let stroke = |r: Role, w: f32| -> Result<egui::Stroke, ThemeError> { Ok(egui::Stroke::new(w, role(r)?)) };
 
     v.window_fill = role(Role::Surface)?;
     v.panel_fill = role(Role::SurfaceRaised)?;
@@ -106,11 +91,7 @@ pub fn visuals(graph: &TokenGraph) -> Result<egui::Visuals, ThemeError> {
     let text = stroke(Role::OnSurface, 1.0)?;
     let raised = role(Role::SurfaceRaised)?;
     let accent = role(Role::Accent)?;
-    for w in [
-        &mut v.widgets.noninteractive,
-        &mut v.widgets.inactive,
-        &mut v.widgets.open,
-    ] {
+    for w in [&mut v.widgets.noninteractive, &mut v.widgets.inactive, &mut v.widgets.open] {
         w.bg_fill = raised;
         w.weak_bg_fill = raised;
         w.bg_stroke = border;
@@ -158,24 +139,14 @@ mod tests {
         for (name, graph) in [("light", light().expect("light parses")), ("dark", dark().expect("dark parses"))] {
             let variants = [("base", Ok(graph.clone()))]
                 .into_iter()
-                .chain([PROTAN, DEUTAN, TRITAN].map(|k| {
-                    (
-                        Box::leak(format!("{k:?}").into_boxed_str()) as &str,
-                        derive(&graph, Variant::Cvd(k)),
-                    )
-                }));
+                .chain([PROTAN, DEUTAN, TRITAN].map(|k| (Box::leak(format!("{k:?}").into_boxed_str()) as &str, derive(&graph, Variant::Cvd(k)))));
             for (suffix, derived) in variants {
                 let Ok(g) = derived else { continue };
                 let label = format!("{name}/{suffix}");
                 match audit_seed(&g) {
-                    Ok(report) => eprintln!(
-                        "{label}: {} edges gated, weakest {:.2}:1",
-                        report.edges, report.min_ratio
-                    ),
+                    Ok(report) => eprintln!("{label}: {} edges gated, weakest {:.2}:1", report.edges, report.min_ratio),
                     Err(ThemeError::ContrastViolation { fg, bg, ratio, required }) => {
-                        eprintln!(
-                            "GATE FINDING {label}: `{fg}` on `{bg}` = {ratio:.2}:1, needs {required}:1"
-                        );
+                        eprintln!("GATE FINDING {label}: `{fg}` on `{bg}` = {ratio:.2}:1, needs {required}:1");
                         let pair = format!("`{fg}` on `{bg}`");
                         if !found.contains(&pair) {
                             found.push(pair);
@@ -253,11 +224,7 @@ mod tests {
         for graph in [light().expect("light parses"), dark().expect("dark parses")] {
             let v = visuals(&graph).expect("placed");
             let want = |r: Role| {
-                let c = graph
-                    .resolve(r)
-                    .expect("role set")
-                    .to_srgb8()
-                    .expect("in gamut");
+                let c = graph.resolve(r).expect("role set").to_srgb8().expect("in gamut");
                 egui::Color32::from_rgba_unmultiplied(c.r, c.g, c.b, c.a)
             };
             assert_eq!(v.override_text_color, Some(want(Role::OnSurface)));

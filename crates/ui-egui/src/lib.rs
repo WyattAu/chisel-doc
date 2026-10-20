@@ -126,6 +126,7 @@ pub(crate) fn date_text_for_pdf(session: &Session) -> Result<String, String> {
 /// The longest author name kept (Preferences ▸ Identity, restored settings).
 pub(crate) const MAX_AUTHOR_CHARS: usize = 200;
 
+pub mod cluster_text;
 #[cfg(not(target_arch = "wasm32"))]
 mod open_worker;
 mod organize_panel;
@@ -136,7 +137,6 @@ pub mod scroll_speed;
 #[cfg(not(target_arch = "wasm32"))]
 mod system_fonts;
 mod tab_context;
-pub mod cluster_text;
 pub mod theme;
 /// The chrome palette as the estate's gated token contract (WCAG 2.1 gate at
 /// build time). [`theme`] keeps the bespoke document-editor chrome; this owns

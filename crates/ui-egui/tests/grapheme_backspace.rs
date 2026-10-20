@@ -66,10 +66,7 @@ fn clusters(s: &str) -> usize {
 fn a_combining_mark_is_not_orphaned() {
     let start = "cafe\u{301}"; // cafe + U+0301
     let estate = estate_backspace_at_end(start);
-    assert_eq!(
-        estate, "caf",
-        "ui_text_edit must delete the whole cluster (cafe + U+0301 is 4 clusters)"
-    );
+    assert_eq!(estate, "caf", "ui_text_edit must delete the whole cluster (cafe + U+0301 is 4 clusters)");
     assert_eq!(clusters(&estate), 3, "and leave three readable characters");
 }
 
@@ -156,10 +153,6 @@ fn the_egui_difference_is_measured_and_ratcheted() {
 #[test]
 fn ascii_behaves_identically_in_both() {
     for start in ["hello", "a", "", "abc def"] {
-        assert_eq!(
-            egui_backspace_at_end(start),
-            estate_backspace_at_end(start),
-            "ascii {start:?} must behave identically, or the harness is wrong"
-        );
+        assert_eq!(egui_backspace_at_end(start), estate_backspace_at_end(start), "ascii {start:?} must behave identically, or the harness is wrong");
     }
 }

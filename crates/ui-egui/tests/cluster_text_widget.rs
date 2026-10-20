@@ -60,11 +60,7 @@ fn the_wrapper_deletes_a_whole_character() {
 #[test]
 fn the_wrapper_leaves_plain_text_to_egui() {
     for start in ["hello", "a", "", "abc def", "1234"] {
-        assert_eq!(
-            backspace_via_wrapper(start),
-            backspace_via_egui(start),
-            "plain {start:?}: the wrapper changed what egui already did correctly"
-        );
+        assert_eq!(backspace_via_wrapper(start), backspace_via_egui(start), "plain {start:?}: the wrapper changed what egui already did correctly");
     }
 }
 
@@ -118,9 +114,6 @@ fn the_wrapper_and_bare_egui_differ_exactly_where_egui_is_wrong() {
             "{start:?}: the wrapper agreed with egui, so it did not fire; if \
              egui fixed this, remove the workaround"
         );
-        assert!(
-            wrapped.len() < start.len(),
-            "{start:?}: the wrapper deleted nothing"
-        );
+        assert!(wrapped.len() < start.len(), "{start:?}: the wrapper deleted nothing");
     }
 }

@@ -101,11 +101,7 @@ fn intercept_delete(text: &str, caret_char: usize, from_end: bool) -> Intercept 
 
     // The index of the cluster the caret sits in, rounded down when the caret
     // is inside one.
-    let here = if on_boundary {
-        clusters_before(text, caret)
-    } else {
-        input_kit::grapheme::nearest_index(text, caret).unwrap_or(0)
-    };
+    let here = if on_boundary { clusters_before(text, caret) } else { input_kit::grapheme::nearest_index(text, caret).unwrap_or(0) };
 
     // Which cluster comes out depends on which side of the caret it is on.
     let cluster = if from_end {
@@ -163,12 +159,7 @@ fn take_intercept(ctx: &egui::Context, id: Id, text: &str) -> Option<Intercept> 
 
     ctx.input_mut(|i| {
         i.events.retain(|ev| match ev {
-            Event::Key {
-                key,
-                pressed: true,
-                repeat,
-                ..
-            } if *key == Key::Backspace || *key == Key::Delete => {
+            Event::Key { key, pressed: true, repeat, .. } if *key == Key::Backspace || *key == Key::Delete => {
                 // An auto-repeat is a held key, not a new intent; let egui
                 // handle repeats so its own repeat logic still works.
                 if *repeat {
@@ -188,11 +179,7 @@ fn take_intercept(ctx: &egui::Context, id: Id, text: &str) -> Option<Intercept> 
         });
     });
 
-    if removed {
-        Some(decision)
-    } else {
-        None
-    }
+    if removed { Some(decision) } else { None }
 }
 
 /// Apply an interception to the text and put egui's cursor back where it belongs.
@@ -221,10 +208,7 @@ fn apply_intercept(ctx: &egui::Context, id: Id, text: &mut String, action: Inter
 ///
 /// A drop-in replacement for `egui::TextEdit::singleline`, with the same
 /// builder methods available through [`with_text_edit`].
-pub fn cluster_text_edit_singleline<'a>(
-    ui: &'a mut Ui,
-    text: &'a mut String,
-) -> ClusterTextEdit<'a> {
+pub fn cluster_text_edit_singleline<'a>(ui: &'a mut Ui, text: &'a mut String) -> ClusterTextEdit<'a> {
     // The default id must be per-widget, not a constant. A fixed id makes every
     // field in a panel share one `TextEditState` and one accessibility node, so
     // all but the last field vanish from the a11y tree. `egui`'s own default is
@@ -346,11 +330,7 @@ impl ClusterTextEdit<'_> {
         // keystroke never reaches egui.
         let action = take_intercept(&ctx, id, self.text);
 
-        let mut builder = if self.multiline {
-            egui::TextEdit::multiline(self.text)
-        } else {
-            egui::TextEdit::singleline(self.text)
-        };
+        let mut builder = if self.multiline { egui::TextEdit::multiline(self.text) } else { egui::TextEdit::singleline(self.text) };
         if !self.hint.is_empty() {
             builder = builder.hint_text(&self.hint);
         }
@@ -388,7 +368,6 @@ impl ClusterTextEdit<'_> {
         }
         response
     }
-
 }
 
 /// Remove a Backspace or Delete keystroke from `ctx`'s input when it would
@@ -405,22 +384,14 @@ pub fn take_cluster_intercept(ctx: &egui::Context, id: Id, text: &str) -> Option
 }
 
 /// Apply a [`ClusterAction`] taken by [`take_cluster_intercept`].
-pub fn apply_cluster_action(
-    ctx: &egui::Context,
-    id: Id,
-    text: &mut String,
-    action: ClusterAction,
-) {
+pub fn apply_cluster_action(ctx: &egui::Context, id: Id, text: &mut String, action: ClusterAction) {
     apply_intercept(ctx, id, text, action);
 }
 
 /// A multiline text input whose Backspace and Delete remove whole characters.
 ///
 /// A drop-in replacement for `egui::TextEdit::multiline`.
-pub fn cluster_text_edit_multiline<'a>(
-    ui: &'a mut Ui,
-    text: &'a mut String,
-) -> ClusterTextEdit<'a> {
+pub fn cluster_text_edit_multiline<'a>(ui: &'a mut Ui, text: &'a mut String) -> ClusterTextEdit<'a> {
     let mut field = cluster_text_edit_singleline(ui, text);
     field.multiline = true;
     field
@@ -473,10 +444,7 @@ mod tests {
         for caret_char in [4, 5] {
             match delete_backspace(text, caret_char) {
                 Intercept::Delete { from, to } => {
-                    assert_eq!(
-                        &text[from..to], "e\u{301}",
-                        "caret at char {caret_char} split the character"
-                    );
+                    assert_eq!(&text[from..to], "e\u{301}", "caret at char {caret_char} split the character");
                 }
                 Intercept::Pass => panic!("caret at char {caret_char} was passed through"),
             }
@@ -551,13 +519,7 @@ mod tests {
     /// The wrapper must never hand back a range that is not whole clusters.
     #[test]
     fn every_intercept_is_a_whole_number_of_clusters() {
-        for text in [
-            "cafe\u{301}",
-            "hi \u{1F1FA}\u{1F1F8}",
-            "a\u{1F469}\u{200D}\u{1F4BB}b",
-            "hello",
-            "\u{1F1FA}\u{1F1F8}",
-        ] {
+        for text in ["cafe\u{301}", "hi \u{1F1FA}\u{1F1F8}", "a\u{1F469}\u{200D}\u{1F4BB}b", "hello", "\u{1F1FA}\u{1F1F8}"] {
             let chars = text.chars().count();
             for caret_char in 0..=chars {
                 for from_end in [true, false] {
@@ -567,17 +529,10 @@ mod tests {
                     };
                     assert!(from <= to, "{text:?} at {caret_char}: reversed range");
                     assert!(to <= text.len(), "{text:?} at {caret_char}: past the end");
-                    assert!(
-                        text.is_char_boundary(from) && text.is_char_boundary(to),
-                        "{text:?} at {caret_char}: not on a char boundary"
-                    );
+                    assert!(text.is_char_boundary(from) && text.is_char_boundary(to), "{text:?} at {caret_char}: not on a char boundary");
                     // The removed span must be exactly one cluster.
                     let removed = &text[from..to];
-                    assert_eq!(
-                        input_kit::grapheme::count(removed),
-                        1,
-                        "{text:?} at {caret_char}: removed {removed:?}, which is not one cluster"
-                    );
+                    assert_eq!(input_kit::grapheme::count(removed), 1, "{text:?} at {caret_char}: removed {removed:?}, which is not one cluster");
                     // And the rest must still be well-formed.
                     let remainder = format!("{}{}", &text[..from], &text[to..]);
                     assert_eq!(

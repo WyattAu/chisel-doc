@@ -497,8 +497,7 @@ pub(crate) fn overlay(ctx: &egui::Context, view: &mut DocView, info: &DocInfo, f
                 // lands on the page needs the galley, so it drives the
                 // intercept itself around its own layout.
                 let field_id = egui::Id::new(("form-field", view.id.0, &f.name, focus.widget));
-                let cluster_action =
-                    crate::cluster_text::take_cluster_intercept(ui.ctx(), field_id, &fx.text);
+                let cluster_action = crate::cluster_text::take_cluster_intercept(ui.ctx(), field_id, &fx.text);
                 let mut te = if multiline { egui::TextEdit::multiline(&mut fx.text) } else { egui::TextEdit::singleline(&mut fx.text) };
                 te = te
                     // Wraps (inside the 3 px side margins) at the width the size was fitted to:

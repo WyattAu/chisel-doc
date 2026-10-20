@@ -147,10 +147,7 @@ pub(crate) fn panel(
     let search_label = ui.label(tl!("Find a tag"));
     // Cluster-aware: a search for an accented or emoji tag name is one
     // character per Backspace, like every other text field.
-    crate::cluster_text::cluster_text_edit_singleline(ui, &mut state.query)
-        .hint_text(tl!("Find a tag"))
-        .show()
-        .labelled_by(search_label.id);
+    crate::cluster_text::cluster_text_edit_singleline(ui, &mut state.query).hint_text(tl!("Find a tag")).show().labelled_by(search_label.id);
     ui.add_space(4.0);
     let query = state.query.to_lowercase();
     let matching = visible_tags(tags, &query, &state.collapsed);
@@ -297,9 +294,6 @@ fn field(ui: &mut Ui, label: &str, value: &mut String, multiline: bool) {
         // `labelled_by` takes and returns a `Response`, so the labelled value
         // must be kept: discarding it drops the label from the a11y tree, and
         // `tests/accessibility.rs` is what catches that.
-        crate::cluster_text::cluster_text_edit_singleline(ui, value)
-            .desired_width(f32::INFINITY)
-            .show()
-            .labelled_by(l.id);
+        crate::cluster_text::cluster_text_edit_singleline(ui, value).desired_width(f32::INFINITY).show().labelled_by(l.id);
     }
 }

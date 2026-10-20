@@ -156,3 +156,11 @@ jobs:
           name: fuzz-findings
           path: fuzz-out/findings
           if-no-files-found: ignore
+
+  vendor-ledger:
+    name: vendor ledger (machine-check)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Check the vendor patch ledger against the sources
+        run: python3 scripts/check-vendor-ledger.py

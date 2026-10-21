@@ -73,16 +73,20 @@ older snapshots below was measured the same flawed way — trend valid,
 absolute values conservative.
 
 Known-advisory CI facts (not regressions):
-- `workspace-gate / coverage` took three shared-workflow fixes to make
-  runner-viable: `-j 2` (instrumented build OOM at default parallelism), the
-  caller's `all-features` input honoured (a hardcoded `--all-features` flipped
-  GPU-dependent tests on), and `-- --test-threads=1` (parallel wgpu-adapter
-  creation exhausted the software adapter — 3 of 14 ui-egui content tests
-  failed at create_render_state while the rest passed). Validation run
-  pending; the job is tier c, informational by definition.
-- `gate-parser-js / coverage` is over the 90% line bar as of this wave; the
-  gate should turn green on the next CI run. Graduation to a required check
-  still awaits region coverage ≥ 90% and a green loop.
+- ~~`workspace-gate / coverage` fails on CI runners~~ **RESOLVED 2026-10-21** —
+  three shared-workflow fixes landed in engineering-standards: `-j 2`
+  (instrumented build OOM at default parallelism), the caller's `all-features`
+  input honoured (a hardcoded `--all-features` flipped GPU-dependent tests on),
+  and `-- --test-threads=1` + a `coverage-exclude` input (the ui-egui content
+  tests' kittest wgpu path cannot create an adapter on a plain runner, serial
+  or not — excluded from the informational workspace number; the regular test
+  job still runs them). Green in run 39620217269. Also fixed en route: the
+  test-arg passthrough must stay the last thing on the llvm-cov line (a flag
+  appended after `--` becomes a test-binary option — observed as
+  "Unrecognized option: 'p'").
+- `gate-parser-js / coverage` line gate is green (92%+); region 88.65% and
+  functions 91.57% after wave four. Graduation to a required check still
+  awaits region ≥ 90% and a green loop.
 - `workspace-gate / semver` fails inside cargo-semver-checks itself: the
   tool's generated manifest drops the `[patch.crates-io]` table, so its
   rustdoc build of `pdfcraft-render` resolves crates.io `hayro` (no
@@ -90,8 +94,8 @@ Known-advisory CI facts (not regressions):
   aborts with E0432/E0433 — an upstream tooling limitation, not an API
   break (`--baseline-rev chisel-v0.1.0-alpha` reports "no semver update
   required" for every crate it can build). The scoped per-crate semver
-  gates (`gate-parser-js`, `gate-parser-cos`) are green. Upstream issue
-  material; revisit when cargo-semver-checks honours workspace patches.
+  gates (`gate-parser-js`, `gate-parser-cos`) are green. Filed upstream:
+  [obi1kenobi/cargo-semver-checks#1777](https://github.com/obi1kenobi/cargo-semver-checks/issues/1777).
 
 Remaining targets (clean-instrumentation numbers, 2026-10-21; the line bar is
 met at 92.11% — this is the graduation tail: region 87.10% → 90 needs ~114

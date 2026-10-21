@@ -1367,4 +1367,146 @@ mod chisel_coverage {
         // a malformed argument separator is reported
         assert!(fc("Sum(1; 2)").error.is_some_and(|e| !e.is_empty()));
     }
+
+    #[test]
+    fn util_printd_every_picture_branch_numeric_codes_and_invalid_date() {
+        // 7 March 2024 is a Thursday; 15:07:09 exercises the single-digit
+        // h and s branches alongside every padded one.
+        let o = go(
+            "var d = new Date(2024, 2, 7, 15, 7, 9);
+             event.value = util.printd('yyyy yy mmmm mmm mm m dddd ddd dd d HH h hh MM M ss s tt t', d)
+                 + '|' + util.printd(0, d) + '|' + util.printd(1, d) + '|' + util.printd(2, d);",
+            &Event::field("Calculate", "total", ""),
+        );
+        assert_eq!(o.error, None, "{o:?}");
+        assert_eq!(
+            o.value,
+            "2024 24 March Mar 03 3 Thursday Thu 07 7 15 3 03 07 7 09 9 pm p|\
+             D:20240307150709|2024.03.07 15:07:09|3/7/24 3:07:09 pm"
+        );
+        // a NaN date is refused with the documented error
+        let o = go("util.printd(0, new Date(NaN));", &Event::field("Calculate", "total", ""));
+        assert!(o.error.as_deref().is_some_and(|e| e.contains("invalid date")), "{o:?}");
+    }
+
+    #[test]
+    fn util_printf_flag_matrix_space_hash_zero_and_grouping_separators() {
+        let o = go(
+            "event.value = util.printf('% d', 42) + '|' + util.printf('%#d', 42) + '|' +
+                util.printf('%010.2f', 3.5) + '|' + util.printf('%,2f', 1234.5) + '|' + util.printf('%,3f', 1234.5);",
+            &Event::field("Calculate", "total", ""),
+        );
+        assert_eq!(o.error, None, "{o:?}");
+        assert_eq!(o.value, " 42|42|0000003.50|1.234,500000|1234,500000");
+    }
+
+    #[test]
+    fn util_printx_format_characters_case_directives_escapes_and_exhausted_source() {
+        let o = go(
+            "event.value = util.printx('>???-<XXX\\\\(end)*', 'abc123defghi') + '#' +
+                util.printx('9999', 'no-digits') + '#' + util.printx('?', '');",
+            &Event::field("Calculate", "total", ""),
+        );
+        assert_eq!(o.error, None, "{o:?}");
+        assert_eq!(o.value, "ABC-123(end)defghi##");
+    }
+
+    #[test]
+    fn field_surfaces_text_kind_multivalue_listbox_and_off_strings() {
+        // the text kind name; a multi-value listbox reads as an array; an
+        // unchecked checkbox reports Off; exportValues lists the exports.
+        let o = go(
+            "var l = getField('list');
+             event.value = [getField('price').type, l.value.length, getField('agree').valueAsString,
+                            getField('size').exportValues.join(',')].join('|');",
+            &Event::field("Calculate", "total", ""),
+        );
+        assert_eq!(o.error, None, "{o:?}");
+        assert_eq!(o.value, "text|2|Off|s,m,l");
+    }
+
+    #[test]
+    fn checkbox_writes_filter_off_values_unchecking_clears_and_fill_colour_round_trips() {
+        // writing a checkbox keeps the first non-empty, non-Off export only
+        let o = go("getField('agree').value = ['', 'Off', 'Yes', 'Off'];", &Event::field("Calculate", "total", ""));
+        assert_eq!(o.error, None, "{o:?}");
+        assert_eq!(o.changed.iter().find(|f| f.name == "agree").unwrap().value, ["Yes"]);
+
+        // unchecking the current widget clears the value; fillColor records
+        let o = go(
+            "getField('agree').checkThisBox(0, true);
+             getField('agree').checkThisBox(0, false);
+             getField('total').fillColor = color.red;",
+            &Event::field("Calculate", "total", ""),
+        );
+        assert_eq!(o.error, None, "{o:?}");
+        assert!(o.changed.iter().find(|f| f.name == "agree").unwrap().value.is_empty());
+        let total = o.changed.iter().find(|f| f.name == "total").unwrap();
+        assert_eq!(total.fill_color.as_deref(), Some(&["RGB".to_string(), "1".into(), "0".into(), "0".into()][..]));
+    }
+
+    #[test]
+    fn document_globals_submit_string_mail_noops_and_object_form_alerts() {
+        let o = go(
+            "submitForm('https://example.invalid/x');
+             mailDoc();
+             calculateNow();
+             syncAnnotScan();
+             dirty();
+             app.alert({cMsg: 'boxed', nIcon: 1});
+             event.value = 'done';",
+            &Event::field("Calculate", "total", ""),
+        );
+        assert_eq!(o.error, None, "{o:?}");
+        assert!(o.requests.iter().any(|r| matches!(r, Request::Submit(u) if u == "https://example.invalid/x")), "{:?}", o.requests);
+        assert_eq!(o.alerts, ["boxed"]);
+        assert_eq!(o.value, "done");
+    }
+
+    #[test]
+    fn formcalc_financial_functions_cover_term_cterm_npv_and_apr() {
+        let o = fc(
+            "Term(100, 0.01, 2000) + CTerm(0.01, 2000, 1000) + Npv(0.1, 100, 200) + Apr(1000, 100, 12) + Ipmt(1000, 0.01, 400, 1, 5) + Ppmt(1000, 0.01, 400, 1, 5)",
+        );
+        assert_eq!(o.error, None, "{o:?}");
+        assert!(o.result.as_deref().is_some_and(|r| r.trim().parse::<f64>().is_ok_and(|v| v.is_finite())), "{o:?}");
+        // guard rails: non-positive arguments are refused by name
+        assert!(fc("Pmt(1000, 0.01, 0)").error.is_some_and(|e| e.contains("positive number of periods")));
+        assert!(fc("Apr(-1000, 100, 12)").error.is_some_and(|e| e.contains("Apr")));
+    }
+
+    #[test]
+    fn formcalc_datefmt_styles_num2date_picture_and_time_surfaces() {
+        let o = fc("Concat(Num2Date(45000, \"M/D/Y MMM\"), \"|\", DateFmt(), \"|\", DateFmt(1), \"|\", DateFmt(2), \"|\", Time())");
+        assert_eq!(o.error, None, "{o:?}");
+        let r = o.result.unwrap_or_default();
+        assert!(r.contains('/'), "num2date picture: {r}");
+        assert_eq!(r.matches('|').count(), 4, "all five parts: {r}");
+        let o = fc("Num2Time(-5)");
+        assert_eq!(o.error, None, "{o:?}");
+    }
+
+    #[test]
+    fn formcalc_break_in_both_loop_directions_and_bad_bounds() {
+        // break leaves an upto loop and a downto loop early
+        let o = fc("var t = 0\nfor i = 1 upto 5 do\nif (i >= 3) then break endif\nt = t + i\nendfor\nt");
+        assert_eq!(o.error, None, "{o:?}");
+        assert_eq!(o.result.as_deref(), Some("3"));
+        let o = fc("var t = 0\nfor i = 5 downto 1 do\nif (i <= 4) then break endif\nt = t + i\nendfor\nt");
+        assert_eq!(o.error, None, "{o:?}");
+        assert_eq!(o.result.as_deref(), Some("5"));
+        // non-finite bounds are refused
+        assert!(fc("for i = 1 upto 1e400 do endfor").error.is_some_and(|e| e.contains("bounds")));
+    }
+
+    #[test]
+    fn formcalc_concat_result_past_the_string_cap_is_refused() {
+        // the script stays under the script cap; the concatenation result is
+        // what trips the per-result string cap
+        let s = "A".repeat(250 * 1024);
+        let script = "var s = \"{s}\"\nvar a = Concat(s, s)\nvar b = Concat(a, a)\nConcat(b, s)".replace("{s}", &s);
+        assert!(script.len() < crate::MAX_SCRIPT_BYTES);
+        let o = fc(&script);
+        assert!(o.error.as_deref().is_some_and(|e| e.contains("string is too long")), "{:?}", o.error.as_deref().map(str::len));
+    }
 }

@@ -49,22 +49,40 @@ session engine-failure paths — both need designed fixtures (a real xfa-node
 JS fixture; a wedged-engine injection) rather than guesses, and each guess
 cost a compile cycle without landing coverage.
 
+Third wave landed 2026-10-21 (+99 lines net, measured): **the 90% line gate is
+crossed — 91.13% (332 missed of 3743)**. `util.printd` (every picture branch +
+the numeric shorthand codes + the NaN-date refusal), `util.printx` (all format
+characters, case directives, escapes, exhausted-source arms), `util.printf`
+(space/hash/zero flags + `,2`/`,3` grouping), the field-native tails (text kind
+name, multi-value listbox reads, checkbox Off-filtering on write, uncheck
+clears, fillColor writes, `submitForm` with a string URL, the global no-ops
+`mailDoc`/`calculateNow`/`syncAnnotScan`/`dirty`, object-form `app.alert`),
+and on the FormCalc side the financial tail (`Term`/`CTerm`/`Npv`/`Apr`/`Ipmt`
+bisection + guards), `DateFmt` styles, `Num2Date` pictures, `Num2Time` null,
+loop `break` in both directions + non-finite bounds, the 1 MiB string cap
+(lexer unit test — the script cap would mask it end-to-end), tens-exact number
+words, and `Concat` results past the per-result string cap.
+
 Known-advisory CI facts (not regressions):
 - `workspace-gate / coverage` fails on CI runners (instrumented build of the
   whole 33-crate workspace exceeds the runner's comfort locally it passes in
   ~4 min); tier c is informational by definition. Infra ticket: split or
   budget the workspace coverage job.
-- `gate-parser-js / coverage` needs ~62 more covered lines to reach 90%.
+- `gate-parser-js / coverage` is over the 90% line bar as of this wave; the
+  gate should turn green on the next CI run. Graduation to a required check
+  still awaits region coverage ≥ 90% and a green loop.
 
-Remaining targets, in order of value:
-1. `lib.rs` (+54 needed): the remaining field-native functions — draw/button
-   behaviors, console object, doc-level `mailDoc`/`submitForm` request paths.
-2. `formcalc.rs` (+56): the recursive-descent tail — trailing-token errors
-   from `run_formcalc_at`, list-valued conversions, `_child` instance
+Remaining targets (fresh numbers 2026-10-21; the line bar is met — these are
+the region-coverage and graduation tail):
+1. `formcalc.rs` (153 missed): the recursive-descent tail — trailing-token
+   errors from `run_formcalc_at`, list-valued conversions, `_child` instance
    managers of nested rows.
-3. `xfa_session.rs` (+13): injected engine-failure paths (disconnected
+2. `lib.rs` (73 missed): cfg(not(wasm)) engine-start error paths and the
+   platform-name arms (`MAC`/`WIN` are runner-dependent by nature).
+3. `xfa_session.rs` (10 missed): injected engine-failure paths (disconnected
    channel, start timeout) — needs a wedged-engine test fixture.
-4. `xfa.rs` (+2 to hit 90%): one more fixture node kind (draw or area).
+4. `xfa.rs` (96 missed): the JS-side proxy methods (item/insert/moveInstance)
+   — needs the designed xfa-node JS fixture.
 
 **Burn-down plan** (each step lands as its own commit, gate graduates when the
 whole list is done and the loop has been green):

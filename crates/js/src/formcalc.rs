@@ -2580,4 +2580,25 @@ mod tests {
         assert_eq!(parse_num("12abc"), Some(12.0));
         assert_eq!(parse_num("abc"), None);
     }
+
+    #[test]
+    fn round_number_words_short_pictures_and_out_of_range_words() {
+        // a tens-exact number takes the TENS-only branch; past the cap is empty
+        assert_eq!(word_num(30.0, false), "Thirty");
+        assert_eq!(word_num(2e12, false), "");
+        // single-letter picture codes and the abbreviated month
+        assert_eq!(format_date(2001, 2, 3, "M/D/Y MMM"), "2/3/01 Feb");
+        assert_eq!(format_date(2001, 2, 3, "D MMMM YYYY"), "3 February 2001");
+    }
+
+    #[test]
+    fn a_string_literal_past_the_cap_is_refused_and_newlines_count_lines() {
+        // a literal past MAX_STRING is refused by the lexer itself —
+        // run_formcalc's script cap fires first, so this is direct coverage.
+        let too_long = format!("\"{}\"", "A".repeat(MAX_STRING + 16));
+        assert!(lex(&too_long).unwrap_err().contains("too long"));
+        // a raw newline inside a literal is allowed and advances the line count
+        let toks = lex("\"a\nb\"").expect("a newline inside a string is allowed");
+        assert!(toks.iter().any(|t| matches!(&t.tok, Tok::Str(s) if s.contains('\n'))));
+    }
 }

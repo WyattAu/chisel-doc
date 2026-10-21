@@ -71,6 +71,15 @@ Known-advisory CI facts (not regressions):
 - `gate-parser-js / coverage` is over the 90% line bar as of this wave; the
   gate should turn green on the next CI run. Graduation to a required check
   still awaits region coverage ≥ 90% and a green loop.
+- `workspace-gate / semver` fails inside cargo-semver-checks itself: the
+  tool's generated manifest drops the `[patch.crates-io]` table, so its
+  rustdoc build of `pdfcraft-render` resolves crates.io `hayro` (no
+  `render_into`/`ColorReplacement`) instead of the vendored stack and
+  aborts with E0432/E0433 — an upstream tooling limitation, not an API
+  break (`--baseline-rev chisel-v0.1.0-alpha` reports "no semver update
+  required" for every crate it can build). The scoped per-crate semver
+  gates (`gate-parser-js`, `gate-parser-cos`) are green. Upstream issue
+  material; revisit when cargo-semver-checks honours workspace patches.
 
 Remaining targets (fresh numbers 2026-10-21; the line bar is met — these are
 the region-coverage and graduation tail):

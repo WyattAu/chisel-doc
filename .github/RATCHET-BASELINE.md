@@ -50,18 +50,27 @@ JS fixture; a wedged-engine injection) rather than guesses, and each guess
 cost a compile cycle without landing coverage.
 
 Third wave landed 2026-10-21 (+99 lines net, measured): **the 90% line gate is
-crossed — 91.13% (332 missed of 3743)**. `util.printd` (every picture branch +
-the numeric shorthand codes + the NaN-date refusal), `util.printx` (all format
-characters, case directives, escapes, exhausted-source arms), `util.printf`
-(space/hash/zero flags + `,2`/`,3` grouping), the field-native tails (text kind
-name, multi-value listbox reads, checkbox Off-filtering on write, uncheck
-clears, fillColor writes, `submitForm` with a string URL, the global no-ops
+crossed**. `util.printd` (every picture branch + the numeric shorthand codes +
+the NaN-date refusal), `util.printx` (all format characters, case directives,
+escapes, exhausted-source arms), `util.printf` (space/hash/zero flags +
+`,2`/`,3` grouping), the field-native tails (text kind name, multi-value
+listbox reads, checkbox Off-filtering on write, uncheck clears, fillColor
+writes, `submitForm` with a string URL, the global no-ops
 `mailDoc`/`calculateNow`/`syncAnnotScan`/`dirty`, object-form `app.alert`),
 and on the FormCalc side the financial tail (`Term`/`CTerm`/`Npv`/`Apr`/`Ipmt`
 bisection + guards), `DateFmt` styles, `Num2Date` pictures, `Num2Time` null,
 loop `break` in both directions + non-finite bounds, the 1 MiB string cap
 (lexer unit test — the script cap would mask it end-to-end), tens-exact number
 words, and `Concat` results past the per-result string cap.
+
+**Measurement note (2026-10-21):** an accumulated `llvm-cov-target/` that had
+seen `--all-features` and no-features builds across sessions silently added
+~237 phantom missed lines (local 89.42% vs CI 92.11% on identical code).
+`cargo llvm-cov clean` before measuring; CI is ground truth. Authoritative
+per-CI numbers at the gate-crossing commit: **line 92.11%, region 87.10%,
+functions 88.43%** (3 864 lines / 305 missed). The per-file line table in
+older snapshots below was measured the same flawed way — trend valid,
+absolute values conservative.
 
 Known-advisory CI facts (not regressions):
 - `workspace-gate / coverage` fails on CI runners (instrumented build of the
@@ -81,17 +90,18 @@ Known-advisory CI facts (not regressions):
   gates (`gate-parser-js`, `gate-parser-cos`) are green. Upstream issue
   material; revisit when cargo-semver-checks honours workspace patches.
 
-Remaining targets (fresh numbers 2026-10-21; the line bar is met — these are
-the region-coverage and graduation tail):
-1. `formcalc.rs` (153 missed): the recursive-descent tail — trailing-token
-   errors from `run_formcalc_at`, list-valued conversions, `_child` instance
-   managers of nested rows.
-2. `lib.rs` (73 missed): cfg(not(wasm)) engine-start error paths and the
-   platform-name arms (`MAC`/`WIN` are runner-dependent by nature).
-3. `xfa_session.rs` (10 missed): injected engine-failure paths (disconnected
-   channel, start timeout) — needs a wedged-engine test fixture.
-4. `xfa.rs` (96 missed): the JS-side proxy methods (item/insert/moveInstance)
-   — needs the designed xfa-node JS fixture.
+Remaining targets (clean-instrumentation numbers, 2026-10-21; the line bar is
+met at 92.11% — this is the graduation tail: region 87.10% → 90 needs ~114
+regions, functions 88.43% → 90 needs ~6):
+1. `formcalc.rs` (740 missed regions, 169 missed lines): the recursive-descent
+   tail — trailing-token errors from `run_formcalc_at`, list-valued
+   conversions, `_child` instance managers of nested rows.
+2. `xfa.rs` (374 regions / 107 lines): the JS-side proxy methods
+   (item/insert/moveInstance/count) — needs the designed xfa-node JS fixture.
+3. `lib.rs` (365 regions / 128 lines): cfg(not(wasm)) engine-start error paths
+   and the platform-name arms (`MAC`/`WIN` are runner-dependent by nature).
+4. `xfa_session.rs` (26 regions / 13 lines): injected engine-failure paths
+   (disconnected channel, start timeout) — needs a wedged-engine test fixture.
 
 **Burn-down plan** (each step lands as its own commit, gate graduates when the
 whole list is done and the loop has been green):

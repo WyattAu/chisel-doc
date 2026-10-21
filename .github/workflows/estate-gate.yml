@@ -37,6 +37,12 @@ jobs:
     with:
       tier: c
       all-features: false
+      # The ui-egui content tests render through kittest's wgpu path, which
+      # cannot create an adapter on a plain runner (they need a GPU or a
+      # software adapter the coverage job's env does not provide). Excluded
+      # from the informational workspace number only; the regular test job
+      # still runs them wherever an adapter exists.
+      coverage-exclude: pdfcraft-ui-egui
 
   # ------------------------------------------------- untrusted-input crates
   # Tier A, scoped per crate (rust-kit.yml `package` takes one crate per call).

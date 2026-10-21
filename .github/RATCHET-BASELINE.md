@@ -73,10 +73,13 @@ older snapshots below was measured the same flawed way — trend valid,
 absolute values conservative.
 
 Known-advisory CI facts (not regressions):
-- `workspace-gate / coverage` fails on CI runners (instrumented build of the
-  whole 33-crate workspace exceeds the runner's comfort locally it passes in
-  ~4 min); tier c is informational by definition. Infra ticket: split or
-  budget the workspace coverage job.
+- `workspace-gate / coverage` took three shared-workflow fixes to make
+  runner-viable: `-j 2` (instrumented build OOM at default parallelism), the
+  caller's `all-features` input honoured (a hardcoded `--all-features` flipped
+  GPU-dependent tests on), and `-- --test-threads=1` (parallel wgpu-adapter
+  creation exhausted the software adapter — 3 of 14 ui-egui content tests
+  failed at create_render_state while the rest passed). Validation run
+  pending; the job is tier c, informational by definition.
 - `gate-parser-js / coverage` is over the 90% line bar as of this wave; the
   gate should turn green on the next CI run. Graduation to a required check
   still awaits region coverage ≥ 90% and a green loop.

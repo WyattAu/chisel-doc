@@ -1509,4 +1509,152 @@ mod chisel_coverage {
         let o = fc(&script);
         assert!(o.error.as_deref().is_some_and(|e| e.contains("string is too long")), "{:?}", o.error.as_deref().map(str::len));
     }
+
+    #[test]
+    fn formcalc_every_builtin_family_is_dispatchable() {
+        // One expression per builtin family — math, aggregate, boolean,
+        // string, picture/date, units, eval — so every dispatch arm runs at
+        // least once. Values are sanity, not specification: each builtin has
+        // (or will get) its own behavioural assertions elsewhere.
+        let o = fc("Concat(Abs(-5), Ceil(1.2), Floor(1.8), Mod(7, 3), Round(2.567, 2),\n\
+             \x20 Count(1, 2, 3), Sum(1, 2), Avg(2, 4), Max(1, 5), Min(1, 5),\n\
+             \x20 Choose(2, \"a\", \"b\", \"c\"), Exists($), HasValue(1), OneOf(2, 1, 2, 3), Within(5, 1, 10),\n\
+             \x20 At(\"a,b,c\", 2), Left(\"abcdef\", 3), Right(\"abcdef\", 3), Len(\"abc\"),\n\
+             \x20 Lower(\"AB\"), Upper(\"ab\"), Ltrim(\" x\"), Rtrim(\"x \"), Space(3),\n\
+             \x20 Str(1.5), Substr(\"abcdef\", 2, 3), Stuff(\"abcdef\", 2, 3, \"XY\"), Replace(\"aaa\", \"a\", \"b\"),\n\
+             \x20 WordNum(42), Encode(\"a b\"), Decode(\"a%20b\"),\n\
+             \x20 Format(\"99.99\", 3.5), Parse(\"YYYY-MM-DD\", \"2024-03-07\"),\n\
+             \x20 Date(), Time(), Date2Num(\"2024-03-07\"), Num2Date(19758),\n\
+             \x20 DateFmt(1), TimeFmt(), Num2Time(43200000), Time2Num(\"12:00:00\"),\n\
+             \x20 UnitType(\"1in\"), UnitValue(\"1in\", \"pt\"), Eval(\"1+1\"))");
+        assert_eq!(o.error, None, "{o:?}");
+        let r = o.result.unwrap_or_default();
+        assert!(r.chars().count() > 40, "every family contributed: {r}");
+        // a malformed Eval target reports the inner parse error
+        assert!(fc("Eval(\"1+\")").error.is_some(), "Eval surfaces inner parse errors");
+        // network verbs are refused outright
+        assert!(fc("Get(\"http://example.invalid\")").error.is_some_and(|e| e.contains("network access")), "Get/Post/Put are refused");
+    }
+
+    #[test]
+    fn formcalc_event_and_xfa_application_accessors_all_dispatch() {
+        let o = fc(
+            "Concat($event.target, \"|\", $event.name, \"|\", $event.newtext, \"|\", $event.fulltext, \"|\", $event.prevtext, \"|\", $event.change,\n\
+             \x20 $event.selstart, \"|\", $event.selend, \"|\", $event.cancelaction, \"|\", $event.shift, \"|\", $event.modifier, \"|\", $event.keydown, \"|\", $event.commitkey,\n\
+             \x20 xfa.numpages, \"|\", xfa.currentpage, \"|\", xfa.name, \"|\", xfa.apptype, \"|\", xfa.version, \"|\", xfa.variation,\n\
+             \x20 xfa.language, \"|\", xfa.platform, \"|\", xfa.title, \"|\", xfa.calculationsenabled, \"|\", xfa.validationsenabled)",
+        );
+        assert_eq!(o.error, None, "{o:?}");
+        // every member contributed a separator-delimited slot
+        assert!(o.result.clone().unwrap_or_default().matches('|').count() >= 20, "{o:?}");
+    }
+
+    #[test]
+    fn formcalc_form_accessors_presence_writes_and_instance_managers() {
+        // reads: value by assignment, members by rooted path
+        let o = fc("var v = $form.form1.page1.qty\n\
+             Concat(v, \"|\", $form.form1.page1.qty.name, \"|\", $form.form1.page1.qty.presence, \"|\", $form.form1.page1.qty.access, \"|\", $form.form1.page1.qty.mandatory)");
+        assert_eq!(o.error, None, "{o:?}");
+        let r = o.result.unwrap_or_default();
+        assert!(r.starts_with("4|"), "value first: {r}");
+        assert_eq!(r.matches('|').count(), 4, "all five members: {r}");
+
+        // writes: presence/access setter arms (mandatory is read-only)
+        let o = fc("$form.form1.page1.qty.presence = \"invisible\"\n\
+             $form.form1.page1.qty.access = \"readOnly\"\n\
+             Concat($form.form1.page1.qty.presence, \":\", $form.form1.page1.qty.access, \":\", $form.form1.page1.qty.mandatory)");
+        assert_eq!(o.error, None, "{o:?}");
+        assert_eq!(o.result.as_deref(), Some("invisible:readOnly:disabled"), "{o:?}");
+
+        // the row instance manager: count/min/max/classname and mutation
+        let o = fc("var before = $form.form1.page1.table._row.count\n\
+             $form.form1.page1.table._row.setinstances(3)\n\
+             var grown = $form.form1.page1.table._row.count\n\
+             $form.form1.page1.table._row.removeinstance(2)\n\
+             $form.form1.page1.table._row.addinstance(0)\n\
+             Concat(before, \"|\", grown, \"|\", $form.form1.page1.table._row.count, \"|\", $form.form1.page1.table._row.classname, \"|\", $form.form1.page1.table._row.min, \"|\", $form.form1.page1.table._row.max)");
+        assert_eq!(o.error, None, "{o:?}");
+        assert_eq!(o.result.as_deref(), Some("2|3|3|instanceManager|1|-1"), "{o:?}");
+    }
+
+    #[test]
+    fn formcalc_host_verbs_and_data_roots_all_dispatch() {
+        let o = fc("$host.messagebox(\"hello\")\n\
+             $host.beep(1)\n\
+             $host.print(0)\n\
+             $host.setfocus(\"form1[0].page1[0].qty[0]\")\n\
+             $host.gotourl(\"http://localhost/\")\n\
+             $host.resetdata(1)\n\
+             $host.relayout(1)\n\
+             $host.recalculate(1)\n\
+             $host.remerge(1)\n\
+             var has_record = Exists($record)\n\
+             var has_data = Exists($data)\n\
+             var has_datasets = Exists($datasets)\n\
+             var has_layout = Exists($layout)\n\
+             var page = $host.page\n\
+             var pages = $host.pagecount\n\
+             $host.resolvenode(\"form1[0]\")\n\
+             Concat(has_record, \":\", has_data, \":\", has_datasets, \":\", has_layout)");
+        assert_eq!(o.error, None, "{o:?}");
+        assert_eq!(o.result.as_deref(), Some("1:1:1:0"), "{o:?}");
+    }
+
+    #[test]
+    fn xfa_js_list_proxies_item_insert_move_and_count_set() {
+        let mut s = XfaSession::new(XfaDoc { file_name: "f.pdf".into(), page: 1, page_count: 3 });
+        let run = |s: &mut XfaSession, source: &str| {
+            s.run(Script {
+                source: source.into(),
+                formcalc: false,
+                event: XfaEvent { activity: "click".into(), target: "form1[0].page1[0].go[0]".into(), ..Default::default() },
+                root: form(),
+                limits: Limits::default(),
+                timeout: std::time::Duration::from_secs(3),
+            })
+        };
+        let o = run(
+            &mut s,
+            "var rows = xfa.resolveNodes('form1.page1.table.row[*]');
+             var first = rows.item(0);
+             var im = xfa.resolveNode('form1.page1.table.row[0]').instanceManager;
+             im.insertInstance(1);
+             im.moveInstance(0, 2);
+             im.count = 3;
+             var hasSom = 'somExpression' in first;
+             [first.name, im.count, hasSom].join('|');",
+        );
+        assert_eq!(o.error, None, "{o:?}");
+        assert_eq!(o.result.as_deref(), Some("row|3|true"), "{o:?}");
+    }
+
+    #[test]
+    fn xfa_js_app_effects_node_string_and_layout_queries() {
+        let mut s = XfaSession::new(XfaDoc { file_name: "f.pdf".into(), page: 1, page_count: 3 });
+        let o = s.run(Script {
+            source: "var n = xfa.resolveNode('form1.page1.qty');\n\
+                 var viaFn = n.toString();\n\
+                 var viaCoerce = n + '';\n\
+                 n.recalculate();\n\
+                 app.execMenuItem('Print');\n\
+                 app.execMenuItem('SaveAs');\n\
+                 app.execMenuItem('NotAMenuItem');\n\
+                 app.response('question');\n\
+                 xfa.recalculate(1);\n\
+                 [viaFn.length > 0, viaCoerce.length > 0, xfa.layout.absPage(0), xfa.layout.page(0), xfa.layout.pageCount()].join('|');"
+                .into(),
+            formcalc: false,
+            event: XfaEvent { activity: "click".into(), target: "form1[0].page1[0].go[0]".into(), ..Default::default() },
+            root: form(),
+            limits: Limits::default(),
+            timeout: std::time::Duration::from_secs(3),
+        });
+        assert_eq!(o.error, None, "{o:?}");
+        // page numbers are 1-based from layout.page and 0-based from absPage
+        assert_eq!(o.result.as_deref(), Some("true|true|1|2|3"), "{o:?}");
+        let effects = format!("{:?}", o.effects);
+        assert!(effects.contains("Print"), "the menu item printed: {effects}");
+        assert!(effects.contains("SaveAs"), "the menu item saved: {effects}");
+        assert!(effects.contains("Recalculate"), "recalculate recorded: {effects}");
+    }
 }

@@ -1537,6 +1537,50 @@ mod chisel_coverage {
     }
 
     #[test]
+    fn formcalc_descent_tails_som_edges_and_refusals() {
+        // argument lists, `for`, `var` and `if` all name what must follow
+        assert!(fc("Sum(1 2)").error.is_some_and(|e| e.contains("expected )")), "{:?}", fc("Sum(1 2)").error);
+        assert!(fc("for 1 = 2 upto 3 do endfor").error.is_some_and(|e| e.contains("expected a variable after for")));
+        assert!(fc("var 5 = 3").error.is_some_and(|e| e.contains("expected a name after var")));
+        assert!(fc("if 1 2 then endif").error.is_some_and(|e| e.contains("expected then")));
+        // numeric literals with exponents
+        assert_eq!(fc("1.5e3").result.as_deref(), Some("1500"));
+        assert_eq!(fc("2e-3").result.as_deref(), Some("0.002"));
+        // nodes coerce in arithmetic: an empty value reads as zero
+        let o = fc("$form.form1.page1.total + 1");
+        assert_eq!(o.error, None, "{o:?}");
+        assert_eq!(o.result.as_deref(), Some("1"), "{o:?}");
+        // an instanceManager stringifies by its class name
+        let o = fc("Concat($form.form1.page1.table._row, \"!\")");
+        assert_eq!(o.error, None, "{o:?}");
+        assert!(o.result.as_deref().is_some_and(|r| r.contains("instanceManager")), "{o:?}");
+        // Null truthiness is false
+        let o = fc("If (Num2Time(-5)) then \"yes\" else \"no\" endif");
+        assert_eq!(o.error, None, "{o:?}");
+        assert_eq!(o.result.as_deref(), Some("no"), "{o:?}");
+        // HasValue reads the node's own emptiness
+        let o = fc("Concat(HasValue($form.form1.page1.total), \":\", HasValue($form.form1.page1.qty))");
+        assert_eq!(o.error, None, "{o:?}");
+        assert_eq!(o.result.as_deref(), Some("0:1"), "{o:?}");
+        // At() at index zero yields the empty reference (inherited semantics)
+        assert_eq!(fc("At(\"abc\", 0)").result.as_deref(), Some("0"));
+        // unknown $layout / $event members are inert sinks
+        assert_eq!(fc("var p = $layout.anything").error, None);
+        assert_eq!(fc("var e = $event.nonexistent").error, None);
+        // a member on a number and a call of a number are refused
+        assert!(fc("var x = 5\nx.bogus").error.is_some_and(|e| e.contains("no property")), "{:?}", fc("var x = 5\nx.bogus").error);
+        assert!(fc("var x = 5\nx(1)").error.is_some_and(|e| e.contains("unknown function")), "{:?}", fc("var x = 5\nx(1)").error);
+        // a text value compared against a number falls to the mixed ordering
+        let o = fc("If (\"abc\" < 5) then \"lt\" else \"ge\" endif");
+        assert_eq!(o.error, None, "{o:?}");
+        assert!(o.result.as_deref().is_some_and(|r| r == "lt" || r == "ge"), "{o:?}");
+        // the current node knows its SOM expression
+        let o = fc("$.somExpression");
+        assert_eq!(o.error, None, "{o:?}");
+        assert!(o.result.as_deref().is_some_and(|r| r.contains("total")), "{o:?}");
+    }
+
+    #[test]
     fn formcalc_event_and_xfa_application_accessors_all_dispatch() {
         let o = fc(
             "Concat($event.target, \"|\", $event.name, \"|\", $event.newtext, \"|\", $event.fulltext, \"|\", $event.prevtext, \"|\", $event.change,\n\

@@ -43,6 +43,13 @@ jobs:
       # from the informational workspace number only; the regular test job
       # still runs them wherever an adapter exists.
       coverage-exclude: pdfcraft-ui-egui
+      # cargo-semver-checks' generated manifests drop [patch.crates-io]
+      # (obi1kenobi/cargo-semver-checks#1777), so pdfcraft-automation's
+      # rustdoc build resolves crates.io hayro and aborts — the tool cannot
+      # build this crate here. Everything else in the workspace is checked;
+      # the API surface of the excluded crate is covered by its own compile
+      # gates and by the upstream fix when it lands.
+      semver-exclude: pdfcraft-automation
 
   # ------------------------------------------------- untrusted-input crates
   # Tier A, scoped per crate (rust-kit.yml `package` takes one crate per call).

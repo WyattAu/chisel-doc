@@ -84,9 +84,11 @@ Known-advisory CI facts (not regressions):
   test-arg passthrough must stay the last thing on the llvm-cov line (a flag
   appended after `--` becomes a test-binary option — observed as
   "Unrecognized option: 'p'").
-- `gate-parser-js / coverage` line gate is green; region 88.90% and functions
-  91.57% after waves four and five. Graduation to a required check still
-  awaits region ≥ 90% and a green loop.
+- `gate-parser-js / coverage` line gate is green; region 88.97% and functions
+  91.81% after waves four through six (wave six: the wedged-worker test —
+  a cfg(test) sentinel makes the worker exit before a marked script, proving
+  the documented fault-in-engine thread replacement). Graduation to a
+  required check still awaits region ≥ 90% and a green loop.
 - ~~`workspace-gate / semver` fails inside cargo-semver-checks~~ **worked
   around caller-side 2026-10-22** — the tool's generated manifest drops the
   `[patch.crates-io]` table, so the rustdoc build of the render/hayro cone
@@ -110,11 +112,12 @@ genuinely hard remainder):
 2. xfa.rs (289 regions / 71 lines): the remaining proxy arms past the swept
    item/insert/move/count surface (live-list rebuilds, effect clipping
    counters, refuse-logic arms).
-3. xfa_session.rs (23 regions / 12 lines) + lib.rs (128 lines): the defensive
-   disconnected-channel and out-of-turn paths — unreachable through the
-   public surface; a wedged-worker fixture (kill the thread mid-script) is
-   the designed way in, and lib.rs's engine-start error paths need the same
-   injection.
+3. xfa_session.rs (16 lines, 91.35% after wave six): the send-failure arm
+   (worker to sender dropped between scripts) is defensive — this worker
+   design exits only while receiving, so the session's next send always
+   reaches either a live or a freshly spawned worker (proven by the
+   replacement test). lib.rs (128 lines): the engine-start error paths need
+   the same cfg(test)-seam treatment the session got.
 4. Decision needed at the ratchet review: region 90% may be the wrong bar for
    a crate whose remaining uncovered regions are dominated by defensive
    depth — the estate alternative is `coverage-ignore-regex` on the documented

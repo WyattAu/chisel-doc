@@ -1165,6 +1165,27 @@ mod session {
     }
 
     #[test]
+    fn a_dead_worker_thread_is_replaced_for_the_next_script() {
+        // The first script tells the worker to exit before running (the
+        // stand-in for a fault in the engine): the session reports the
+        // failure and replaces the thread, and the next script runs.
+        // The lock keeps the engine-start-delay test's 60 s window from
+        // overlapping the replacement script's start budget.
+        let _guard = super::ENGINE_DELAY_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        use crate::xfa_session::WORKER_QUIT_NOW;
+        WORKER_QUIT_NOW.store(true, std::sync::atomic::Ordering::Relaxed);
+        let mut s = XfaSession::new(XfaDoc::default());
+        let killed = s.run(script("quit-now", true, "form1[0].page1[0].go[0]", "click"));
+        assert!(killed.error.as_deref().is_some_and(|e| e.contains("internal error")), "{killed:?}");
+        assert!(!killed.abandoned, "{killed:?}");
+        WORKER_QUIT_NOW.store(false, std::sync::atomic::Ordering::Relaxed);
+        let next = s.run(script("2", true, "form1[0].page1[0].go[0]", "click"));
+        assert_eq!(next.error, None, "{next:?}");
+        assert_eq!(next.result.as_deref(), Some("2"), "{next:?}");
+        assert_eq!(s.dead(), None);
+    }
+
+    #[test]
     fn a_script_past_its_time_is_abandoned_and_the_session_is_dead_after_it() {
         let _engine_delay = super::ENGINE_DELAY_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         let mut s = XfaSession::new(XfaDoc::default());

@@ -17,6 +17,12 @@ use crate::xfa::{XfaDoc, XfaEvent, XfaNode, XfaOutcome};
 #[cfg(test)]
 pub(crate) static START_DELAY_MS: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
 
+/// Tests: when set, a script whose source is exactly `quit-now` makes the worker
+/// thread exit before running it — a stand-in for a fault in the engine that
+/// kills the thread, so the session's failure-and-replacement path runs.
+#[cfg(test)]
+pub(crate) static WORKER_QUIT_NOW: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
 /// What one script run needs.
 #[derive(Clone, Debug)]
 pub struct Script {
@@ -59,6 +65,8 @@ mod native {
     use std::sync::mpsc::{Receiver, RecvTimeoutError, Sender, channel};
     use std::time::Instant;
 
+    #[cfg(test)]
+    use super::WORKER_QUIT_NOW;
     use super::{Script, run_script};
     use crate::xfa::{ENGINE_START_LIMIT, XfaDoc, XfaOutcome};
 
@@ -106,6 +114,12 @@ mod native {
                     // The caller is gone when a send fails: nothing to report then.
                     let _ = reply.send(Reply::Ready);
                     while let Ok(s) = inbox.recv() {
+                        #[cfg(test)]
+                        if WORKER_QUIT_NOW.load(std::sync::atomic::Ordering::Relaxed) && s.source == "quit-now" {
+                            // Exit without running or replying: the sender drops,
+                            // and the session replaces this thread.
+                            break;
+                        }
                         let started = reply.clone();
                         let o = run_script(*s, &doc, &move || {
                             let _ = started.send(Reply::Started);

@@ -84,18 +84,21 @@ Known-advisory CI facts (not regressions):
   test-arg passthrough must stay the last thing on the llvm-cov line (a flag
   appended after `--` becomes a test-binary option — observed as
   "Unrecognized option: 'p'").
-- `gate-parser-js / coverage` line gate is green (92%+); region 88.65% and
-  functions 91.57% after wave four. Graduation to a required check still
+- `gate-parser-js / coverage` line gate is green; region 88.90% and functions
+  91.57% after waves four and five. Graduation to a required check still
   awaits region ≥ 90% and a green loop.
-- `workspace-gate / semver` fails inside cargo-semver-checks itself: the
-  tool's generated manifest drops the `[patch.crates-io]` table, so its
-  rustdoc build of `pdfcraft-render` resolves crates.io `hayro` (no
-  `render_into`/`ColorReplacement`) instead of the vendored stack and
-  aborts with E0432/E0433 — an upstream tooling limitation, not an API
-  break (`--baseline-rev chisel-v0.1.0-alpha` reports "no semver update
-  required" for every crate it can build). The scoped per-crate semver
-  gates (`gate-parser-js`, `gate-parser-cos`) are green. Filed upstream:
-  [obi1kenobi/cargo-semver-checks#1777](https://github.com/obi1kenobi/cargo-semver-checks/issues/1777).
+- ~~`workspace-gate / semver` fails inside cargo-semver-checks~~ **worked
+  around caller-side 2026-10-22** — the tool's generated manifest drops the
+  `[patch.crates-io]` table, so the rustdoc build of the render/hayro cone
+  resolves crates.io `hayro` and aborts (E0432/E0433) — an upstream tooling
+  limitation, not an API break (`--baseline-rev chisel-v0.1.0-alpha` reports
+  "no semver update required" for every crate it can build). The shared
+  workflow gained a `semver-exclude` input; the workspace scan excludes the
+  render/hayro cone (render, engine, automation, cli, optimize, ui-egui,
+  pdfcraft, web) and checks every other crate. First fully-green
+  estate-gate run: 39712791657 (30/30). The real fix stays tracked upstream:
+  [obi1kenobi/cargo-semver-checks#1777](https://github.com/obi1kenobi/cargo-semver-checks/issues/1777);
+  when it lands, the excludes are deleted and the cone rejoins the scan.
 
 Remaining targets (clean-instrumentation numbers, 2026-10-22; line 93.66%,
 functions 91.57%, region 88.90% — the graduation tail is ~108 regions of

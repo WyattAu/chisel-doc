@@ -1,5 +1,10 @@
 use super::*;
 
+/// Serialises the tests that bend the engine-start delay: the delay is a
+/// process-wide atomic, and two sessions bending it concurrently would poison
+/// each other's start budgets.
+static ENGINE_DELAY_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
 fn fields() -> Vec<FieldState> {
     let mut agree = FieldState::new("agree", FieldType::CheckBox, vec![]);
     agree.options = vec![("Yes".into(), "Yes".into())];
@@ -1100,6 +1105,7 @@ mod session {
 
     #[test]
     fn scripts_of_one_event_run_on_one_thread_each_on_the_form_the_caller_sends() {
+        let _engine_delay = super::ENGINE_DELAY_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         let mut s = XfaSession::new(XfaDoc { page_count: 3, ..Default::default() });
         assert_eq!(s.dead(), None);
         // JavaScript, then FormCalc, on the same thread.
@@ -1143,6 +1149,7 @@ mod session {
         // not abandoned, its time starting only when the engine says it is ready.
         use crate::xfa_session::START_DELAY_MS;
         use std::sync::atomic::Ordering::Relaxed;
+        let _guard = super::ENGINE_DELAY_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         let mut s = XfaSession::new(XfaDoc::default());
         START_DELAY_MS.store(300, Relaxed);
         let mut quick = script("1", false, "form1[0].page1[0].go[0]", "click");
@@ -1159,6 +1166,7 @@ mod session {
 
     #[test]
     fn a_script_past_its_time_is_abandoned_and_the_session_is_dead_after_it() {
+        let _engine_delay = super::ENGINE_DELAY_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         let mut s = XfaSession::new(XfaDoc::default());
         let mut slow = script("while (true) {}", false, "form1[0].page1[0].go[0]", "click");
         slow.limits = Limits { loop_iterations: u64::MAX, recursion: 32 };
@@ -1301,6 +1309,7 @@ mod chisel_coverage {
 
     #[test]
     fn oversized_scripts_are_refused_without_starting_an_engine() {
+        let _engine_delay = super::ENGINE_DELAY_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         let big = "1 ".repeat((crate::MAX_SCRIPT_BYTES / 2) + 8);
         let mut s = XfaSession::new(XfaDoc::default());
         let refused = Script {
@@ -1646,6 +1655,7 @@ mod chisel_coverage {
 
     #[test]
     fn xfa_js_list_proxies_item_insert_move_and_count_set() {
+        let _engine_delay = super::ENGINE_DELAY_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         let mut s = XfaSession::new(XfaDoc { file_name: "f.pdf".into(), page: 1, page_count: 3 });
         let run = |s: &mut XfaSession, source: &str| {
             s.run(Script {
@@ -1674,6 +1684,7 @@ mod chisel_coverage {
 
     #[test]
     fn xfa_js_app_effects_node_string_and_layout_queries() {
+        let _engine_delay = super::ENGINE_DELAY_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         let mut s = XfaSession::new(XfaDoc { file_name: "f.pdf".into(), page: 1, page_count: 3 });
         let o = s.run(Script {
             source: "var n = xfa.resolveNode('form1.page1.qty');\n\
@@ -1700,5 +1711,27 @@ mod chisel_coverage {
         assert!(effects.contains("Print"), "the menu item printed: {effects}");
         assert!(effects.contains("SaveAs"), "the menu item saved: {effects}");
         assert!(effects.contains("Recalculate"), "recalculate recorded: {effects}");
+    }
+
+    #[test]
+    fn xfa_session_an_engine_past_its_start_budget_is_abandoned() {
+        // A process-wide 60 s delay against a 10 s engine-start budget: the
+        // session waits out the budget, abandons the script, and dies.
+        let _guard = super::ENGINE_DELAY_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        use crate::xfa_session::START_DELAY_MS;
+        START_DELAY_MS.store(60_000, std::sync::atomic::Ordering::Relaxed);
+        let mut s = XfaSession::new(XfaDoc { file_name: "f.pdf".into(), page: 1, page_count: 3 });
+        let o = s.run(Script {
+            source: "1".into(),
+            formcalc: false,
+            event: XfaEvent { activity: "click".into(), target: "form1[0].page1[0].go[0]".into(), ..Default::default() },
+            root: form(),
+            limits: Limits::default(),
+            timeout: std::time::Duration::from_secs(3),
+        });
+        START_DELAY_MS.store(0, std::sync::atomic::Ordering::Relaxed);
+        assert!(o.abandoned, "{o:?}");
+        assert!(o.error.as_deref().is_some_and(|e| e.contains("took longer than")), "{o:?}");
+        assert!(s.dead().is_some(), "{o:?}");
     }
 }

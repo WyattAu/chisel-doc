@@ -97,18 +97,25 @@ Known-advisory CI facts (not regressions):
   gates (`gate-parser-js`, `gate-parser-cos`) are green. Filed upstream:
   [obi1kenobi/cargo-semver-checks#1777](https://github.com/obi1kenobi/cargo-semver-checks/issues/1777).
 
-Remaining targets (clean-instrumentation numbers, 2026-10-21; the line bar is
-met at 92.11% — this is the graduation tail: region 87.10% → 90 needs ~114
-regions, functions 88.43% → 90 needs ~6):
-1. `formcalc.rs` (740 missed regions, 169 missed lines): the recursive-descent
-   tail — trailing-token errors from `run_formcalc_at`, list-valued
-   conversions, `_child` instance managers of nested rows.
-2. `xfa.rs` (374 regions / 107 lines): the JS-side proxy methods
-   (item/insert/moveInstance/count) — needs the designed xfa-node JS fixture.
-3. `lib.rs` (365 regions / 128 lines): cfg(not(wasm)) engine-start error paths
-   and the platform-name arms (`MAC`/`WIN` are runner-dependent by nature).
-4. `xfa_session.rs` (26 regions / 13 lines): injected engine-failure paths
-   (disconnected channel, start timeout) — needs a wedged-engine test fixture.
+Remaining targets (clean-instrumentation numbers, 2026-10-22; line 93.66%,
+functions 91.57%, region 88.90% — the graduation tail is ~108 regions of
+genuinely hard remainder):
+1. formcalc.rs (651 regions / 145 lines): the token describer's number arm is
+   defensive dead code (numbers always start statements); the rest is SOM
+   grammar — `..` descendants, list-valued member productions, nested gather
+   arms — each needs a purpose-built fixture, one region at a time.
+2. xfa.rs (289 regions / 71 lines): the remaining proxy arms past the swept
+   item/insert/move/count surface (live-list rebuilds, effect clipping
+   counters, refuse-logic arms).
+3. xfa_session.rs (23 regions / 12 lines) + lib.rs (128 lines): the defensive
+   disconnected-channel and out-of-turn paths — unreachable through the
+   public surface; a wedged-worker fixture (kill the thread mid-script) is
+   the designed way in, and lib.rs's engine-start error paths need the same
+   injection.
+4. Decision needed at the ratchet review: region 90% may be the wrong bar for
+   a crate whose remaining uncovered regions are dominated by defensive
+   depth — the estate alternative is `coverage-ignore-regex` on the documented
+   defensive surfaces (the input exists; template ADR-0005 is the precedent).
 
 **Burn-down plan** (each step lands as its own commit, gate graduates when the
 whole list is done and the loop has been green):

@@ -44,12 +44,15 @@ jobs:
       # still runs them wherever an adapter exists.
       coverage-exclude: pdfcraft-ui-egui
       # cargo-semver-checks' generated manifests drop [patch.crates-io]
-      # (obi1kenobi/cargo-semver-checks#1777), so pdfcraft-automation's
-      # rustdoc build resolves crates.io hayro and aborts — the tool cannot
-      # build this crate here. Everything else in the workspace is checked;
-      # the API surface of the excluded crate is covered by its own compile
-      # gates and by the upstream fix when it lands.
-      semver-exclude: pdfcraft-automation
+      # (obi1kenobi/cargo-semver-checks#1777), so the rustdoc build of the
+      # render/hayro cone (render and everything above it) resolves crates.io
+      # hayro and aborts — the tool cannot build these crates here. Everything
+      # else in the workspace is checked (the parser/library API surfaces);
+      # the excluded crates' API drift is still caught by their compile gates,
+      # and semver-checks returns to them when the upstream fix lands.
+      semver-exclude: >-
+        pdfcraft-render pdfcraft-engine pdfcraft-automation pdfcraft-cli
+        pdfcraft-optimize pdfcraft-ui-egui pdfcraft pdfcraft-web
 
   # ------------------------------------------------- untrusted-input crates
   # Tier A, scoped per crate (rust-kit.yml `package` takes one crate per call).

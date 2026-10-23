@@ -31,6 +31,7 @@ use pdfcraft_ui_egui::ChiselDocsApp;
 
 #[cfg(target_os = "macos")]
 mod apple_events;
+mod chisel;
 mod compositor_gpu;
 mod decorations;
 mod logging;

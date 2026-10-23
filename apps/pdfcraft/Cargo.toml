@@ -9,6 +9,13 @@ license.workspace = true
 workspace = true
 
 [dependencies]
+# The Chisel platform, exact-pinned from crates.io (estate exact-pin policy):
+# the desktop app composes the content store and the document trail.
+chisel-assets = "=0.1.0"
+chisel-audit = "=0.1.1"
+# The trail's record fns are async but run on the caller's executor; the
+# in-memory chain needs no reactor, so the sync recorders just block on it.
+pollster = "1.0"
 # Help ▸ Check for updates (issue #28): one HTTPS request to GitHub, over rustls with the OS's
 # trusted roots. No bundled root list (webpki-roots and webpki-root-certs are CDLA-licensed).
 ureq = { version = "3.4", default-features = false, features = ["rustls-no-provider", "_ring"] }

@@ -4117,8 +4117,6 @@ dependencies = [
 name = "pdfcraft"
 version = "0.8.0"
 dependencies = [
- "chisel-assets",
- "chisel-audit",
  "craft-quit",
  "eframe",
  "egui",
@@ -4537,6 +4535,8 @@ dependencies = [
  "arboard",
  "base64 0.22.1",
  "bytemuck",
+ "chisel-assets",
+ "chisel-audit",
  "color-kit",
  "craft-quit",
  "craft-ui",

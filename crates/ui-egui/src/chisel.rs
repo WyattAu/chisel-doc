@@ -10,7 +10,7 @@
 
 #![allow(dead_code)]
 
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use chisel_assets::AssetStore;
 use chisel_audit::{AuditEvent, DocumentRef, DocumentTrail};
@@ -36,8 +36,8 @@ impl Chisel {
     /// # Errors
     ///
     /// Propagates the store's open error (an unwritable data directory).
-    pub fn open(data_dir: &Path, actor: impl Into<String>) -> Result<Self, chisel_assets::AssetError> {
-        let mut root: PathBuf = data_dir.to_path_buf();
+    pub fn open(data_dir: impl Into<PathBuf>, actor: impl Into<String>) -> Result<Self, chisel_assets::AssetError> {
+        let mut root: PathBuf = data_dir.into();
         root.push("assets");
         Ok(Self { store: AssetStore::open(root)?, trail: DocumentTrail::in_memory(), actor: actor.into() })
     }

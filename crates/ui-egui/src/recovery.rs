@@ -269,6 +269,13 @@ impl ChiselDocsApp {
         self.recovery = Some(store);
     }
 
+    /// Turn on the Chisel composition: document bytes into the CAS and the
+    /// lifecycle into the tamper-evident trail. Failures degrade to log
+    /// warnings — never to lost work.
+    pub fn enable_chisel(&mut self, chisel: crate::chisel::Chisel) {
+        self.chisel = Some(chisel);
+    }
+
     /// Write snapshots of documents changed since the last autosave (called periodically).
     pub fn autosave_now(&mut self) {
         let Some(store) = self.recovery.clone() else { return };

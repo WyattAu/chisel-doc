@@ -31,7 +31,6 @@ use pdfcraft_ui_egui::ChiselDocsApp;
 
 #[cfg(target_os = "macos")]
 mod apple_events;
-mod chisel;
 mod compositor_gpu;
 mod decorations;
 mod logging;
@@ -408,7 +407,19 @@ fn app_creator<'a>(
         }
         // Autosave unsaved changes; offer to recover documents a crashed session left behind.
         if let Some(dir) = pdfcraft_ui_egui::RecoveryStore::default_dir() {
-            app.enable_recovery(pdfcraft_ui_egui::RecoveryStore::new(dir));
+            app.enable_recovery(pdfcraft_ui_egui::RecoveryStore::new(dir.clone()));
+            // The Chisel platform: document bytes into the CAS, the lifecycle into the
+            // trail. Observational — a failure here degrades to a warning, not lost work.
+            match pdfcraft_ui_egui::Chisel::open(dir.parent().unwrap_or(&dir).join("chisel"), "local") {
+                Ok(c) => app.enable_chisel(c),
+                Err(e) => log::warn!("chisel platform disabled this session: {e}"),
+            }
+            // The Chisel platform: document bytes into the CAS, the lifecycle into the
+            // trail. Observational — a failure here degrades to a warning, not lost work.
+            match pdfcraft_ui_egui::Chisel::open(dir.parent().unwrap_or(&dir), "local") {
+                Ok(c) => app.enable_chisel(c),
+                Err(e) => log::warn!("chisel platform disabled this session: {e}"),
+            }
         }
         if let Some(state) = &cc.wgpu_render_state {
             let adapter = state.adapter.get_info();

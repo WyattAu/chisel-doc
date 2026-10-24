@@ -126,6 +126,7 @@ pub(crate) fn date_text_for_pdf(session: &Session) -> Result<String, String> {
 /// The longest author name kept (Preferences ▸ Identity, restored settings).
 pub(crate) const MAX_AUTHOR_CHARS: usize = 200;
 
+mod chisel;
 pub mod cluster_text;
 #[cfg(not(target_arch = "wasm32"))]
 mod open_worker;
@@ -154,6 +155,7 @@ mod open_worker_tests;
 use pdfcraft_engine::{DocId, Session};
 
 pub use canvas::{DocView, RasterMemory};
+pub use chisel::Chisel;
 pub use editing::{CloseRequest, SaveTarget};
 pub use files::{ExtractDraft, FilePurpose, FileRequest, RotateDraft, SplitDraft, SplitMode, SplitPlan};
 pub use recovery::{AUTOSAVE_SECS, RecoveryMeta, RecoveryStore};
@@ -735,6 +737,9 @@ pub struct ChiselDocsApp {
     pub form_preview: bool,
     /// Where autosaves go (`None`: autosave off, e.g. on the web and in tests).
     pub recovery: Option<RecoveryStore>,
+    /// The Chisel platform composition (`None`: not recording — tests and the
+    /// web app until it gains a data directory).
+    pub chisel: Option<crate::chisel::Chisel>,
     /// Entries left by a previous session, offered in the Recovery dialog.
     pub recoverable: Vec<RecoveryMeta>,
     recovery_keys: std::collections::HashMap<DocId, String>,
@@ -1030,6 +1035,7 @@ impl ChiselDocsApp {
             form_preview: false,
             window_title: String::new(),
             recovery: None,
+            chisel: None,
             recoverable: Vec::new(),
             recovery_keys: Default::default(),
             last_autosave: 0.0,
@@ -1321,6 +1327,11 @@ impl ChiselDocsApp {
         self.session.set_reading_colors(id, self.reading_colors);
         let doc = self.session.get(id).ok_or("the document could not be opened")?;
         let pages = doc.info.pages.len();
+        if let Some(chisel) = &self.chisel
+            && let Err(e) = chisel.record_opened(name, doc.saved_bytes().as_slice())
+        {
+            log::warn!("chisel trail: opening {name}: {e}");
+        }
         // Acrobat opens straight to the Comments panel when a document has comments.
         // Read mode opens with the panes closed; the rail still opens them (#932). A right panel
         // the user closed stays closed (#1590).

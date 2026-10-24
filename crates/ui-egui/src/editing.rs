@@ -725,6 +725,11 @@ impl ChiselDocsApp {
                 return false;
             }
         };
+        if let Some(chisel) = &self.chisel
+            && let Err(e) = chisel.record_saved(&name, &bytes)
+        {
+            log::warn!("chisel trail: saving {name}: {e}");
+        }
         if let Err(e) = write_atomically(dest, &bytes) {
             self.notify_fmt("Couldn't save {name}: {e}", &[("name", dest), ("e", &e.to_string())]);
             return false;

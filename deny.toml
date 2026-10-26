@@ -41,6 +41,14 @@ allow-git = ["https://github.com/storytold/craft-libs", "https://github.com/stor
 [advisories]
 yanked = "warn"
 ignore = [
+    # zstd 0.13 timing/decompression advisories (fixes are 0.14.3/8.2.0-only; cas-kit 1.0.0
+    # still pins zstd ^0.13, so no fixed version exists through the dependency). The exposure
+    # is local-only: CAS blobs are written by the app into a user-private directory, decode
+    # is bounded by cas-kit's MAX_DECOMPRESSED_SIZE, and the decode path is not fed from the
+    # network. Tracks the cas-kit zstd 0.14 bump.
+    { id = "RUSTSEC-2026-0391", reason = "zstd timing/decompression issues; cas-kit 1.0.0 still pins ^0.13 — decode path is local-only and size-bounded" },
+    { id = "RUSTSEC-2026-0398", reason = "zstd-safe non-constant-time ops; same cas-kit ^0.13 pin — local-only decode path, size-bounded" },
+    { id = "RUSTSEC-2026-0403", reason = "zstd-safe mask generation; same cas-kit ^0.13 pin — local-only decode path, size-bounded" },
     # Marvin (RSA private-key timing side channel, no fixed `rsa` release). pdfcraft-sign uses
     # `rsa` only for public-key signature verification, which the advisory does not affect; RSA
     # private-key operations use aws-lc-rs on native targets and are refused in the browser

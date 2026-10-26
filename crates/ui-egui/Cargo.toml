@@ -13,7 +13,7 @@ workspace = true
 # The Chisel platform, exact-pinned from crates.io (estate exact-pin policy):
 # the UI records document lifecycle events into the store and the trail.
 chisel-assets = "=0.1.0"
-chisel-audit = "=0.1.1"
+chisel-audit = "=0.2.0"
 # The trail's record fns are async but run on the caller's executor; the
 # in-memory chain needs no reactor, so the sync recorders just block on it.
 pollster = "1.0"

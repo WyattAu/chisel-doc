@@ -411,6 +411,10 @@ criteria = "safe-to-deploy"
 version = "0.1.1"
 criteria = "safe-to-deploy"
 
+[[exemptions.chisel-audit]]
+version = "0.2.0"
+criteria = "safe-to-deploy"
+
 [[exemptions.chrono]]
 version = "0.4.45"
 criteria = "safe-to-deploy"
@@ -2349,6 +2353,10 @@ criteria = "safe-to-deploy"
 
 [[exemptions.tamper-audit]]
 version = "0.2.1"
+criteria = "safe-to-deploy"
+
+[[exemptions.tamper-audit]]
+version = "0.2.3"
 criteria = "safe-to-deploy"
 
 [[exemptions.tap]]

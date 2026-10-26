@@ -8,38 +8,67 @@
 //! until then the composed surface is exercised by these tests alone, and
 //! the module carries a deliberate `dead_code` allow.
 
-#![allow(dead_code)]
-
 use std::path::PathBuf;
 
 use chisel_assets::AssetStore;
-use chisel_audit::{AuditEvent, DocumentRef, DocumentTrail};
+use chisel_audit::{AuditEvent, DocumentRef, DocumentTrail, DurableDocumentTrail, VerificationResult};
 
 /// The composed platform: bytes go into the store, events go into the trail.
 pub struct Chisel {
     store: AssetStore,
-    trail: DocumentTrail,
+    trail: Trail,
     actor: String,
 }
 
 impl std::fmt::Debug for Chisel {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("Chisel").field("actor", &self.actor).finish_non_exhaustive()
+        // The store holds a blob-cache `Arc` that is not `Debug`; what the
+        // caller can act on is the actor and whether a trail is attached.
+        f.debug_struct("Chisel").field("actor", &self.actor).field("trail_attached", &true).finish_non_exhaustive()
+    }
+}
+
+/// The trail's backing: durable on disk (the desktop), or in memory (tests
+/// and previews).
+pub enum Trail {
+    OnDisk(DurableDocumentTrail),
+    InMemory(DocumentTrail),
+}
+
+impl Trail {
+    /// Append one lifecycle event to the chain.
+    async fn record(&self, event: AuditEvent) -> Result<(), chisel_audit::Error> {
+        match self {
+            Trail::OnDisk(t) => t.record(event).await,
+            Trail::InMemory(t) => t.record(event).await,
+        }
+    }
+
+    /// Verify the whole chain from genesis.
+    pub async fn verify(&self) -> Result<VerificationResult, chisel_audit::Error> {
+        match self {
+            Trail::OnDisk(t) => t.verify().await,
+            Trail::InMemory(t) => t.verify().await,
+        }
     }
 }
 
 impl Chisel {
-    /// Opens (creating if needed) the store under `<data>/assets` and an
-    /// in-memory trail for this session. The service continuation takes the
-    /// trail over on publish; the store is the durable half.
+    /// Opens (creating if needed) the store under `<data>/assets` and the
+    /// durable trail at `<data>/trail.jsonl`. Both survive restarts: the
+    /// store by content address, the trail by its hash-chained JSONL file —
+    /// a corrupt trail file is refused at open, naming the line.
     ///
     /// # Errors
     ///
-    /// Propagates the store's open error (an unwritable data directory).
-    pub fn open(data_dir: impl Into<PathBuf>, actor: impl Into<String>) -> Result<Self, chisel_assets::AssetError> {
-        let mut root: PathBuf = data_dir.into();
+    /// Propagates the store's open error (an unwritable data directory);
+    /// the durable trail's own open surfaces as `ChiselError::Trail`.
+    pub fn open(data_dir: impl Into<PathBuf>, actor: impl Into<String>) -> Result<Self, ChiselError> {
+        let dir: PathBuf = data_dir.into();
+        let mut root: PathBuf = dir.clone();
         root.push("assets");
-        Ok(Self { store: AssetStore::open(root)?, trail: DocumentTrail::in_memory(), actor: actor.into() })
+        let trail = pollster::block_on(DurableDocumentTrail::on_disk(dir.clone())).map_err(|e| ChiselError::Trail(e.into()))?;
+        Ok(Self { store: AssetStore::open(root).map_err(ChiselError::Store)?, trail: Trail::OnDisk(trail), actor: actor.into() })
     }
 
     /// A composition over in-memory backing: tests, previews, and wasm-style
@@ -50,7 +79,7 @@ impl Chisel {
     /// Propagates the store's constructor error (typed, though the in-memory
     /// backend has no failure mode today).
     pub fn in_memory(actor: impl Into<String>) -> Result<Self, chisel_assets::AssetError> {
-        Ok(Self { store: AssetStore::open_in_memory()?, trail: DocumentTrail::in_memory(), actor: actor.into() })
+        Ok(Self { store: AssetStore::open_in_memory()?, trail: Trail::InMemory(DocumentTrail::in_memory()), actor: actor.into() })
     }
 
     /// Records a document opening: the bytes enter the store (addressed by
@@ -82,7 +111,7 @@ impl Chisel {
 
     /// The trail, for the service continuation and for tests.
     #[must_use]
-    pub fn trail(&self) -> &DocumentTrail {
+    pub fn trail(&self) -> &Trail {
         &self.trail
     }
 
@@ -148,13 +177,51 @@ mod tests {
     }
 
     #[test]
-    fn on_disk_composition_opens_and_creates_the_store() {
-        let dir = std::env::temp_dir().join(format!("chisel-app-test-{}", std::process::id()));
-        let chisel = Chisel::open(&dir, "local").expect("the store opens");
-        chisel.record_opened("a.pdf", b"bytes").expect("records");
-        // A second open sees the same store (the bytes are still there).
-        let again = Chisel::open(&dir, "local").expect("reopen");
-        assert!(again.store().total_size().expect("size") > 0, "the store persisted");
+    fn on_disk_composition_survives_a_reopen_and_the_chain_verifies() {
+        let dir = std::env::temp_dir().join(format!("chisel-app-on-disk-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+
+        // One session: open, edit, export.
+        let chisel = Chisel::open(&dir, "local").expect("the on-disk composition opens");
+        chisel.record_opened("report.pdf", b"original").expect("opened records");
+        chisel.record_saved("report.pdf", b"saved bytes").expect("saved records");
+        drop(chisel);
+
+        // A brand-new session over the same directory: the store serves the
+        // saved bytes and the trail continues from where it left off.
+        let chisel = Chisel::open(&dir, "local").expect("the composition reopens");
+        let all = chisel.store().total_size().expect("size");
+        assert!(all > 0, "the store persisted: {all}");
+
+        let verification = pollster::block_on(chisel.trail().verify()).expect("verify runs");
+        assert!(verification.is_valid(), "{verification:?}");
+
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn on_disk_composition_refuses_a_corrupt_trail_file() {
+        let dir = std::env::temp_dir().join(format!("chisel-app-corrupt-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(dir.join("assets")).expect("create");
+
+        // A trail file whose second line is not JSON: the open refuses it,
+        // naming the line.
+        // Line 1 is a structurally valid entry (the fields the chain needs);
+        // line 2 is not JSON — the open refuses the file, naming line 2.
+        std::fs::write(
+            dir.join("trail.jsonl"),
+            concat!(
+                "{\"id\":\"00000000-0000-0000-0000-000000000001\",",
+                "\"timestamp\":\"2026-10-24T00:00:00Z\",\"actor\":\"a\",",
+                "\"action\":\"doc.opened\",\"resource\":\"r\",\"details\":{},",
+                "\"previous_hash\":\"0\",\"hash\":\"a\"}\n",
+                "NOT-JSON\n"
+            ),
+        )
+        .expect("write");
+        let err = Chisel::open(&dir, "local").expect_err("a corrupt trail is refused at open");
+        assert!(err.to_string().contains("line 2"), "{err}");
         let _ = std::fs::remove_dir_all(&dir);
     }
 }

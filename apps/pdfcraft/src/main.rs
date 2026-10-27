@@ -408,16 +408,22 @@ fn app_creator<'a>(
         // Autosave unsaved changes; offer to recover documents a crashed session left behind.
         if let Some(dir) = pdfcraft_ui_egui::RecoveryStore::default_dir() {
             app.enable_recovery(pdfcraft_ui_egui::RecoveryStore::new(dir.clone()));
-            // The Chisel platform: document bytes into the CAS, the lifecycle into the
-            // trail. Observational — a failure here degrades to a warning, not lost work.
-            match pdfcraft_ui_egui::Chisel::open(dir.parent().unwrap_or(&dir).join("chisel"), "local") {
-                Ok(c) => app.enable_chisel(c),
-                Err(e) => log::warn!("chisel platform disabled this session: {e}"),
-            }
-            // The Chisel platform: document bytes into the CAS, the lifecycle into the
-            // trail. Observational — a failure here degrades to a warning, not lost work.
-            match pdfcraft_ui_egui::Chisel::open(dir.parent().unwrap_or(&dir), "local") {
-                Ok(c) => app.enable_chisel(c),
+            // The Chisel platform: document bytes into the CAS, the lifecycle
+            // into the durable trail, platform settings from
+            // <data>/chisel/settings.toml (local-only when absent).
+            // Observational — a failure here degrades to a warning, not lost
+            // work.
+            let chisel_dir = dir.parent().unwrap_or(&dir).join("chisel");
+            let chisel_cfg = chisel_dir.join("settings.toml");
+            match pdfcraft_ui_egui::Chisel::open(chisel_dir, Some(chisel_cfg), "local") {
+                Ok(c) => {
+                    if c.local_only() {
+                        log::info!("chisel: local-only mode (no team library configured)");
+                    } else {
+                        log::info!("chisel: team library mode");
+                    }
+                    app.enable_chisel(c);
+                }
                 Err(e) => log::warn!("chisel platform disabled this session: {e}"),
             }
         }

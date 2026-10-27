@@ -415,6 +415,10 @@ criteria = "safe-to-deploy"
 version = "0.2.0"
 criteria = "safe-to-deploy"
 
+[[exemptions.chisel-kernel]]
+version = "0.1.0"
+criteria = "safe-to-deploy"
+
 [[exemptions.chrono]]
 version = "0.4.45"
 criteria = "safe-to-deploy"
@@ -485,6 +489,10 @@ criteria = "safe-to-deploy"
 
 [[exemptions.concurrent-queue]]
 version = "2.5.0"
+criteria = "safe-to-deploy"
+
+[[exemptions.config-kit]]
+version = "0.1.2"
 criteria = "safe-to-deploy"
 
 [[exemptions.const-oid]]
@@ -2099,12 +2107,20 @@ criteria = "safe-to-deploy"
 version = "1.0.229"
 criteria = "safe-to-deploy"
 
+[[exemptions.serde_ignored]]
+version = "0.1.14"
+criteria = "safe-to-deploy"
+
 [[exemptions.serde_json]]
 version = "1.0.151"
 criteria = "safe-to-deploy"
 
 [[exemptions.serde_json_canonicalizer]]
 version = "0.3.2"
+criteria = "safe-to-deploy"
+
+[[exemptions.serde_path_to_error]]
+version = "0.1.20"
 criteria = "safe-to-deploy"
 
 [[exemptions.serde_repr]]

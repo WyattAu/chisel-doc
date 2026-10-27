@@ -12,11 +12,13 @@ use std::path::PathBuf;
 
 use chisel_assets::AssetStore;
 use chisel_audit::{AuditEvent, DocumentRef, DocumentTrail, DurableDocumentTrail, VerificationResult};
+use chisel_kernel::DesktopSettings;
 
 /// The composed platform: bytes go into the store, events go into the trail.
 pub struct Chisel {
     store: AssetStore,
     trail: Trail,
+    settings: DesktopSettings,
     actor: String,
 }
 
@@ -24,7 +26,11 @@ impl std::fmt::Debug for Chisel {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         // The store holds a blob-cache `Arc` that is not `Debug`; what the
         // caller can act on is the actor and whether a trail is attached.
-        f.debug_struct("Chisel").field("actor", &self.actor).field("trail_attached", &true).finish_non_exhaustive()
+        f.debug_struct("Chisel")
+            .field("actor", &self.actor)
+            .field("team_library", &self.settings.team_library)
+            .field("trail_attached", &true)
+            .finish_non_exhaustive()
     }
 }
 
@@ -63,12 +69,14 @@ impl Chisel {
     ///
     /// Propagates the store's open error (an unwritable data directory);
     /// the durable trail's own open surfaces as `ChiselError::Trail`.
-    pub fn open(data_dir: impl Into<PathBuf>, actor: impl Into<String>) -> Result<Self, ChiselError> {
+    pub fn open(data_dir: impl Into<PathBuf>, config_file: Option<impl Into<PathBuf>>, actor: impl Into<String>) -> Result<Self, ChiselError> {
         let dir: PathBuf = data_dir.into();
         let mut root: PathBuf = dir.clone();
         root.push("assets");
+        let cfg: Option<PathBuf> = config_file.map(Into::into);
+        let settings = chisel_kernel::DesktopSettings::load(cfg.as_deref()).map_err(ChiselError::Config)?;
         let trail = pollster::block_on(DurableDocumentTrail::on_disk(dir.clone())).map_err(|e| ChiselError::Trail(e.into()))?;
-        Ok(Self { store: AssetStore::open(root).map_err(ChiselError::Store)?, trail: Trail::OnDisk(trail), actor: actor.into() })
+        Ok(Self { store: AssetStore::open(root).map_err(ChiselError::Store)?, trail: Trail::OnDisk(trail), settings, actor: actor.into() })
     }
 
     /// A composition over in-memory backing: tests, previews, and wasm-style
@@ -79,7 +87,12 @@ impl Chisel {
     /// Propagates the store's constructor error (typed, though the in-memory
     /// backend has no failure mode today).
     pub fn in_memory(actor: impl Into<String>) -> Result<Self, chisel_assets::AssetError> {
-        Ok(Self { store: AssetStore::open_in_memory()?, trail: Trail::InMemory(DocumentTrail::in_memory()), actor: actor.into() })
+        Ok(Self {
+            store: AssetStore::open_in_memory()?,
+            trail: Trail::InMemory(DocumentTrail::in_memory()),
+            settings: DesktopSettings::default(),
+            actor: actor.into(),
+        })
     }
 
     /// Records a document opening: the bytes enter the store (addressed by
@@ -120,6 +133,18 @@ impl Chisel {
     pub fn store(&self) -> &AssetStore {
         &self.store
     }
+
+    /// The loaded platform settings.
+    #[must_use]
+    pub fn settings(&self) -> &DesktopSettings {
+        &self.settings
+    }
+
+    /// Local-only mode: no team library configured, so nothing leaves the machine.
+    #[must_use]
+    pub fn local_only(&self) -> bool {
+        self.settings.team_library.is_none()
+    }
 }
 
 /// What one recorded lifecycle step produced.
@@ -138,6 +163,8 @@ pub enum ChiselError {
     Store(chisel_assets::AssetError),
     /// The trail refused the append.
     Trail(chisel_audit::Error),
+    /// The platform settings file exists and failed to parse.
+    Config(chisel_kernel::Error),
 }
 
 impl std::fmt::Display for ChiselError {
@@ -145,6 +172,7 @@ impl std::fmt::Display for ChiselError {
         match self {
             ChiselError::Store(e) => write!(f, "document store: {e}"),
             ChiselError::Trail(e) => write!(f, "document trail: {e}"),
+            ChiselError::Config(e) => write!(f, "platform settings: {e}"),
         }
     }
 }
@@ -182,20 +210,54 @@ mod tests {
         let _ = std::fs::remove_dir_all(&dir);
 
         // One session: open, edit, export.
-        let chisel = Chisel::open(&dir, "local").expect("the on-disk composition opens");
+        let chisel = Chisel::open(&dir, None::<PathBuf>, "local").expect("the on-disk composition opens");
         chisel.record_opened("report.pdf", b"original").expect("opened records");
         chisel.record_saved("report.pdf", b"saved bytes").expect("saved records");
         drop(chisel);
 
         // A brand-new session over the same directory: the store serves the
         // saved bytes and the trail continues from where it left off.
-        let chisel = Chisel::open(&dir, "local").expect("the composition reopens");
+        let chisel = Chisel::open(&dir, None::<PathBuf>, "local").expect("the composition reopens");
         let all = chisel.store().total_size().expect("size");
         assert!(all > 0, "the store persisted: {all}");
 
         let verification = pollster::block_on(chisel.trail().verify()).expect("verify runs");
         assert!(verification.is_valid(), "{verification:?}");
 
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn settings_load_lenient_and_surface_the_mode() {
+        let dir = std::env::temp_dir().join(format!("chisel-app-settings-{}-{:?}", std::process::id(), std::thread::current().id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).expect("create");
+
+        // No settings file: local-only defaults.
+        let chisel = Chisel::open(&dir, None::<PathBuf>, "local").expect("opens without a settings file");
+        assert!(chisel.local_only(), "no team library configured");
+
+        // A settings file naming a team library surfaces through the accessor.
+        let cfg = dir.join("chisel-settings.toml");
+        std::fs::write(&cfg, "team_library = \"https://assets.example.com\"\n").expect("write");
+        let chisel = Chisel::open(&dir, Some(&cfg), "local").expect("opens with settings");
+        assert!(!chisel.local_only());
+        assert_eq!(chisel.settings().team_library.as_deref(), Some("https://assets.example.com"));
+
+        // An unknown key is ignored (lenient: an old config must not strand a
+        // fresh install), and the composition keeps working.
+        std::fs::write(&cfg, "legacy_thing = 1\nteam_library = \"https://x.example\"\n").expect("write");
+        let chisel = Chisel::open(&dir, Some(&cfg), "local").expect("lenient load ignores unknown keys");
+        assert!(!chisel.local_only());
+
+        // A corrupt settings file is a Config error (the app logs and runs
+        // unconfigured rather than refusing to start).
+        std::fs::write(&cfg, "team_library = 42\n").expect("write");
+        let err = match Chisel::open(&dir, Some(&cfg), "local") {
+            Err(ChiselError::Config(_)) => "config error".to_string(),
+            other => panic!("expected a config error, got {other:?}"),
+        };
+        assert!(err.contains("config error"), "{err}");
         let _ = std::fs::remove_dir_all(&dir);
     }
 
@@ -220,7 +282,7 @@ mod tests {
             ),
         )
         .expect("write");
-        let err = Chisel::open(&dir, "local").expect_err("a corrupt trail is refused at open");
+        let err = Chisel::open(&dir, None::<PathBuf>, "local").expect_err("a corrupt trail is refused at open");
         assert!(err.to_string().contains("line 2"), "{err}");
         let _ = std::fs::remove_dir_all(&dir);
     }

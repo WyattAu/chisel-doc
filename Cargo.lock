@@ -1026,6 +1026,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "chisel-kernel"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8255541bf8472c0da7ebee4462b248217d068b3d33418b9507ce29ee1ad5becc"
+dependencies = [
+ "config-kit",
+ "serde",
+ "thiserror 2.0.21",
+]
+
+[[package]]
 name = "chrono"
 version = "0.4.45"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1196,6 +1207,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4ca0197aee26d1ae37445ee532fefce43251d24cc7c166799f4d46817f1d3973"
 dependencies = [
  "crossbeam-utils",
+]
+
+[[package]]
+name = "config-kit"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4c6fc7f8b9c8a627da283c35cdc8043b50da2f7ac9564306cecbb77d8b689a69"
+dependencies = [
+ "serde",
+ "serde_ignored",
+ "serde_path_to_error",
+ "thiserror 2.0.21",
+ "toml",
 ]
 
 [[package]]
@@ -4537,6 +4561,7 @@ dependencies = [
  "bytemuck",
  "chisel-assets",
  "chisel-audit",
+ "chisel-kernel",
  "color-kit",
  "craft-quit",
  "craft-ui",
@@ -5904,6 +5929,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "serde_ignored"
+version = "0.1.14"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "115dffd5f3853e06e746965a20dcbae6ee747ae30b543d91b0e089668bb07798"
+dependencies = [
+ "serde",
+ "serde_core",
+]
+
+[[package]]
 name = "serde_json"
 version = "1.0.151"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5925,6 +5960,17 @@ dependencies = [
  "ryu-js",
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "serde_path_to_error"
+version = "0.1.20"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "10a9ff822e371bb5403e391ecd83e182e0e77ba7f6fe0160b795797109d1b457"
+dependencies = [
+ "itoa",
+ "serde",
+ "serde_core",
 ]
 
 [[package]]
@@ -6639,7 +6685,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "32497e9a4c7b38532efcdebeef879707aa9f794296a4f0244f6f69e9bc8574bd"
 dependencies = [
  "fastrand",
- "getrandom 0.3.4",
+ "getrandom 0.4.3",
  "once_cell",
  "rustix 1.1.5",
  "windows-sys 0.61.2",

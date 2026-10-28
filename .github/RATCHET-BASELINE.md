@@ -102,9 +102,9 @@ Known-advisory CI facts (not regressions):
   [obi1kenobi/cargo-semver-checks#1777](https://github.com/obi1kenobi/cargo-semver-checks/issues/1777);
   when it lands, the excludes are deleted and the cone rejoins the scan.
 
-Remaining targets (clean-instrumentation numbers, 2026-10-22; line 93.66%,
-functions 91.57%, region 88.90% — the graduation tail is ~108 regions of
-genuinely hard remainder):
+Remaining targets (clean-instrumentation numbers, 2026-10-24; line 93.77%,
+functions 91.81%, region 88.97% after wave six — the graduation tail is ~107
+regions of genuinely hard remainder):
 1. formcalc.rs (651 regions / 145 lines): the token describer's number arm is
    defensive dead code (numbers always start statements); the rest is SOM
    grammar — `..` descendants, list-valued member productions, nested gather

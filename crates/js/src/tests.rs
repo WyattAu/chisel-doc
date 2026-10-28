@@ -1357,6 +1357,45 @@ mod chisel_coverage {
         assert_eq!(o2.result.as_deref(), Some("1"));
     }
 
+    #[test]
+    fn formcalc_som_members_sinks_coercions_and_refusals() {
+        // SOM index and instance-manager members
+        assert_eq!(fc("$form.form1.page1.table._row.min").result.as_deref(), Some("1"));
+        assert_eq!(fc("$form.form1.page1.table._row.max").result.as_deref(), Some("-1"));
+        assert_eq!(fc("$form.form1.page1.table.row[0].what").result.as_deref(), Some("Rent"));
+        // nodes coerce where values are expected
+        assert_eq!(fc("$form.form1.page1.qty * 2").result.as_deref(), Some("8"));
+        assert_eq!(fc("Concat($form.form1.page1.qty, \"!\")").result.as_deref(), Some("4!"));
+        // node truthiness and emptiness
+        assert_eq!(fc("If ($form.form1.page1.qty) then 1 else 2 endif").result.as_deref(), Some("1"));
+        assert_eq!(fc("Concat(HasValue($form.form1.page1.qty), \":\", HasValue($form.form1.page1.total))").result.as_deref(), Some("1:0"));
+        // unknown members on $layout / $event are inert sinks
+        assert_eq!(fc("var p = $layout.anything").error, None);
+        assert_eq!(fc("var e = $event.nonexistent").error, None);
+        // a member on a number is refused
+        assert!(fc("var x = 5\nx.bogus").error.is_some_and(|e| e.contains("no property")));
+        // the descendant operator reaches through the tree by name
+        assert_eq!(fc("$form..qty").result.as_deref(), Some("4"));
+        // calling a non-function expression is refused
+        assert!(fc("(1)(2)").error.is_some_and(|e| e.contains("not a function")));
+        // division by zero is refused
+        assert!(fc("1/0").error.is_some_and(|e| e.contains("division by zero")));
+        // mixed text/number ordering: the text side wins when the text is not numeric
+        assert_eq!(fc("If (\"abc\" < 5) then \"lt\" else \"ge\" endif").result.as_deref(), Some("ge"));
+    }
+
+    #[test]
+    fn formcalc_arg_list_and_expr_tail_errors() {
+        // an argument list missing its separator names the delimiter
+        assert!(fc("Sum(1 2)").error.is_some_and(|e| e.contains("expected )")));
+        // an expression ending mid-operator names the end of the line
+        assert!(fc("1 +").error.is_some_and(|e| e.contains("end of line")));
+        // calling a non-function expression is refused
+        assert!(fc("(1)(2)").error.is_some_and(|e| e.contains("not a function")));
+        // division by zero is refused
+        assert!(fc("1/0").error.is_some_and(|e| e.contains("division by zero")));
+    }
+
     fn fc(script: &str) -> crate::xfa::XfaOutcome {
         let ev = crate::xfa::XfaEvent { activity: "calculate".into(), target: "form1[0].page1[0].total[0]".into(), ..Default::default() };
         let doc = crate::xfa::XfaDoc { file_name: "f.pdf".into(), page: 1, page_count: 3 };

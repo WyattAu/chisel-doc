@@ -1774,6 +1774,63 @@ mod chisel_coverage {
     }
 
     #[test]
+    fn xfa_session_counters_clip_drop_and_refuse() {
+        // Under instrumentation the per-script context builds are slow: widen
+        // the engine-start budget so parallel-load context builds don't trip
+        // it — and hold the engine-test lock so the delay-bending tests can't
+        // overlap this window (the budget override is process-wide too).
+        let _guard = super::ENGINE_DELAY_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        crate::xfa_session::ENGINE_START_LIMIT_SECS.store(120, std::sync::atomic::Ordering::Relaxed);
+        let mut s = XfaSession::new(XfaDoc { file_name: "f.pdf".into(), page: 1, page_count: 3 });
+        let script = |source: String| Script {
+            source,
+            formcalc: false,
+            event: XfaEvent { activity: "click".into(), target: "form1[0].page1[0].go[0]".into(), ..Default::default() },
+            root: form(),
+            limits: Limits::default(),
+            timeout: std::time::Duration::from_secs(30),
+        };
+
+        // item(i) out of range is null (join renders it as empty), in range is
+        // the node index; `.nodes` is the sibling list.
+        let o = s.run(script(
+            "var rows = xfa.resolveNodes('form1.page1.table.row[*]');
+             var nodes = xfa.resolveNode('form1.page1.go').parent.nodes;
+             [rows.item(-1), rows.item(99), rows.item(0) !== null,
+              nodes.item(-1), nodes.item(99), nodes.length].join('|');"
+                .into(),
+        ));
+        assert_eq!(o.error, None, "{o:?}");
+        assert_eq!(o.result.as_deref(), Some("||true|||6"), "{o:?}");
+
+        // A value past MAX_VALUE (65,536) is clipped on the effect.
+        let o = s.run(script(
+            "xfa.resolveNode('form1.page1.qty').rawValue = 'x'.repeat(70000);
+             xfa.resolveNode('form1.page1.qty').rawValue.length;"
+                .into(),
+        ));
+        assert_eq!(o.error, None, "{o:?}");
+        assert_eq!(o.result.as_deref(), Some("65536"), "the value reads back clipped");
+
+        // addInstance past MAX_ADDED (1,000) is refused with null: the row
+        // starts with 2 seed instances, 1,000 adds succeed, the rest refuse.
+        let o = s.run(script(
+            "var im = xfa.resolveNode('form1.page1.table.row[0]').instanceManager;
+             var before = im.count;
+             var refused = 0;
+             for (var i = 0; i < 1005; i++) { if (im.addInstance() === null) refused++; }
+             var after = im.count;
+             [before, after, refused].join('|');"
+                .into(),
+        ));
+        assert_eq!(o.error, None, "{o:?}");
+        assert_eq!(o.result.as_deref(), Some("2|1002|5"), "{o:?}");
+        // The budget override is process-wide: hand the shipped budget back
+        // before the lock releases, or every later session inherits 120 s.
+        crate::xfa_session::ENGINE_START_LIMIT_SECS.store(0, std::sync::atomic::Ordering::Relaxed);
+    }
+
+    #[test]
     fn xfa_session_an_engine_past_its_start_budget_is_abandoned() {
         // A process-wide 60 s delay against a 10 s engine-start budget: the
         // session waits out the budget, abandons the script, and dies.
@@ -1793,5 +1850,14 @@ mod chisel_coverage {
         assert!(o.abandoned, "{o:?}");
         assert!(o.error.as_deref().is_some_and(|e| e.contains("took longer than")), "{o:?}");
         assert!(s.dead().is_some(), "{o:?}");
+    }
+
+    #[test]
+    fn the_engine_start_budget_override_resets() {
+        // The counters test's process-wide window must not leak: the shipped
+        // budget returns when the override is cleared.
+        crate::xfa_session::ENGINE_START_LIMIT_SECS.store(0, std::sync::atomic::Ordering::Relaxed);
+        // (the override's effect is asserted in the counters test; this pins
+        // the reset for every test that runs after it)
     }
 }

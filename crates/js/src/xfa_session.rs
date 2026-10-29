@@ -17,6 +17,12 @@ use crate::xfa::{XfaDoc, XfaEvent, XfaNode, XfaOutcome};
 #[cfg(test)]
 pub(crate) static START_DELAY_MS: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
 
+/// Tests: the engine-start budget in seconds (0 = the shipped 10 s). Under
+/// instrumentation a context build can outrun the shipped budget, so slow
+/// tests widen it instead of flaking.
+#[cfg(test)]
+pub(crate) static ENGINE_START_LIMIT_SECS: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+
 /// Tests: when set, a script whose source is exactly `quit-now` makes the worker
 /// thread exit before running it — a stand-in for a fault in the engine that
 /// kills the thread, so the session's failure-and-replacement path runs.
@@ -69,6 +75,18 @@ mod native {
     use super::WORKER_QUIT_NOW;
     use super::{Script, run_script};
     use crate::xfa::{ENGINE_START_LIMIT, XfaDoc, XfaOutcome};
+
+    /// The engine-start budget: the test override when set, else the shipped 10 s.
+    fn start_limit() -> std::time::Duration {
+        #[cfg(test)]
+        {
+            let secs = super::ENGINE_START_LIMIT_SECS.load(std::sync::atomic::Ordering::Relaxed);
+            if secs > 0 {
+                return std::time::Duration::from_secs(secs);
+            }
+        }
+        ENGINE_START_LIMIT
+    }
 
     enum Reply {
         /// The thread is up.
@@ -128,11 +146,11 @@ mod native {
                     }
                 });
                 spawned.map_err(|e| format!("the script engine could not start: {e}"))?;
-                match from.recv_timeout(ENGINE_START_LIMIT) {
+                match from.recv_timeout(start_limit()) {
                     Ok(Reply::Ready) => {}
                     Ok(_) => return Err("the script engine answered out of turn".into()),
                     Err(RecvTimeoutError::Timeout) => {
-                        return Err(format!("the script engine took longer than {:.0} s to start", ENGINE_START_LIMIT.as_secs_f64()));
+                        return Err(format!("the script engine took longer than {:.0} s to start", start_limit().as_secs_f64()));
                     }
                     Err(RecvTimeoutError::Disconnected) => return Err("the script engine stopped with an internal error".into()),
                 }
@@ -161,7 +179,7 @@ mod native {
                 return failed("the script engine stopped with an internal error".into());
             }
             // The engine's start, then the script's own time.
-            let (mut running, mut limit) = (false, ENGINE_START_LIMIT);
+            let (mut running, mut limit) = (false, start_limit());
             let mut deadline = Instant::now().checked_add(limit);
             loop {
                 let left = deadline.map_or(limit, |d| d.saturating_duration_since(Instant::now()));
@@ -180,7 +198,7 @@ mod native {
                         let why = if running {
                             format!("the script ran longer than {:.1} s and was abandoned", timeout.as_secs_f64())
                         } else {
-                            format!("the script engine took longer than {:.0} s to start", ENGINE_START_LIMIT.as_secs_f64())
+                            format!("the script engine took longer than {:.0} s to start", start_limit().as_secs_f64())
                         };
                         self.dead = Some(why.clone());
                         // Dropping the sender ends the thread's loop once the script is done.

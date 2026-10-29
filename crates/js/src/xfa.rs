@@ -1495,3 +1495,46 @@ pub(crate) fn run_here(script: &str, event: &XfaEvent, doc: &XfaDoc, root: XfaNo
     clip_result(&mut out);
     out
 }
+
+#[cfg(test)]
+mod counter_tests {
+    use super::*;
+
+    fn host() -> XHost {
+        let root = XfaNode { name: "doc".into(), ..Default::default() };
+        XHost::new(root, "doc", &XfaDoc::default())
+    }
+
+    #[test]
+    fn effects_past_max_are_counted_and_dropped() {
+        let mut h = host();
+        for _ in 0..=MAX_EFFECTS {
+            h.push(XfaEffect::Beep);
+        }
+        assert_eq!(h.effects.len(), MAX_EFFECTS, "the list caps at MAX_EFFECTS");
+        assert_eq!(h.dropped_effects, 1, "exactly the overflow effect is dropped");
+    }
+
+    #[test]
+    fn a_value_past_max_is_clipped_and_counted() {
+        let mut h = host();
+        let huge = "x".repeat(MAX_VALUE + 1);
+        h.push(XfaEffect::SetValue { som: "qty".into(), value: huge });
+        assert_eq!(h.clipped_values, 1, "the over-long value is clipped");
+        match h.effects.first() {
+            Some(XfaEffect::SetValue { value, .. }) => {
+                assert_eq!(value.chars().count(), MAX_VALUE, "clipped to MAX_VALUE");
+            }
+            other => panic!("expected a SetValue effect, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn setvalue_effects_on_the_same_som_replace_their_earlier_entry() {
+        let mut h = host();
+        h.push(XfaEffect::SetValue { som: "qty".into(), value: "1".into() });
+        h.push(XfaEffect::SetValue { som: "qty".into(), value: "2".into() });
+        assert_eq!(h.effects.len(), 1, "the later value replaces the earlier");
+        assert!(h.dropped_effects == 0 && h.clipped_values == 0);
+    }
+}
